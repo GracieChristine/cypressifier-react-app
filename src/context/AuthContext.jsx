@@ -9,7 +9,6 @@ export const AuthProvider = ({ children }) => {
   });
 
   const login = (email, password) => {
-    // Simulated login - replace with real API call
     const userData = { email, id: Date.now() };
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
@@ -17,7 +16,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signup = (email, password) => {
-    // Simulated signup - replace with real API call
     const userData = { email, id: Date.now() };
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));

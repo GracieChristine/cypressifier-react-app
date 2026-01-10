@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-const Signup = () => {
+const Signup = ({ setCurrentView }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const { signup } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -21,55 +19,70 @@ const Signup = () => {
       return;
     }
     signup(email, password);
-    navigate('/');
+    setCurrentView('dashboard');
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
+      <div className="bg-white p-8 rounded-lg shadow-xl w-96">
+        <div className="text-center mb-6">
+          <div className="text-5xl mb-2">✨</div>
+          <h2 className="text-2xl font-bold">Create Account</h2>
+          <p className="text-gray-600 text-sm">Start planning amazing events</p>
+        </div>
         {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4" data-cy="error-message">{error}</div>}
-        <div>
-          <div className="mb-4">
+        <div className="space-y-4">
+          <div>
             <label className="block text-gray-700 mb-2">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
               data-cy="email-input"
+              placeholder="you@example.com"
             />
           </div>
-          <div className="mb-4">
+          <div>
             <label className="block text-gray-700 mb-2">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
               data-cy="password-input"
+              placeholder="••••••••"
             />
           </div>
-          <div className="mb-6">
+          <div>
             <label className="block text-gray-700 mb-2">Confirm Password</label>
             <input
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onKeyPress={(e) => e.key === 'Enter' && handleSubmit(e)}
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
               data-cy="confirm-password-input"
+              placeholder="••••••••"
             />
           </div>
           <button
             onClick={handleSubmit}
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+            className="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition"
             data-cy="signup-submit"
           >
             Sign Up
           </button>
         </div>
         <p className="mt-4 text-center text-gray-600">
-          Already have an account? <Link to="/login" className="text-blue-600 hover:underline" data-cy="login-link">Login</Link>
+          Already have an account?{' '}
+          <button 
+            onClick={() => setCurrentView('login')} 
+            className="text-purple-600 hover:underline font-semibold"
+            data-cy="login-link"
+          >
+            Login
+          </button>
         </p>
       </div>
     </div>
