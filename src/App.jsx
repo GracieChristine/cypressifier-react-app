@@ -1,38 +1,59 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Layout/Navbar';
 import Login from './components/Auth/Login';
 import Signup from './components/Auth/Signup';
-import ItemList from './components/Items/ItemList';
-
-const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth();
-  return user ? children : <Navigate to="/login" />;
-};
+import Dashboard from './components/Events/Dashboard';
+import EventsList from './components/Events/EventsList';
+import EventForm from './components/Events/EventForm';
+import EventDetail from './components/Events/EventDetail';
 
 function App() {
+  const [currentView, setCurrentView] = useState('login');
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user && currentView === 'login') {
+      setCurrentView('dashboard');
+    } else if (!user && !['login', 'signup'].includes(currentView)) {
+      setCurrentView('login');
+    }
+  }, [user, currentView]);
+
   return (
-    <Router>
-      <AuthProvider>
-        <div className="min-h-screen bg-gray-50">
-          <Navbar />
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <ItemList />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </div>
-      </AuthProvider>
-    </Router>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar currentView={currentView} setCurrentView={setCurrentView} />
+      {currentView === 'login' && <Login setCurrentView={setCurrentView} />}
+      {currentView === 'signup' && <Signup setCurrentView={setCurrentView} />}
+      {currentView === 'dashboard' && user && (
+        <Dashboard setCurrentView={setCurrentView} setSelectedEvent={setSelectedEvent} />
+      )}
+      {currentView === 'events' && user && (
+        <EventsList setCurrentView={setCurrentView} setSelectedEvent={setSelectedEvent} />
+      )}
+      {currentView === 'event-form' && user && (
+        <EventForm 
+          setCurrentView={setCurrentView} 
+          selectedEvent={selectedEvent}
+          setSelectedEvent={setSelectedEvent}
+        />
+      )}
+      {currentView === 'event-detail' && user && (
+        <EventDetail 
+          setCurrentView={setCurrentView}
+          selectedEvent={selectedEvent}
+          setSelectedEvent={setSelectedEvent}
+        />
+      )}
+    </div>
   );
 }
 
-export default App;
+export default function Root() {
+  return (
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  );
+}
