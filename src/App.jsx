@@ -22,7 +22,7 @@ function App() {
   }, [user, currentView]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 w-full">
       <Navbar currentView={currentView} setCurrentView={setCurrentView} />
       {currentView === 'login' && <Login setCurrentView={setCurrentView} />}
       {currentView === 'signup' && <Signup setCurrentView={setCurrentView} />}
