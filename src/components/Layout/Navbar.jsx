@@ -11,7 +11,7 @@ const Navbar = ({ currentView, setCurrentView }) => {
 
   return (
     <nav className="bg-purple-600 text-white p-4 shadow-lg">
-      <div className="container mx-auto flex justify-between items-center">
+     <div className="max-w-full px-8 flex justify-between items-center">
         <div className="flex items-center gap-6">
           <button 
             onClick={() => setCurrentView(user ? 'dashboard' : 'login')} 
