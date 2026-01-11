@@ -17,7 +17,7 @@ const Navbar = ({ currentView, setCurrentView }) => {
             onClick={() => setCurrentView(user ? 'dashboard' : 'login')} 
             className="text-2xl font-bold hover:opacity-80"
           >
-            Cypressifier Event Planning
+            Cypressifier
           </button>
           {user && (
             <div className="flex gap-4">
