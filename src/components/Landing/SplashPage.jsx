@@ -109,13 +109,6 @@ const SplashPage = ({ setCurrentView }) => {
           </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <div className="relative z-10 text-center pb-12">
-        <p className="font-serif text-gray-500 text-sm">
-          © 2026 Cypressifier Event Planning. Crafted with excellence.
-        </p>
-      </div>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Layout/Navbar';
+import Footer from './components/Layout/Footer';
 import SplashPage from './components/Landing/SplashPage';
 import Login from './components/Auth/Login';
 import Signup from './components/Auth/Signup';
@@ -49,7 +50,9 @@ function App() {
         setSelectedEvent={setSelectedEvent}
       />
     )}
+    <Footer />
   </div>
+  
 );
 }
 
