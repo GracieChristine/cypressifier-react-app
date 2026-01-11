@@ -14,10 +14,10 @@ const Navbar = ({ currentView, setCurrentView }) => {
      <div className="container mx-auto max-w-7xl flex justify-between items-center px-4">
         <div className="flex items-center gap-6">
           <button 
-            onClick={() => setCurrentView(user ? 'dashboard' : 'login')} 
-            className="text-2xl font-bold hover:opacity-80"
+            onClick={() => setCurrentView(user ? 'dashboard' : 'splash')} 
+            className="text-2xl font-display hover:opacity-80 transition-opacity"
           >
-            Cypressifier
+            <span className="font-display">✨ Cypressifier</span>
           </button>
           {user && (
             <div className="flex gap-4">
