@@ -1,12 +1,12 @@
 import React from 'react';
 
-const Footer = ({ setCurrentView }) => {
+const Footer = () => {
   return (
-    <div className="relative z-10 text-center pb-12">
-        <p className="font-serif text-gray-500 text-sm">
-          © 2026 Cypressifier Event Planning. Crafted with excellence.
-        </p>
-    </div>
+    <footer className="relative z-10 text-center py-8 bg-transparent">
+      <p className="font-serif text-gray-500 text-sm">
+        © 2026 Cypressifier Event Planning. Crafted with excellence.
+      </p>
+    </footer>
   );
 };
 

@@ -25,35 +25,36 @@ function App() {
   }, [user, currentView]);
 
   return (
-  <div className="min-h-screen bg-gray-50">
-    {currentView !== 'splash' && <Navbar currentView={currentView} setCurrentView={setCurrentView} />}
-    {currentView === 'splash' && <SplashPage setCurrentView={setCurrentView} />}
-    {currentView === 'login' && <Login setCurrentView={setCurrentView} />}
-    {currentView === 'signup' && <Signup setCurrentView={setCurrentView} />}
-    {currentView === 'dashboard' && user && (
-      <Dashboard setCurrentView={setCurrentView} setSelectedEvent={setSelectedEvent} />
-    )}
-    {currentView === 'events' && user && (
-      <EventsList setCurrentView={setCurrentView} setSelectedEvent={setSelectedEvent} />
-    )}
-    {currentView === 'event-form' && user && (
-      <EventForm 
-        setCurrentView={setCurrentView} 
-        selectedEvent={selectedEvent}
-        setSelectedEvent={setSelectedEvent}
-      />
-    )}
-    {currentView === 'event-detail' && user && (
-      <EventDetail 
-        setCurrentView={setCurrentView}
-        selectedEvent={selectedEvent}
-        setSelectedEvent={setSelectedEvent}
-      />
-    )}
-    <Footer />
-  </div>
-  
-);
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {currentView !== 'splash' && <Navbar currentView={currentView} setCurrentView={setCurrentView} />}
+      <div className="flex-1">
+        {currentView === 'splash' && <SplashPage setCurrentView={setCurrentView} />}
+        {currentView === 'login' && <Login setCurrentView={setCurrentView} />}
+        {currentView === 'signup' && <Signup setCurrentView={setCurrentView} />}
+        {currentView === 'dashboard' && user && (
+          <Dashboard setCurrentView={setCurrentView} setSelectedEvent={setSelectedEvent} />
+        )}
+        {currentView === 'events' && user && (
+          <EventsList setCurrentView={setCurrentView} setSelectedEvent={setSelectedEvent} />
+        )}
+        {currentView === 'event-form' && user && (
+          <EventForm 
+            setCurrentView={setCurrentView} 
+            selectedEvent={selectedEvent}
+            setSelectedEvent={setSelectedEvent}
+          />
+        )}
+        {currentView === 'event-detail' && user && (
+          <EventDetail 
+            setCurrentView={setCurrentView}
+            selectedEvent={selectedEvent}
+            setSelectedEvent={setSelectedEvent}
+          />
+        )}
+      </div>
+      <Footer />
+    </div>
+  );
 }
 
 export default function Root() {
