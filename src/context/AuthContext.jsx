@@ -9,14 +9,26 @@ export const AuthProvider = ({ children }) => {
   });
 
   const login = (email, password) => {
-    const userData = { email, id: Date.now() };
+    // Check if admin account
+    const isAdmin = email === 'admin@cypressifier.com' && password === 'admin123';
+    
+    const userData = { 
+      email, 
+      id: Date.now(),
+      isAdmin: isAdmin
+    };
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
     return true;
   };
 
   const signup = (email, password) => {
-    const userData = { email, id: Date.now() };
+    // Regular users are never admin
+    const userData = { 
+      email, 
+      id: Date.now(),
+      isAdmin: false
+    };
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
     return true;

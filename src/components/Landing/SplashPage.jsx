@@ -59,41 +59,6 @@ const SplashPage = ({ setCurrentView }) => {
             </div>
           </div>
 
-          {/* Venue Types Showcase */}
-          {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-10 mb-20">
-            <div className="text-center group">
-              <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-royal-100 to-royal-200 rounded-2xl flex items-center justify-center text-5xl group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                🏰
-              </div>
-              <h3 className="text-xl font-display mb-2 text-royal-900">Castles</h3>
-              <p className="font-serif text-gray-600 text-sm">Medieval grandeur</p>
-            </div>
-
-            <div className="text-center group">
-              <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-elegant-100 to-elegant-200 rounded-2xl flex items-center justify-center text-5xl group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                🏛️
-              </div>
-              <h3 className="text-xl font-display mb-2 text-royal-900">Châteaux</h3>
-              <p className="font-serif text-gray-600 text-sm">French elegance</p>
-            </div>
-
-            <div className="text-center group">
-              <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-royal-100 to-elegant-200 rounded-2xl flex items-center justify-center text-5xl group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                👑
-              </div>
-              <h3 className="text-xl font-display mb-2 text-royal-900">Palaces</h3>
-              <p className="font-serif text-gray-600 text-sm">Royal opulence</p>
-            </div>
-
-            <div className="text-center group">
-              <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-elegant-100 to-royal-100 rounded-2xl flex items-center justify-center text-5xl group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                🌿
-              </div>
-              <h3 className="text-xl font-display mb-2 text-royal-900">Gardens</h3>
-              <p className="font-serif text-gray-600 text-sm">Natural beauty</p>
-            </div>
-          </div> */}
-
           {/* Why Choose Us */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 mb-16">
             <div className="text-center">

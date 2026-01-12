@@ -5,10 +5,10 @@ import Footer from './components/Layout/Footer';
 import SplashPage from './components/Landing/SplashPage';
 import Login from './components/Auth/Login';
 import Signup from './components/Auth/Signup';
-import Dashboard from './components/Events/Dashboard';
-import EventsList from './components/Events/EventsList';
-import EventForm from './components/Events/EventForm';
-import EventDetail from './components/Events/EventDetail';
+import Dashboard from './components/RoleUser/Dashboard';
+import EventsList from './components/RoleUser/EventsList';
+import EventForm from './components/RoleUser/EventForm';
+import EventDetail from './components/RoleUser/EventDetail';
 
 function App() {
   const [currentView, setCurrentView] = useState('splash');

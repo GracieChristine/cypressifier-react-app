@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 // Location type configurations with minimum budgets
 const LOCATION_TYPES = {
@@ -40,6 +41,10 @@ const LOCATION_TYPES = {
 };
 
 const EventForm = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
+  const { user } = useAuth();
+  
+  console.log('EventForm user:', user);
+  
   const [formData, setFormData] = useState({
     name: '',
     type: 'Wedding',
@@ -303,7 +308,7 @@ const EventForm = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
               </p>
             </div>
 
-            {selectedEvent && (
+            {selectedEvent && user && user.isAdmin && (
               <div>
                 <label className="block text-gray-700 mb-2 font-semibold">Status</label>
                 <select
@@ -319,7 +324,7 @@ const EventForm = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
                   <option value="Completed">Completed</option>
                   <option value="Cancelled">Cancelled</option>
                 </select>
-                <p className="text-sm text-gray-500 mt-1">Update event status (Team use only)</p>
+                <p className="text-sm text-gray-500 mt-1">Update event status (Admin only)</p>
               </div>
             )}
 

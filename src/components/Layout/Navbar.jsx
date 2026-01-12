@@ -6,20 +6,30 @@ const Navbar = ({ currentView, setCurrentView }) => {
 
   const handleLogout = () => {
     logout();
-    setCurrentView('login');
+    setCurrentView('splash');
+  };
+
+  const handleTitleClick = () => {
+    if (!user) {
+      setCurrentView('splash');
+    } else if (user.isAdmin) {
+      setCurrentView('admin-dashboard');
+    } else {
+      setCurrentView('dashboard');
+    }
   };
 
   return (
-    <nav className="bg-purple-600 text-white p-4 shadow-lg">
-     <div className="container mx-auto max-w-7xl flex justify-between items-center px-4">
+    <nav className="bg-royal-700 text-white p-4 shadow-lg">
+      <div className="max-w-full px-8 flex justify-between items-center">
         <div className="flex items-center gap-6">
           <button 
-            onClick={() => setCurrentView(user ? 'dashboard' : 'splash')} 
+            onClick={handleTitleClick}
             className="text-2xl font-display hover:opacity-80 transition-opacity"
           >
             <span className="font-display">✨ Cypressifier</span>
           </button>
-          {user && (
+          {user && !user.isAdmin && (
             <div className="flex gap-4">
               <button
                 onClick={() => setCurrentView('dashboard')}
@@ -37,11 +47,27 @@ const Navbar = ({ currentView, setCurrentView }) => {
               </button>
             </div>
           )}
+          {user && user.isAdmin && (
+            <div className="flex gap-4">
+              <button
+                onClick={() => setCurrentView('admin-dashboard')}
+                className={`hover:underline ${currentView === 'admin-dashboard' ? 'font-bold' : ''}`}
+                data-cy="nav-admin-dashboard"
+              >
+                👑 Admin Dashboard
+              </button>
+            </div>
+          )}
         </div>
-        <div className="space-x-4">
+        <div className="space-x-4 flex items-center">
+          {user && user.isAdmin && (
+            <span className="bg-yellow-500 text-yellow-900 px-3 py-1 rounded text-sm font-semibold">
+              ADMIN
+            </span>
+          )}
           {user ? (
             <>
-              <span className="text-sm">Welcome, {user.email}</span>
+              <span className="text-sm">{user.email}</span>
               <button
                 onClick={handleLogout}
                 className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded transition"
