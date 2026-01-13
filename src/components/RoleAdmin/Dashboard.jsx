@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
 const AdminDashboard = ({ setCurrentView, setSelectedEvent }) => {
-  console.log('🔴 AdminDashboard component rendering');
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
@@ -9,7 +8,6 @@ const AdminDashboard = ({ setCurrentView, setSelectedEvent }) => {
       // Load all events
       const saved = localStorage.getItem('events');
       const allEvents = saved ? JSON.parse(saved) : [];
-      console.log('Admin Dashboard - Loading events:', allEvents.length);
       
       // Auto-cancel past events that aren't completed
       const today = new Date();

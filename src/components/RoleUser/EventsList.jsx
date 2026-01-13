@@ -6,6 +6,15 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
     return saved ? JSON.parse(saved) : [];
   });
   const [filter, setFilter] = useState('all');
+  const [cancelModalEvent, setCancelModalEvent] = useState(null);
+  const [cancelReason, setCancelReason] = useState('');
+  const [cancelError, setCancelError] = useState('');
+
+  const formatDate = (dateString) => {
+    const [year, month, day] = dateString.split('-');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${months[parseInt(month) - 1]} ${parseInt(day)}, ${year}`;
+  };
 
   const filteredEvents = events.filter(event => {
     if (filter === 'all') return true;
@@ -19,28 +28,62 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
       'Corporate': '💼',
       'Conference': '🎤',
       'Party': '🎊',
-      'Other': '🎉'
+      'Other': '🎉',
+      'Gala': '✨',
+      'Anniversary': '💐',
+      'Corporate Retreat': '🏢',
+      'Celebration': '🎊'
     };
     return icons[type] || '🎉';
   };
 
   const getStatusColor = (status) => {
     const colors = {
-      'Planning': 'bg-blue-100 text-blue-700',
+      'Submitted': 'bg-blue-100 text-blue-700',
+      'Planning': 'bg-yellow-100 text-yellow-700',
       'Confirmed': 'bg-green-100 text-green-700',
-      'In Progress': 'bg-yellow-100 text-yellow-700',
+      'In Progress': 'bg-purple-100 text-purple-700',
       'Completed': 'bg-gray-100 text-gray-700',
       'Cancelled': 'bg-red-100 text-red-700'
     };
     return colors[status] || 'bg-gray-100 text-gray-700';
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this event?')) {
-      const updated = events.filter(e => e.id !== id);
-      setEvents(updated);
-      localStorage.setItem('events', JSON.stringify(updated));
+  const getLocationIcon = (locationType) => {
+    const icons = {
+      'Castle': '🏰',
+      'Chateau': '🏛️',
+      'Palace': '👑',
+      'Manor House': '🏡',
+      'Garden Estate': '🌿',
+      'Villa': '🏘️',
+      'Historic Abbey': '⛪'
+    };
+    return icons[locationType] || '🏰';
+  };
+
+  const handleCancelRequest = () => {
+    if (!cancelReason.trim()) {
+      setCancelError('Please provide a reason for cancellation');
+      return;
     }
+
+    const updated = events.map(e => 
+      e.id === cancelModalEvent.id 
+        ? { 
+            ...e, 
+            cancellationRequest: true, 
+            cancellationReason: cancelReason,
+            cancellationRequestDate: new Date().toISOString()
+          }
+        : e
+    );
+    
+    setEvents(updated);
+    localStorage.setItem('events', JSON.stringify(updated));
+    setCancelModalEvent(null);
+    setCancelReason('');
+    setCancelError(''); // Clear error
   };
 
   return (
@@ -62,7 +105,7 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
 
         {/* Filter Buttons */}
         <div className="bg-white rounded-lg shadow-md p-4 mb-6 flex gap-2 flex-wrap">
-          {['all', 'Planning', 'Confirmed', 'In Progress', 'Completed', 'Cancelled'].map(status => (
+          {['all', 'Submitted', 'Planning', 'Confirmed', 'In Progress', 'Completed', 'Cancelled'].map(status => (
             <button
               key={status}
               onClick={() => setFilter(status)}
@@ -115,20 +158,29 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
                   <div className="space-y-2 text-sm text-gray-600 mb-4">
                     <div className="flex items-center gap-2">
                       <span>📅</span>
-                      <span>{new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                      <span>{formatDate(event.date)}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span>📍</span>
-                      <span className="truncate">{event.location}</span>
+                      <span>{getLocationIcon(event.locationType)}</span>
+                      <span className="truncate">{event.locationType}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span>💰</span>
-                      <span>${event.budgetSpent?.toLocaleString() || 0} / ${event.budgetTotal?.toLocaleString() || 0}</span>
+                      <span>${event.setBudget?.toLocaleString() || event.budgetTotal?.toLocaleString() || 0}</span>
                     </div>
                   </div>
 
                   {event.description && (
                     <p className="text-sm text-gray-500 mb-4 line-clamp-2">{event.description}</p>
+                  )}
+
+                  {/* Cancellation Request Status */}
+                  {event.cancellationRequest && (
+                    <div className="bg-orange-50 border border-orange-200 rounded p-2 mb-4">
+                      <p className="text-xs text-orange-800 font-semibold">
+                        ⏳ Cancellation request pending review
+                      </p>
+                    </div>
                   )}
 
                   <div className="flex gap-2">
@@ -149,15 +201,20 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
                       }}
                       className="flex-1 bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition text-sm"
                       data-cy="edit-event-btn"
+                      disabled={event.status === 'Cancelled' || event.status === 'Completed'}
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(event.id)}
-                      className="px-4 bg-red-500 text-white py-2 rounded hover:bg-red-600 transition text-sm"
-                      data-cy="delete-event-btn"
+                      onClick={() => {
+                        setCancelModalEvent(event);
+                        setCancelReason('');
+                      }}
+                      className="px-4 bg-orange-500 text-white py-2 rounded hover:bg-orange-600 transition text-sm disabled:bg-gray-300 disabled:cursor-not-allowed"
+                      data-cy="cancel-request-btn"
+                      disabled={event.status === 'Cancelled' || event.status === 'Completed' || event.cancellationRequest}
                     >
-                      🗑️
+                      {event.cancellationRequest ? '⏳' : '🚫'}
                     </button>
                   </div>
                 </div>
@@ -166,6 +223,58 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
           </div>
         )}
       </div>
+
+      {/* Cancel Request Modal */}
+      {cancelModalEvent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold mb-4">Request Cancellation</h3>
+            <p className="text-gray-600 mb-4">
+              Event: <strong>{cancelModalEvent.name}</strong>
+            </p>
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2 font-semibold">
+                Reason for Cancellation *
+              </label>
+              <textarea
+                value={cancelReason}
+                onChange={(e) => {
+                  setCancelReason(e.target.value);
+                  if (cancelError) setCancelError(''); // Clear error on type
+                }}
+                className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                  cancelError ? 'border-red-500' : ''
+                }`}
+                rows="4"
+                placeholder="Please explain why you need to cancel this event..."
+                data-cy="cancel-reason-input"
+              />
+              {cancelError && (
+                <p className="text-red-500 text-sm mt-1" data-cy="cancel-reason-error">{cancelError}</p>
+              )}
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleCancelRequest}
+                className="flex-1 bg-orange-500 text-white py-2 rounded hover:bg-orange-600 transition"
+                data-cy="confirm-cancel-request"
+              >
+                Submit Request
+              </button>
+              <button
+                onClick={() => {
+                  setCancelModalEvent(null);
+                  setCancelReason('');
+                }}
+                className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
+                data-cy="cancel-modal-close"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

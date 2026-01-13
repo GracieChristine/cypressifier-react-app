@@ -13,11 +13,11 @@ const LOCATION_TYPES = {
     icon: '🏛️',
     description: 'French country estates with elegant architecture'
   },
-  'Palace': { 
-    min: 75000, 
-    icon: '👑',
-    description: 'Opulent palaces fit for royalty'
-  },
+  // 'Palace': { 
+  //   min: 75000, 
+  //   icon: '👑',
+  //   description: 'Opulent palaces fit for royalty'
+  // },
   'Manor House': { 
     min: 35000, 
     icon: '🏡',
@@ -62,8 +62,8 @@ const EventForm = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
     if (selectedEvent) {
       setFormData({
         ...selectedEvent,
-        setBudget: selectedEvent.setBudget || selectedEvent.budgetTotal || selectedEvent.estimatedBudget || 50000,
-        locationType: selectedEvent.locationType || 'Castle'
+        setBudget: selectedEvent.setBudget || selectedEvent.budgetTotal || selectedEvent.estimatedBudget || '',
+        date: selectedEvent.date // Keep the date as-is without timezone conversion
       });
     }
   }, [selectedEvent]);
@@ -183,25 +183,6 @@ const EventForm = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
               </div>
 
               <div>
-                <label className="block text-gray-700 mb-2 font-semibold">Event Type</label>
-                <select
-                  value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  data-cy="event-type-select"
-                >
-                  <option value="Wedding">Wedding</option>
-                  <option value="Anniversary">Anniversary</option>
-                  <option value="Gala">Gala</option>
-                  <option value="Corporate Retreat">Corporate Retreat</option>
-                  <option value="Celebration">Celebration</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
                 <label className="block text-gray-700 mb-2 font-semibold">Event Date *</label>
                 <input
                   type="date"
@@ -221,18 +202,37 @@ const EventForm = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
                   <p className="text-red-500 text-sm mt-1" data-cy="date-error">{errors.date}</p>
                 )}
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-gray-700 mb-2 font-semibold">Event Type</label>
+                <select
+                  value={formData.type}
+                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  data-cy="event-type-select"
+                >
+                  <option value="Wedding">Wedding</option>
+                  <option value="Anniversary">Anniversary</option>
+                  <option value="Gala">Gala</option>
+                  <option value="Corporate Retreat">Corporate Retreat</option>
+                  <option value="Celebration">Celebration</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
 
               <div>
-                <label className="block text-gray-700 mb-2 font-semibold">Expected Guest Count</label>
-                <input
-                  type="number"
-                  value={formData.guestCount}
-                  onChange={(e) => setFormData({ ...formData, guestCount: e.target.value })}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="150"
-                  min="0"
-                  data-cy="event-guest-count-input"
-                />
+                  <label className="block text-gray-700 mb-2 font-semibold">RVSP Count *</label>
+                  <input
+                    type="number"
+                    value={formData.guestCount}
+                    onChange={(e) => setFormData({ ...formData, guestCount: e.target.value })}
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="150"
+                    min="0"
+                    data-cy="event-guest-count-input"
+                  />
               </div>
             </div>
 
@@ -266,32 +266,41 @@ const EventForm = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
               </div>
             </div>
 
-            <div>
-              <label className="block text-gray-700 mb-2 font-semibold">Set Budget *</label>
-              <div className="relative">
-                <span className="absolute left-3 top-2 text-gray-500">$</span>
-                <input
-                  type="number"
-                  value={formData.setBudget}
-                  onChange={(e) => {
-                    setFormData({ ...formData, setBudget: e.target.value });
-                    if (errors.budget) setErrors({ ...errors, budget: '' });
-                  }}
-                  className={`w-full pl-7 pr-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                    errors.budget ? 'border-red-500' : ''
-                  }`}
-                  placeholder={selectedLocationInfo.min.toString()}
-                  min={selectedLocationInfo.min}
-                  data-cy="event-budget-input"
-                />
+            <div className="space-y-6"></div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-gray-700 mb-2 font-semibold">Set Budget *</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2 text-gray-500">$</span>
+                  <input
+                    type="number"
+                    value={formData.setBudget}
+                    onChange={(e) => {
+                      setFormData({ ...formData, setBudget: e.target.value });
+                      if (errors.budget) setErrors({ ...errors, budget: '' });
+                    }}
+                    className={`w-full pl-7 pr-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                      errors.budget ? 'border-red-500' : ''
+                    }`}
+                    placeholder={selectedLocationInfo.min.toString()}
+                    min={selectedLocationInfo.min}
+                    data-cy="event-budget-input"
+                  />
+                </div>
+                <p className="text-sm text-gray-500 mt-1">
+                  Minimum for {formData.locationType}: ${selectedLocationInfo.min.toLocaleString()}
+                </p>
+                {errors.budget && (
+                  <p className="text-red-500 text-sm mt-1" data-cy="budget-error">{errors.budget}</p>
+                )}
               </div>
-              <p className="text-sm text-gray-500 mt-1">
-                Minimum for {formData.locationType}: ${selectedLocationInfo.min.toLocaleString()}
-              </p>
-              {errors.budget && (
-                <p className="text-red-500 text-sm mt-1" data-cy="budget-error">{errors.budget}</p>
-              )}
+              
             </div>
+            
+            
+            
+            
 
             <div>
               <label className="block text-gray-700 mb-2 font-semibold">Vision & Details</label>

@@ -6,6 +6,12 @@ const Dashboard = ({ setCurrentView, setSelectedEvent }) => {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const formatDate = (dateString) => {
+    const [year, month, day] = dateString.split('-');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${months[parseInt(month) - 1]} ${parseInt(day)}, ${year}`;
+  };
+
   const upcomingEvents = events
     .filter(e => new Date(e.date) >= new Date() && e.status !== 'Completed' && e.status !== 'Cancelled')
     .sort((a, b) => new Date(a.date) - new Date(b.date))
@@ -107,7 +113,7 @@ const Dashboard = ({ setCurrentView, setSelectedEvent }) => {
                         </span>
                       </div>
                       <div className="text-sm text-gray-600 space-y-1">
-                        <div>📅 {new Date(event.date).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</div>
+                        <div>📅 {formatDate(event.date)}</div>
                         <div>📍 {event.location}</div>
                         <div>💰 ${event.budgetSpent?.toLocaleString() || 0} / ${event.budgetTotal?.toLocaleString() || 0}</div>
                       </div>

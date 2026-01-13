@@ -6,6 +6,12 @@ const EventDetail = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
     return null;
   }
 
+  const formatDate = (dateString) => {
+    const [year, month, day] = dateString.split('-');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${months[parseInt(month) - 1]} ${parseInt(day)}, ${year}`;
+  };
+
   const getEventIcon = (type) => {
     const icons = {
       'Wedding': '💒',
@@ -73,12 +79,7 @@ const EventDetail = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
               <div className="bg-blue-50 p-4 rounded-lg">
                 <div className="text-sm text-gray-600 mb-1">📅 Date</div>
                 <div className="font-semibold">
-                  {new Date(selectedEvent.date).toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}
+                  {formatDate(selectedEvent.date)}
                 </div>
               </div>
               <div className="bg-green-50 p-4 rounded-lg">
