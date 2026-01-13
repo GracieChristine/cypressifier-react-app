@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 const EventDetail = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
   if (!selectedEvent) {

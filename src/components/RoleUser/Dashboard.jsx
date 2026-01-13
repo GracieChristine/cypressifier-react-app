@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 const Dashboard = ({ setCurrentView, setSelectedEvent }) => {
+  const { user } = useAuth();
+  
   const [events, setEvents] = useState(() => {
-    const saved = localStorage.getItem('events');
+    if (!user) return [];
+    const saved = localStorage.getItem(`events_${user.id}`);
     return saved ? JSON.parse(saved) : [];
   });
-
-  const formatDate = (dateString) => {
-    const [year, month, day] = dateString.split('-');
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return `${months[parseInt(month) - 1]} ${parseInt(day)}, ${year}`;
-  };
 
   const upcomingEvents = events
     .filter(e => new Date(e.date) >= new Date() && e.status !== 'Completed' && e.status !== 'Cancelled')
@@ -19,7 +17,7 @@ const Dashboard = ({ setCurrentView, setSelectedEvent }) => {
 
   const totalEvents = events.length;
   const completedEvents = events.filter(e => e.status === 'Completed').length;
-  const totalBudget = events.reduce((sum, e) => sum + (e.budgetTotal || 0), 0);
+  const totalBudget = events.reduce((sum, e) => sum + (e.setBudget || e.budgetTotal || 0), 0);
   const totalSpent = events.reduce((sum, e) => sum + (e.budgetSpent || 0), 0);
 
   const getEventIcon = (type) => {
@@ -29,20 +27,31 @@ const Dashboard = ({ setCurrentView, setSelectedEvent }) => {
       'Corporate': '💼',
       'Conference': '🎤',
       'Party': '🎊',
-      'Other': '🎉'
+      'Other': '🎉',
+      'Gala': '✨',
+      'Anniversary': '💐',
+      'Corporate Retreat': '🏢',
+      'Celebration': '🎊'
     };
     return icons[type] || '🎉';
   };
 
   const getStatusColor = (status) => {
     const colors = {
-      'Planning': 'bg-blue-100 text-blue-700',
+      'Submitted': 'bg-blue-100 text-blue-700',
+      'Planning': 'bg-yellow-100 text-yellow-700',
       'Confirmed': 'bg-green-100 text-green-700',
-      'In Progress': 'bg-yellow-100 text-yellow-700',
+      'In Progress': 'bg-purple-100 text-purple-700',
       'Completed': 'bg-gray-100 text-gray-700',
       'Cancelled': 'bg-red-100 text-red-700'
     };
     return colors[status] || 'bg-gray-100 text-gray-700';
+  };
+
+  const formatDate = (dateString) => {
+    const [year, month, day] = dateString.split('-');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${months[parseInt(month) - 1]} ${parseInt(day)}, ${year}`;
   };
 
   return (
@@ -114,8 +123,8 @@ const Dashboard = ({ setCurrentView, setSelectedEvent }) => {
                       </div>
                       <div className="text-sm text-gray-600 space-y-1">
                         <div>📅 {formatDate(event.date)}</div>
-                        <div>📍 {event.location}</div>
-                        <div>💰 ${event.budgetSpent?.toLocaleString() || 0} / ${event.budgetTotal?.toLocaleString() || 0}</div>
+                        <div>📍 {event.locationType}</div>
+                        <div>💰 ${event.budgetSpent?.toLocaleString() || 0} / ${event.setBudget?.toLocaleString() || event.budgetTotal?.toLocaleString() || 0}</div>
                       </div>
                     </div>
                     <button

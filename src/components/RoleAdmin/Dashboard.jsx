@@ -5,9 +5,24 @@ const AdminDashboard = ({ setCurrentView, setSelectedEvent }) => {
 
   useEffect(() => {
     const loadEvents = () => {
-      // Load all events
-      const saved = localStorage.getItem('events');
-      const allEvents = saved ? JSON.parse(saved) : [];
+      // Load ALL events from ALL users
+      const allEvents = [];
+      const keys = Object.keys(localStorage);
+      
+      keys.forEach(key => {
+        if (key.startsWith('events_')) {
+          try {
+            const userEvents = JSON.parse(localStorage.getItem(key));
+            if (Array.isArray(userEvents)) {
+              allEvents.push(...userEvents);
+            }
+          } catch (e) {
+            console.error('Error parsing events:', e);
+          }
+        }
+      });
+      
+      console.log('Admin Dashboard - Loading all events:', allEvents.length);
       
       // Auto-cancel past events that aren't completed
       const today = new Date();
@@ -23,15 +38,24 @@ const AdminDashboard = ({ setCurrentView, setSelectedEvent }) => {
         return event;
       });
       
-      localStorage.setItem('events', JSON.stringify(updated));
+      // Save updated events back to their respective user stores
+      const eventsByUser = {};
+      updated.forEach(event => {
+        const userId = event.userId || 'unknown';
+        if (!eventsByUser[userId]) eventsByUser[userId] = [];
+        eventsByUser[userId].push(event);
+      });
+      
+      Object.entries(eventsByUser).forEach(([userId, userEvents]) => {
+        localStorage.setItem(`events_${userId}`, JSON.stringify(userEvents));
+      });
+      
       setEvents(updated);
       console.log('Admin Dashboard - Events loaded:', updated.length);
     };
 
-    // Load immediately
     loadEvents();
     
-    // Also load when window gets focus (handles navigation back)
     window.addEventListener('focus', loadEvents);
     
     return () => {

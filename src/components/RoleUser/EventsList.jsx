@@ -1,20 +1,18 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 const EventsList = ({ setCurrentView, setSelectedEvent }) => {
+  const { user } = useAuth();
+  
   const [events, setEvents] = useState(() => {
-    const saved = localStorage.getItem('events');
+    if (!user) return [];
+    const saved = localStorage.getItem(`events_${user.id}`);
     return saved ? JSON.parse(saved) : [];
   });
   const [filter, setFilter] = useState('all');
   const [cancelModalEvent, setCancelModalEvent] = useState(null);
   const [cancelReason, setCancelReason] = useState('');
   const [cancelError, setCancelError] = useState('');
-
-  const formatDate = (dateString) => {
-    const [year, month, day] = dateString.split('-');
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return `${months[parseInt(month) - 1]} ${parseInt(day)}, ${year}`;
-  };
 
   const filteredEvents = events.filter(event => {
     if (filter === 'all') return true;
@@ -62,6 +60,12 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
     return icons[locationType] || '🏰';
   };
 
+  const formatDate = (dateString) => {
+    const [year, month, day] = dateString.split('-');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${months[parseInt(month) - 1]} ${parseInt(day)}, ${year}`;
+  };
+
   const handleCancelRequest = () => {
     if (!cancelReason.trim()) {
       setCancelError('Please provide a reason for cancellation');
@@ -74,16 +78,17 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
             ...e, 
             cancellationRequest: true, 
             cancellationReason: cancelReason,
-            cancellationRequestDate: new Date().toISOString()
+            cancellationRequestDate: new Date().toISOString(),
+            userId: user.id
           }
         : e
     );
     
     setEvents(updated);
-    localStorage.setItem('events', JSON.stringify(updated));
+    localStorage.setItem(`events_${user.id}`, JSON.stringify(updated));
     setCancelModalEvent(null);
     setCancelReason('');
-    setCancelError(''); // Clear error
+    setCancelError('');
   };
 
   return (
@@ -199,7 +204,7 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
                         setSelectedEvent(event);
                         setCurrentView('event-form');
                       }}
-                      className="flex-1 bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition text-sm"
+                      className="flex-1 bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition text-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
                       data-cy="edit-event-btn"
                       disabled={event.status === 'Cancelled' || event.status === 'Completed'}
                     >
@@ -209,6 +214,7 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
                       onClick={() => {
                         setCancelModalEvent(event);
                         setCancelReason('');
+                        setCancelError('');
                       }}
                       className="px-4 bg-orange-500 text-white py-2 rounded hover:bg-orange-600 transition text-sm disabled:bg-gray-300 disabled:cursor-not-allowed"
                       data-cy="cancel-request-btn"
@@ -240,7 +246,7 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
                 value={cancelReason}
                 onChange={(e) => {
                   setCancelReason(e.target.value);
-                  if (cancelError) setCancelError(''); // Clear error on type
+                  if (cancelError) setCancelError('');
                 }}
                 className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-orange-500 ${
                   cancelError ? 'border-red-500' : ''
@@ -265,6 +271,7 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
                 onClick={() => {
                   setCancelModalEvent(null);
                   setCancelReason('');
+                  setCancelError('');
                 }}
                 className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
                 data-cy="cancel-modal-close"

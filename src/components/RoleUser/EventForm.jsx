@@ -102,7 +102,7 @@ const EventForm = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
       return;
     }
 
-    const events = JSON.parse(localStorage.getItem('events') || '[]');
+    const events = JSON.parse(localStorage.getItem(`events_${user.id}`) || '[]');
     
     if (selectedEvent) {
       const updated = events.map(e => e.id === selectedEvent.id ? { 
@@ -114,7 +114,7 @@ const EventForm = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
         locationType: formData.locationType,
         location: formData.locationType // For backward compatibility with display
       } : e);
-      localStorage.setItem('events', JSON.stringify(updated));
+      localStorage.setItem(`events_${user.id}`, JSON.stringify(updated));
     } else {
       const newEvent = { 
         ...formData, 
@@ -127,7 +127,7 @@ const EventForm = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
         guestCount: parseInt(formData.guestCount) || 0,
         location: formData.locationType // For backward compatibility with display
       };
-      localStorage.setItem('events', JSON.stringify([...events, newEvent]));
+      localStorage.setItem(`events_${user.id}`, JSON.stringify([...events, newEvent]));
     }
     
     setSelectedEvent(null);
