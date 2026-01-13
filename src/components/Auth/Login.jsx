@@ -34,8 +34,14 @@ const Login = ({ setCurrentView }) => {
     }
 
     setErrors({});
-    login(email, password);
-    setCurrentView('dashboard');
+    const result = login(email, password);
+    // Check if user is admin
+    const userData = JSON.parse(localStorage.getItem('user'));
+    if (userData && userData.isAdmin) {
+      setCurrentView('admin-dashboard');
+    } else {
+      setCurrentView('dashboard');
+    }
   };
 
   return (

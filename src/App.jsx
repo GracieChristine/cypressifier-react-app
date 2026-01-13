@@ -2,25 +2,39 @@ import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Layout/Navbar';
 import Footer from './components/Layout/Footer';
-import SplashPage from './components/Landing/SplashPage';
 import Login from './components/Auth/Login';
 import Signup from './components/Auth/Signup';
-import Dashboard from './components/RoleUser/Dashboard';
-import EventsList from './components/RoleUser/EventsList';
-import EventForm from './components/RoleUser/EventForm';
-import EventDetail from './components/RoleUser/EventDetail';
+import SplashPage from './components/Landing/SplashPage';
+
+// User Components
+import UserDashboard from './components/RoleUser/Dashboard';
+import UserEventsList from './components/RoleUser/EventsList';
+import UserEventForm from './components/RoleUser/EventForm';
+import UserEventDetail from './components/RoleUser/EventDetail';
+
+// Admin Components
+import AdminDashboard from './components/RoleAdmin/Dashboard';
 
 function App() {
   const [currentView, setCurrentView] = useState('splash');
   const [selectedEvent, setSelectedEvent] = useState(null);
   const { user } = useAuth();
 
+    console.log('🟢 App render - currentView:', currentView, 'user:', user);
+
+
   useEffect(() => {
     if (currentView === 'splash') return;
+    
     if (user && currentView === 'login') {
-      setCurrentView('dashboard');
-    } else if (!user && !['login', 'signup'].includes(currentView)) {
-      setCurrentView('login');
+      // Route based on user role
+      if (user.isAdmin) {
+        setCurrentView('admin-dashboard');
+      } else {
+        setCurrentView('dashboard');
+      }
+    } else if (!user && !['login', 'signup', 'splash'].includes(currentView)) {
+      setCurrentView('splash');
     }
   }, [user, currentView]);
 
@@ -31,25 +45,32 @@ function App() {
         {currentView === 'splash' && <SplashPage setCurrentView={setCurrentView} />}
         {currentView === 'login' && <Login setCurrentView={setCurrentView} />}
         {currentView === 'signup' && <Signup setCurrentView={setCurrentView} />}
-        {currentView === 'dashboard' && user && (
-          <Dashboard setCurrentView={setCurrentView} setSelectedEvent={setSelectedEvent} />
+        
+        {/* User Routes */}
+        {currentView === 'dashboard' && user && !user.isAdmin && (
+          <UserDashboard setCurrentView={setCurrentView} setSelectedEvent={setSelectedEvent} />
         )}
-        {currentView === 'events' && user && (
-          <EventsList setCurrentView={setCurrentView} setSelectedEvent={setSelectedEvent} />
+        {currentView === 'events' && user && !user.isAdmin && (
+          <UserEventsList setCurrentView={setCurrentView} setSelectedEvent={setSelectedEvent} />
         )}
-        {currentView === 'event-form' && user && (
-          <EventForm 
+        {currentView === 'event-form' && user && !user.isAdmin && (
+          <UserEventForm 
             setCurrentView={setCurrentView} 
             selectedEvent={selectedEvent}
             setSelectedEvent={setSelectedEvent}
           />
         )}
-        {currentView === 'event-detail' && user && (
-          <EventDetail 
+        {currentView === 'event-detail' && user && !user.isAdmin && (
+          <UserEventDetail 
             setCurrentView={setCurrentView}
             selectedEvent={selectedEvent}
             setSelectedEvent={setSelectedEvent}
           />
+        )}
+
+        {/* Admin Routes */}
+        {currentView === 'admin-dashboard' && user && user.isAdmin && (
+          <AdminDashboard setCurrentView={setCurrentView} setSelectedEvent={setSelectedEvent} />
         )}
       </div>
       <Footer />

@@ -27,7 +27,7 @@ const Navbar = ({ currentView, setCurrentView }) => {
             onClick={handleTitleClick}
             className="text-2xl font-display hover:opacity-80 transition-opacity"
           >
-            <span className="font-display">✨ Cypressifier</span>
+            <span className="font-display">Cypressifier</span>
           </button>
           {user && !user.isAdmin && (
             <div className="flex gap-4">

@@ -62,7 +62,7 @@ const SplashPage = ({ setCurrentView }) => {
           {/* Why Choose Us */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 mb-16">
             <div className="text-center">
-              <div className="text-4xl mb-3">🎯</div>
+              {/* <div className="text-4xl mb-3">🎯</div> */}
               <h3 className="text-xl font-display mb-2 text-royal-900">Curated Selection</h3>
               <p className="font-serif text-gray-600 leading-relaxed text-sm">
                 Handpicked historic venues across the UK and continental Europe
@@ -70,7 +70,7 @@ const SplashPage = ({ setCurrentView }) => {
             </div>
 
             <div className="text-center">
-              <div className="text-4xl mb-3">💎</div>
+              {/* <div className="text-4xl mb-3">💎</div> */}
               <h3 className="text-xl font-display mb-2 text-royal-900">Bespoke Service</h3>
               <p className="font-serif text-gray-600 leading-relaxed text-sm">
                 Personalized planning tailored to your vision and requirements
@@ -78,7 +78,7 @@ const SplashPage = ({ setCurrentView }) => {
             </div>
 
             <div className="text-center">
-              <div className="text-4xl mb-3">✨</div>
+              {/* <div className="text-4xl mb-3">✨</div> */}
               <h3 className="text-xl font-display mb-2 text-royal-900">Unforgettable</h3>
               <p className="font-serif text-gray-600 leading-relaxed text-sm">
                 Create timeless memories in Europe's most prestigious settings

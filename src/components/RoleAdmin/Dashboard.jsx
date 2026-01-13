@@ -1,29 +1,44 @@
 import React, { useState, useEffect } from 'react';
 
 const AdminDashboard = ({ setCurrentView, setSelectedEvent }) => {
+  console.log('🔴 AdminDashboard component rendering');
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    // Load all events
-    const saved = localStorage.getItem('events');
-    const allEvents = saved ? JSON.parse(saved) : [];
-    
-    // Auto-cancel past events that aren't completed
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const updated = allEvents.map(event => {
-      const eventDate = new Date(event.date);
-      eventDate.setHours(0, 0, 0, 0);
+    const loadEvents = () => {
+      // Load all events
+      const saved = localStorage.getItem('events');
+      const allEvents = saved ? JSON.parse(saved) : [];
+      console.log('Admin Dashboard - Loading events:', allEvents.length);
       
-      if (eventDate < today && event.status !== 'Completed' && event.status !== 'Cancelled') {
-        return { ...event, status: 'Cancelled', autoCancelled: true };
-      }
-      return event;
-    });
+      // Auto-cancel past events that aren't completed
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const updated = allEvents.map(event => {
+        const eventDate = new Date(event.date);
+        eventDate.setHours(0, 0, 0, 0);
+        
+        if (eventDate < today && event.status !== 'Completed' && event.status !== 'Cancelled') {
+          return { ...event, status: 'Cancelled', autoCancelled: true };
+        }
+        return event;
+      });
+      
+      localStorage.setItem('events', JSON.stringify(updated));
+      setEvents(updated);
+      console.log('Admin Dashboard - Events loaded:', updated.length);
+    };
+
+    // Load immediately
+    loadEvents();
     
-    localStorage.setItem('events', JSON.stringify(updated));
-    setEvents(updated);
+    // Also load when window gets focus (handles navigation back)
+    window.addEventListener('focus', loadEvents);
+    
+    return () => {
+      window.removeEventListener('focus', loadEvents);
+    };
   }, []);
 
   const statusCounts = {
