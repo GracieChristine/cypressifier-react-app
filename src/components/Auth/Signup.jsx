@@ -41,7 +41,7 @@ const Signup = ({ setCurrentView }) => {
     }
 
     setErrors({});
-    const result = login(email, password);
+    const result = signup(email, password);
     // Check if user is admin
     const userData = JSON.parse(localStorage.getItem('user'));
     if (userData && userData.isAdmin) {

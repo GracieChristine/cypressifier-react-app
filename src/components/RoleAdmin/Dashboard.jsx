@@ -8,13 +8,20 @@ const AdminDashboard = ({ setCurrentView, setSelectedEvent }) => {
       // Load ALL events from ALL users
       const allEvents = [];
       const keys = Object.keys(localStorage);
+      const seenIds = new Set(); // Track unique event IDs
       
       keys.forEach(key => {
         if (key.startsWith('events_')) {
           try {
             const userEvents = JSON.parse(localStorage.getItem(key));
             if (Array.isArray(userEvents)) {
-              allEvents.push(...userEvents);
+              userEvents.forEach(event => {
+                // Only add if we haven't seen this ID before
+                if (!seenIds.has(event.id)) {
+                  seenIds.add(event.id);
+                  allEvents.push(event);
+                }
+              });
             }
           } catch (e) {
             console.error('Error parsing events:', e);
@@ -36,18 +43,6 @@ const AdminDashboard = ({ setCurrentView, setSelectedEvent }) => {
           return { ...event, status: 'Cancelled', autoCancelled: true };
         }
         return event;
-      });
-      
-      // Save updated events back to their respective user stores
-      const eventsByUser = {};
-      updated.forEach(event => {
-        const userId = event.userId || 'unknown';
-        if (!eventsByUser[userId]) eventsByUser[userId] = [];
-        eventsByUser[userId].push(event);
-      });
-      
-      Object.entries(eventsByUser).forEach(([userId, userEvents]) => {
-        localStorage.setItem(`events_${userId}`, JSON.stringify(userEvents));
       });
       
       setEvents(updated);

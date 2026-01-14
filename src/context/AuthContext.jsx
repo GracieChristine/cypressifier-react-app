@@ -12,6 +12,26 @@ export const AuthProvider = ({ children }) => {
     // Check if admin account
     const isAdmin = email === 'admin@cypressifier.com' && password === 'admin123';
     
+    // For non-admin, check if they have events (have signed up before)
+    if (!isAdmin) {
+      // Look for any user with this email
+      const keys = Object.keys(localStorage);
+      let userExists = false;
+      
+      for (let key of keys) {
+        if (key.startsWith('user_')) {
+          const savedUser = JSON.parse(localStorage.getItem(key));
+          if (savedUser.email === email) {
+            userExists = true;
+            break;
+          }
+        }
+      }
+      
+      // For simplicity in testing, we'll allow any login
+      // In production, you'd check against a real database
+    }
+    
     const userData = { 
       email, 
       id: Date.now(),
