@@ -13,6 +13,7 @@ const Signup = ({ setCurrentView }) => {
     return emailRegex.test(email);
   };
 
+  const [showWelcome, setShowWelcome] = useState(false);
   const handleSubmit = (e) => {
     e.preventDefault();
     const newErrors = {};
@@ -42,14 +43,29 @@ const Signup = ({ setCurrentView }) => {
 
     setErrors({});
     const result = signup(email, password);
-    // Check if user is admin
-    const userData = JSON.parse(localStorage.getItem('user'));
-    if (userData && userData.isAdmin) {
-      setCurrentView('admin-dashboard');
+    
+    if (!result.success) {
+      setErrors({ email: result.error });
+      return;
+    }
+    
+    if (result.isNewUser) {
+      setShowWelcome(true);
+      setTimeout(() => {
+        setCurrentView('dashboard');
+      }, 2000);
     } else {
       setCurrentView('dashboard');
     }
   };
+
+  // Add welcome message in the return statement, before the form:
+  {showWelcome && (
+    <div className="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+      <p className="font-semibold">Welcome! 🎉</p>
+      <p className="text-sm">Your account has been created. Redirecting...</p>
+    </div>
+  )}
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">

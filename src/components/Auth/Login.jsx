@@ -35,7 +35,12 @@ const Login = ({ setCurrentView }) => {
 
     setErrors({});
     const result = login(email, password);
-    // Check if user is admin
+    
+    if (!result.success) {
+      setErrors({ email: result.error });
+      return;
+    }
+    
     const userData = JSON.parse(localStorage.getItem('user'));
     if (userData && userData.isAdmin) {
       setCurrentView('admin-dashboard');

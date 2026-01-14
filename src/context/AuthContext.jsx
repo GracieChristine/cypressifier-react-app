@@ -1,7 +1,3 @@
-import React, { createContext, useState, useContext } from 'react';
-
-const AuthContext = createContext(null);
-
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('user');
@@ -12,24 +8,24 @@ export const AuthProvider = ({ children }) => {
     // Check if admin account
     const isAdmin = email === 'admin@cypressifier.com' && password === 'admin123';
     
-    // For non-admin, check if they have events (have signed up before)
+    // Check if regular user exists
     if (!isAdmin) {
-      // Look for any user with this email
-      const keys = Object.keys(localStorage);
-      let userExists = false;
+      const users = JSON.parse(localStorage.getItem('registered_users') || '[]');
+      const existingUser = users.find(u => u.email === email);
       
-      for (let key of keys) {
-        if (key.startsWith('user_')) {
-          const savedUser = JSON.parse(localStorage.getItem(key));
-          if (savedUser.email === email) {
-            userExists = true;
-            break;
-          }
-        }
+      if (!existingUser) {
+        return { success: false, error: 'User not found. Please sign up first.' };
       }
       
-      // For simplicity in testing, we'll allow any login
-      // In production, you'd check against a real database
+      // In real app, check password here
+      const userData = { 
+        email, 
+        id: existingUser.id,
+        isAdmin: false
+      };
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+      return { success: true };
     }
     
     const userData = { 
@@ -39,19 +35,33 @@ export const AuthProvider = ({ children }) => {
     };
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
-    return true;
+    return { success: true };
   };
 
   const signup = (email, password) => {
-    // Regular users are never admin
+    // Check if user already exists
+    const users = JSON.parse(localStorage.getItem('registered_users') || '[]');
+    const existingUser = users.find(u => u.email === email);
+    
+    if (existingUser) {
+      return { success: false, error: 'User already exists. Please login.' };
+    }
+    
+    const userId = Date.now();
     const userData = { 
       email, 
-      id: Date.now(),
-      isAdmin: false
+      id: userId,
+      isAdmin: false,
+      createdAt: new Date().toISOString()
     };
+    
+    // Add to registered users list
+    users.push(userData);
+    localStorage.setItem('registered_users', JSON.stringify(users));
+    
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
-    return true;
+    return { success: true, isNewUser: true };
   };
 
   const logout = () => {
@@ -65,5 +75,3 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-export const useAuth = () => useContext(AuthContext);
