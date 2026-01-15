@@ -31,4 +31,30 @@ describe('Slash Page', () => {
         cy.contains('© 2026 Cypressifier Event Planning.').should('be.visible');
     });
 
+    it('should navigate to signup page when clicking Begin Your Journey button', () => {
+        cy.get('[data-cy="hero-signup-btn"]').click();
+        cy.contains('Create Account').should('be.visible');
+        cy.contains('Start planning amazing events').should('be.visible');
+        cy.get('[data-cy="email-input"]').should('be.visible');
+        cy.get('[data-cy="password-input"]').should('be.visible');
+        cy.get('[data-cy="confirm-password-input"]').should('be.visible');
+        cy.get('[data-cy="signup-submit"]').should('be.visible');
+        cy.contains('Already have an account? Login').should('be.visible');
+
+        // Navigating back to splash page
+        cy.contains('Cypressifier').click();
+    });
+
+    it('should navigate to login page when clicking on Log In button', () => {
+        cy.get('[data-cy="hero-login-btn"]').click();
+        cy.contains('Welcome Back!').should('be.visible');
+        cy.contains('Login to manage your events').should('be.visible');
+        cy.get('[data-cy="email-input"]').should('be.visible');
+        cy.get('[data-cy="password-input"]').should('be.visible');
+        cy.get('[data-cy="login-submit"]').should('be.visible');
+        cy.contains('Don\'t have an account? Sign up').should('be.visible');
+
+        // Navigating back to splash page
+        cy.contains('Cypressifier').click();
+    });
 });
