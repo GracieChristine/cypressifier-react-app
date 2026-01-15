@@ -1,16 +1,11 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { formatDate } from '../../utils/dateHelpers';
 
 const EventDetail = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
   if (!selectedEvent) {
     setCurrentView('events');
     return null;
-  }
-
-  const formatDate = (dateString) => {
-    const [year, month, day] = dateString.split('-');
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return `${months[parseInt(month) - 1]} ${parseInt(day)}, ${year}`;
   };
 
   const getEventIcon = (type) => {
@@ -27,10 +22,9 @@ const EventDetail = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
 
   const getStatusColor = (status) => {
     const colors = {
-      'Planning': 'bg-blue-100 text-blue-700',
-      'Confirmed': 'bg-green-100 text-green-700',
+      'In Review': 'bg-blue-100 text-blue-700',
       'In Progress': 'bg-yellow-100 text-yellow-700',
-      'Completed': 'bg-gray-100 text-gray-700',
+      'Completed': 'bg-green-100 text-green-700',
       'Cancelled': 'bg-red-100 text-red-700'
     };
     return colors[status] || 'bg-gray-100 text-gray-700';
@@ -51,7 +45,7 @@ const EventDetail = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
         </button>
 
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-8 text-white">
+          {/* <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-8 text-white">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-4">
                 <span className="text-6xl">{getEventIcon(selectedEvent.type)}</span>
@@ -73,6 +67,23 @@ const EventDetail = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
                 Edit Event
               </button>
             </div>
+          </div> */}
+
+          <div className="bg-white rounded-lg shadow-md p-4 mb-6 flex gap-2 flex-wrap">
+            {['all', 'In Review', 'In Progress', 'Completed', 'Cancelled'].map(status => (
+              <button
+                key={status}
+                onClick={() => setFilter(status)}
+                className={`px-4 py-2 rounded transition ${
+                  filter === status 
+                    ? 'bg-purple-600 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+                data-cy={`filter-${status.toLowerCase().replace(' ', '-')}`}
+              >
+                {status === 'all' ? 'All Events' : status}
+              </button>
+            ))}
           </div>
 
           <div className="p-8">

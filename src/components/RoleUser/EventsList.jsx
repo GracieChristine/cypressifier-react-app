@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { formatDate } from '../../utils/dateHelpers';
 
 const EventsList = ({ setCurrentView, setSelectedEvent }) => {
   const { user } = useAuth();
@@ -37,11 +38,9 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
 
   const getStatusColor = (status) => {
     const colors = {
-      'Submitted': 'bg-blue-100 text-blue-700',
-      'Planning': 'bg-yellow-100 text-yellow-700',
-      'Confirmed': 'bg-green-100 text-green-700',
-      'In Progress': 'bg-purple-100 text-purple-700',
-      'Completed': 'bg-gray-100 text-gray-700',
+      'In Review': 'bg-blue-100 text-blue-700',
+      'In Progress': 'bg-yellow-100 text-yellow-700',
+      'Completed': 'bg-green-100 text-green-700',
       'Cancelled': 'bg-red-100 text-red-700'
     };
     return colors[status] || 'bg-gray-100 text-gray-700';
@@ -58,12 +57,6 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
       'Historic Abbey': '⛪'
     };
     return icons[locationType] || '🏰';
-  };
-
-  const formatDate = (dateString) => {
-    const [year, month, day] = dateString.split('-');
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return `${months[parseInt(month) - 1]} ${parseInt(day)}, ${year}`;
   };
 
   const handleCancelRequest = () => {
@@ -110,7 +103,7 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
 
         {/* Filter Buttons */}
         <div className="bg-white rounded-lg shadow-md p-4 mb-6 flex gap-2 flex-wrap">
-          {['all', 'Submitted', 'Planning', 'Confirmed', 'In Progress', 'Completed', 'Cancelled'].map(status => (
+          {['all', 'In Review', 'In Progress', 'Completed', 'Cancelled'].map(status => (
             <button
               key={status}
               onClick={() => setFilter(status)}
@@ -140,14 +133,14 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
             {filteredEvents.map(event => (
               <div
                 key={event.id}
-                className="bg-white rounded-lg shadow-md hover:shadow-xl transition overflow-hidden"
+                className="bg-white rounded-lg shadow-md hover:shadow-xl transition overflow-hidden h-full flex flex-col"
                 data-cy="event-card"
               >
-                <div className="p-6">
+                <div className="p-6 flex flex-col flex-1">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="text-3xl">{getEventIcon(event.type)}</span>
@@ -178,6 +171,9 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
                   {event.description && (
                     <p className="text-sm text-gray-500 mb-4 line-clamp-2">{event.description}</p>
                   )}
+                  
+                  {/* Spacer to push content to bottom */}
+                  <div className="flex-grow"></div>
 
                   {/* Cancellation Request Status */}
                   {event.cancellationRequest && (
@@ -188,6 +184,7 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
                     </div>
                   )}
 
+                  {/* Buttons always at bottom */}
                   <div className="flex gap-2">
                     <button
                       onClick={() => {

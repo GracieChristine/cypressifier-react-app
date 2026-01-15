@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { formatDate } from '../../utils/dateHelpers';
 
 const Dashboard = ({ setCurrentView, setSelectedEvent }) => {
   const { user } = useAuth();
@@ -38,20 +39,12 @@ const Dashboard = ({ setCurrentView, setSelectedEvent }) => {
 
   const getStatusColor = (status) => {
     const colors = {
-      'Submitted': 'bg-blue-100 text-blue-700',
-      'Planning': 'bg-yellow-100 text-yellow-700',
-      'Confirmed': 'bg-green-100 text-green-700',
-      'In Progress': 'bg-purple-100 text-purple-700',
-      'Completed': 'bg-gray-100 text-gray-700',
+      'In Review': 'bg-blue-100 text-blue-700',
+      'In Progress': 'bg-yellow-100 text-yellow-700',
+      'Completed': 'bg-green-100 text-green-700',
       'Cancelled': 'bg-red-100 text-red-700'
     };
     return colors[status] || 'bg-gray-100 text-gray-700';
-  };
-
-  const formatDate = (dateString) => {
-    const [year, month, day] = dateString.split('-');
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return `${months[parseInt(month) - 1]} ${parseInt(day)}, ${year}`;
   };
 
   return (

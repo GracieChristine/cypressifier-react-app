@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { formatDate } from '../../utils/dateHelpers';
 
 const AdminDashboard = ({ setCurrentView, setSelectedEvent }) => {
   const [events, setEvents] = useState([]);
@@ -60,22 +61,18 @@ const AdminDashboard = ({ setCurrentView, setSelectedEvent }) => {
 
   const statusCounts = {
     total: events.length,
-    submitted: events.filter(e => e.status === 'Submitted').length,
-    planning: events.filter(e => e.status === 'Planning').length,
-    confirmed: events.filter(e => e.status === 'Confirmed').length,
+    inReview: events.filter(e => e.status === 'In Review' || e.cancellationRequest).length,
     inProgress: events.filter(e => e.status === 'In Progress').length,
     completed: events.filter(e => e.status === 'Completed').length,
     cancelled: events.filter(e => e.status === 'Cancelled').length,
-    cancellationRequests: events.filter(e => e.cancellationRequest).length
+    cancellationRequests: events.filter(e => e.cancellationRequest && e.status !== 'Cancelled').length
   };
 
   const getStatusColor = (status) => {
     const colors = {
-      'Submitted': 'bg-blue-100 text-blue-700',
-      'Planning': 'bg-yellow-100 text-yellow-700',
-      'Confirmed': 'bg-green-100 text-green-700',
-      'In Progress': 'bg-purple-100 text-purple-700',
-      'Completed': 'bg-gray-100 text-gray-700',
+      'In Review': 'bg-blue-100 text-blue-700',
+      'In Progress': 'bg-yellow-100 text-yellow-700',
+      'Completed': 'bg-green-100 text-green-700',
       'Cancelled': 'bg-red-100 text-red-700'
     };
     return colors[status] || 'bg-gray-100 text-gray-700';
@@ -106,30 +103,22 @@ const AdminDashboard = ({ setCurrentView, setSelectedEvent }) => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
           <div className="bg-white p-4 rounded-lg shadow-md">
             <div className="text-gray-500 text-sm mb-1">Total Events</div>
             <div className="text-2xl font-bold text-royal-700">{statusCounts.total}</div>
           </div>
           <div className="bg-blue-50 p-4 rounded-lg shadow-md border border-blue-200">
-            <div className="text-blue-700 text-sm mb-1 font-semibold">Submitted</div>
-            <div className="text-2xl font-bold text-blue-700">{statusCounts.submitted}</div>
+            <div className="text-blue-700 text-sm mb-1 font-semibold">In Review</div>
+            <div className="text-2xl font-bold text-blue-700">{statusCounts.inReview}</div>
           </div>
           <div className="bg-yellow-50 p-4 rounded-lg shadow-md border border-yellow-200">
-            <div className="text-yellow-700 text-sm mb-1 font-semibold">Planning</div>
-            <div className="text-2xl font-bold text-yellow-700">{statusCounts.planning}</div>
+            <div className="text-yellow-700 text-sm mb-1 font-semibold">In Progress</div>
+            <div className="text-2xl font-bold text-yellow-700">{statusCounts.inProgress}</div>
           </div>
           <div className="bg-green-50 p-4 rounded-lg shadow-md border border-green-200">
-            <div className="text-green-700 text-sm mb-1 font-semibold">Confirmed</div>
-            <div className="text-2xl font-bold text-green-700">{statusCounts.confirmed}</div>
-          </div>
-          <div className="bg-purple-50 p-4 rounded-lg shadow-md border border-purple-200">
-            <div className="text-purple-700 text-sm mb-1 font-semibold">In Progress</div>
-            <div className="text-2xl font-bold text-purple-700">{statusCounts.inProgress}</div>
-          </div>
-          <div className="bg-gray-50 p-4 rounded-lg shadow-md border border-gray-200">
-            <div className="text-gray-700 text-sm mb-1 font-semibold">Completed</div>
-            <div className="text-2xl font-bold text-gray-700">{statusCounts.completed}</div>
+            <div className="text-green-700 text-sm mb-1 font-semibold">Completed</div>
+            <div className="text-2xl font-bold text-green-700">{statusCounts.completed}</div>
           </div>
           <div className="bg-red-50 p-4 rounded-lg shadow-md border border-red-200">
             <div className="text-red-700 text-sm mb-1 font-semibold">Cancelled</div>
@@ -182,15 +171,14 @@ const AdminDashboard = ({ setCurrentView, setSelectedEvent }) => {
                         <div className="text-sm text-gray-500">{event.type}</div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-700">User #{event.id.toString().slice(-4)}</div>
+                        <div className="text-sm text-gray-700">
+                          {event.userId ? `User #${event.userId.toString().slice(-4)}` : 'Unknown'}
+                        </div>
+                        <div className="text-xs text-gray-500">{event.userEmail || 'No email'}</div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-700">
-                          {new Date(event.date).toLocaleDateString('en-US', { 
-                            month: 'short', 
-                            day: 'numeric', 
-                            year: 'numeric' 
-                          })}
+                          {formatDate(event.date)}
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -233,16 +221,18 @@ const AdminDashboard = ({ setCurrentView, setSelectedEvent }) => {
                           >
                             View
                           </button>
-                          <button
-                            onClick={() => {
-                              setSelectedEvent(event);
-                              setCurrentView('admin-event-edit');
-                            }}
-                            className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition"
-                            data-cy="admin-edit-btn"
-                          >
-                            Edit
-                          </button>
+                          {event.status === 'In Progress' && (
+                            <button
+                              onClick={() => {
+                                setSelectedEvent(event);
+                                setCurrentView('admin-event-edit');
+                              }}
+                              className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition"
+                              data-cy="admin-edit-btn"
+                            >
+                              Edit
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatDate, formatDateLong } from '../../utils/dateHelpers';
 
 const AdminEventDetail = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
   const [comment, setComment] = useState('');
@@ -38,33 +39,23 @@ const AdminEventDetail = ({ setCurrentView, selectedEvent, setSelectedEvent }) =
 
   const getStatusColor = (status) => {
     const colors = {
-      'Submitted': 'bg-blue-100 text-blue-700',
-      'Planning': 'bg-yellow-100 text-yellow-700',
-      'Confirmed': 'bg-green-100 text-green-700',
-      'In Progress': 'bg-purple-100 text-purple-700',
-      'Completed': 'bg-gray-100 text-gray-700',
+      'In Review': 'bg-blue-100 text-blue-700',
+      'In Progress': 'bg-yellow-100 text-yellow-700',
+      'Completed': 'bg-green-100 text-green-700',
       'Cancelled': 'bg-red-100 text-red-700'
     };
     return colors[status] || 'bg-gray-100 text-gray-700';
   };
 
-  const formatDate = (dateString) => {
-    const [year, month, day] = dateString.split('-');
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return `${months[parseInt(month) - 1]} ${parseInt(day)}, ${year}`;
-  };
-
   const handleAccept = () => {
-    // Load all events from this user
     const userEvents = JSON.parse(localStorage.getItem(`events_${selectedEvent.userId}`) || '[]');
     
-    // Update the event status to Planning and add admin comment
     const updated = userEvents.map(e => 
       e.id === selectedEvent.id 
         ? { 
             ...e, 
-            status: 'Planning',
-            adminComment: comment || 'Event accepted and moved to planning phase.',
+            status: 'In Progress', // Make sure this says 'In Progress'
+            adminComment: comment || 'Event accepted and moved to In Progress.',
             acceptedBy: 'Admin',
             acceptedAt: new Date().toISOString()
           }
@@ -72,7 +63,9 @@ const AdminEventDetail = ({ setCurrentView, selectedEvent, setSelectedEvent }) =
     );
     
     localStorage.setItem(`events_${selectedEvent.userId}`, JSON.stringify(updated));
-    alert('Event accepted and moved to Planning!');
+    window.dispatchEvent(new Event('storage'));
+    
+    alert('Event accepted and moved to In Progress!');
     setSelectedEvent(null);
     setCurrentView('admin-dashboard');
   };
@@ -110,7 +103,9 @@ const AdminEventDetail = ({ setCurrentView, selectedEvent, setSelectedEvent }) =
       e.id === selectedEvent.id 
         ? { 
             ...e, 
-            status: 'Cancelled',
+            status: 'In Progress',
+            cancellationRequest: false, // Remove the flag
+            cancellationReason: e.cancellationReason, // Keep reason
             cancellationApproved: true,
             cancellationApprovedBy: 'Admin',
             cancellationApprovedAt: new Date().toISOString()
@@ -119,7 +114,9 @@ const AdminEventDetail = ({ setCurrentView, selectedEvent, setSelectedEvent }) =
     );
     
     localStorage.setItem(`events_${selectedEvent.userId}`, JSON.stringify(updated));
-    alert('Cancellation approved.');
+    window.dispatchEvent(new Event('storage'));
+    
+    alert('Cancellation approved. Event status changed to Cancelled.');
     setSelectedEvent(null);
     setCurrentView('admin-dashboard');
   };
@@ -140,6 +137,10 @@ const AdminEventDetail = ({ setCurrentView, selectedEvent, setSelectedEvent }) =
     );
     
     localStorage.setItem(`events_${selectedEvent.userId}`, JSON.stringify(updated));
+
+    // Force a page event to trigger admin dashboard reload
+    window.dispatchEvent(new Event('storage'));
+
     alert('Cancellation request denied.');
     setSelectedEvent(null);
     setCurrentView('admin-dashboard');
@@ -219,7 +220,7 @@ const AdminEventDetail = ({ setCurrentView, selectedEvent, setSelectedEvent }) =
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-blue-50 p-4 rounded-lg">
                 <div className="text-sm text-gray-600 mb-1">📅 Event Date</div>
-                <div className="font-semibold text-gray-800">{formatDate(selectedEvent.date)}</div>
+                <div className="font-semibold text-gray-800">{formatDate(event.date)}</div>
               </div>
               <div className="bg-green-50 p-4 rounded-lg">
                 <div className="text-sm text-gray-600 mb-1">{getLocationIcon(selectedEvent.locationType)} Venue Type</div>
@@ -253,8 +254,8 @@ const AdminEventDetail = ({ setCurrentView, selectedEvent, setSelectedEvent }) =
               </div>
             )}
 
-            {/* Admin Actions for Submitted Events */}
-            {selectedEvent.status === 'Submitted' && !selectedEvent.cancellationRequest && (
+            {/* Admin Actions for In Review Events */}
+            {selectedEvent.status === 'In Review' && !selectedEvent.cancellationRequest && (
               <div className="border-t pt-6">
                 <h3 className="text-lg font-semibold mb-4">Admin Actions</h3>
                 
@@ -276,7 +277,7 @@ const AdminEventDetail = ({ setCurrentView, selectedEvent, setSelectedEvent }) =
                     onClick={handleAccept}
                     className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold"
                   >
-                    ✅ Accept & Move to Planning
+                    ✅ Accept & Move to In Progress
                   </button>
                   <button
                     onClick={() => setShowRejectModal(true)}
@@ -289,7 +290,7 @@ const AdminEventDetail = ({ setCurrentView, selectedEvent, setSelectedEvent }) =
             )}
 
             {/* Show if already processed */}
-            {selectedEvent.status !== 'Submitted' && !selectedEvent.cancellationRequest && (
+            {selectedEvent.status !== 'In Review' && !selectedEvent.cancellationRequest && (
               <div className="bg-gray-50 border-2 border-gray-200 rounded-lg p-6 text-center">
                 <p className="text-gray-600">
                   This event has already been processed and is in <strong>{selectedEvent.status}</strong> status.
@@ -300,6 +301,54 @@ const AdminEventDetail = ({ setCurrentView, selectedEvent, setSelectedEvent }) =
                     <p className="text-sm text-gray-600">{selectedEvent.adminComment}</p>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* In Progress events to allow completion*/}
+            {selectedEvent.status === 'In Progress' && !selectedEvent.cancellationRequest && (
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4">Update Event Status</h3>
+                
+                <div className="mb-4">
+                  <label className="block text-gray-700 mb-2 font-semibold">
+                    Final Notes (Optional)
+                  </label>
+                  <textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-royal-500"
+                    rows="3"
+                    placeholder="Add any final notes about this event..."
+                  />
+                </div>
+
+                <button
+                  onClick={() => {
+                    const userEvents = JSON.parse(localStorage.getItem(`events_${selectedEvent.userId}`) || '[]');
+                    
+                    const updated = userEvents.map(e => 
+                      e.id === selectedEvent.id 
+                        ? { 
+                            ...e, 
+                            status: 'Completed',
+                            completionComment: comment || 'Event completed successfully.',
+                            completedBy: 'Admin',
+                            completedAt: new Date().toISOString()
+                          }
+                        : e
+                    );
+                    
+                    localStorage.setItem(`events_${selectedEvent.userId}`, JSON.stringify(updated));
+                    window.dispatchEvent(new Event('storage'));
+                    
+                    alert('Event marked as Completed!');
+                    setSelectedEvent(null);
+                    setCurrentView('admin-dashboard');
+                  }}
+                  className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold"
+                >
+                  ✅ Mark as Completed
+                </button>
               </div>
             )}
           </div>

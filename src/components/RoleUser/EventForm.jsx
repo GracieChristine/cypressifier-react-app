@@ -50,9 +50,9 @@ const EventForm = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
     type: 'Wedding',
     date: '',
     locationType: 'Castle',
-    setBudget: 50000,
+    setBudget: 10000,
     guestCount: '',
-    status: 'Submitted',
+    status: 'In Review',
     description: ''
   });
   const [errors, setErrors] = useState({});
@@ -120,12 +120,14 @@ const EventForm = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
         ...formData, 
         id: Date.now(), 
         createdAt: new Date().toISOString(),
-        status: 'Submitted',
+        status: 'In Review',
+        userId: user.id,
+        userEmail: user.email,
         budgetTotal: parseFloat(formData.setBudget) || 0,
         budgetSpent: 0,
         setBudget: parseFloat(formData.setBudget) || 0,
         guestCount: parseInt(formData.guestCount) || 0,
-        location: formData.locationType // For backward compatibility with display
+        location: formData.locationType
       };
       localStorage.setItem(`events_${user.id}`, JSON.stringify([...events, newEvent]));
     }
@@ -326,9 +328,7 @@ const EventForm = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
                   className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
                   data-cy="event-status-select"
                 >
-                  <option value="Submitted">Submitted</option>
-                  <option value="Planning">Planning</option>
-                  <option value="Confirmed">Confirmed</option>
+                  <option value="In Review">In Review</option>
                   <option value="In Progress">In Progress</option>
                   <option value="Completed">Completed</option>
                   <option value="Cancelled">Cancelled</option>
