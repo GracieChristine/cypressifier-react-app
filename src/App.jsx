@@ -14,7 +14,6 @@ import UserEventDetail from './components/RoleUser/EventDetail';
 
 // Admin Components
 import AdminDashboard from './components/RoleAdmin/Dashboard';
-import AdminEventDetail from './components/RoleAdmin/EventDetail';
 import AdminEventEdit from './components/RoleAdmin/EventEdit';
 
 
@@ -72,13 +71,6 @@ function App() {
         {/* Admin Routes */}
         {currentView === 'admin-dashboard' && user && user.isAdmin && (
           <AdminDashboard setCurrentView={setCurrentView} setSelectedEvent={setSelectedEvent} />
-        )}
-        {currentView === 'admin-event-detail' && user && user.isAdmin && (
-          <AdminEventDetail 
-            setCurrentView={setCurrentView}
-            selectedEvent={selectedEvent}
-            setSelectedEvent={setSelectedEvent}
-          />
         )}
         {currentView === 'admin-event-edit' && user && user.isAdmin && (
           <AdminEventEdit 

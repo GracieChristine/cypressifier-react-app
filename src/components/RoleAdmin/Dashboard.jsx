@@ -211,28 +211,21 @@ const AdminDashboard = ({ setCurrentView, setSelectedEvent }) => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex gap-2">
+                          {/* Show View/Edit based on status and cancellation */}
                           <button
                             onClick={() => {
                               setSelectedEvent(event);
-                              setCurrentView('admin-event-detail');
+                              setCurrentView('admin-event-edit');
                             }}
-                            className="px-3 py-1 bg-royal-600 text-white rounded text-sm hover:bg-royal-700 transition"
-                            data-cy="admin-view-btn"
+                            className={`px-3 py-1 text-white rounded text-sm transition ${
+                              event.status === 'In Progress' && !event.cancellationRequest
+                                ? 'bg-blue-500 hover:bg-blue-600'
+                                : 'bg-royal-600 hover:bg-royal-700'
+                            }`}
+                            data-cy="admin-action-btn"
                           >
-                            View
+                            {event.status === 'In Progress' && !event.cancellationRequest ? 'Edit' : 'View'}
                           </button>
-                          {event.status === 'In Progress' && (
-                            <button
-                              onClick={() => {
-                                setSelectedEvent(event);
-                                setCurrentView('admin-event-edit');
-                              }}
-                              className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition"
-                              data-cy="admin-edit-btn"
-                            >
-                              Edit
-                            </button>
-                          )}
                         </div>
                       </td>
                     </tr>
