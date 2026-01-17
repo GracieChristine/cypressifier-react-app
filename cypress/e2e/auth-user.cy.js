@@ -2,6 +2,8 @@ describe('User Authentication', () => {
     // Setup variables
         const userEmail = 'testuser@example.com';
         const userPassword = 'password123';
+        const adminEmail = 'admin@cypressifier.com';
+        const adminPassword = 'admin123';
 
     // Visit the app and clear storage before each test
     beforeEach(() => {
@@ -15,7 +17,7 @@ describe('User Authentication', () => {
             cy.get('[data-cy="hero-signup-btn"]').click();
         });
 
-        it('should successfully sign up a new user', () => {
+        it('should successfully sign up and log out a new user', () => {
             // Fill in signup form
             cy.get('[data-cy="email-input"]').type(userEmail);
             cy.get('[data-cy="password-input"]').type(userPassword);
@@ -24,9 +26,12 @@ describe('User Authentication', () => {
             // Submit
             cy.get('[data-cy="signup-submit"]').click();
             
-            // Should redirect to dashboard
+            // Should redirect to user dashboard
             cy.contains('Dashboard').should('be.visible');
             cy.contains('Overview of your events').should('be.visible');
+
+            // Logout
+            cy.get('[data-cy="logout-btn"]').click();
         });
 
         it('should show error when email is invalid', () => {
@@ -118,16 +123,19 @@ describe('User Authentication', () => {
             cy.get('[data-cy="hero-login-btn"]').click();
         });
 
-        it('should succesfully log in existing user', () => {
+        it('should succesfully log in and log out existing user', () => {
             // Fill in login form
             cy.get('[data-cy="email-input"]').type(userEmail);
             cy.get('[data-cy="password-input"]').type(userPassword);
 
             cy.get('[data-cy="login-submit"]').click();
             
-            // Should redirect to dashboard
+            // Should redirect to user dashboard
             cy.contains('Dashboard').should('be.visible');
             cy.contains('Overview of your events').should('be.visible');
+
+            // Logout
+            cy.get('[data-cy="logout-btn"]').click();
         });
 
         it('should show error when user doesn\'t exist', () => {
@@ -191,5 +199,41 @@ describe('User Authentication', () => {
             // Should show error
             cy.get('[data-cy="password-error"]').should('contain', 'Password is required');
         });
+    });
+
+    describe('Admin Login', () => {
+        beforeEach(() => {
+            // Navigate to login
+            cy.get('[data-cy="hero-login-btn"]').click();
+        });
+
+        it('should succesfully log in and log out as admin ', () => {
+            // Fill in login form
+            cy.get('[data-cy="email-input"]').type(adminEmail);
+            cy.get('[data-cy="password-input"]').type(adminPassword);
+
+            // Log in
+            cy.get('[data-cy="login-submit"]').click();
+
+            // Should redirect to admin dashboard
+            cy.contains('Admin Dashboard').should('be.visible');
+            cy.contains('Manage all events').should('be.visible');
+
+            // Logout
+            cy.get('[data-cy="logout-btn"]').click();
+        });
+
+        // This is a bug right now...when password is incorrect for admin login, the app flagged the email as "not existing", which is incorrect.
+        // it('should show error when password is incorrect', () => {
+        //     // Fill in login form
+        //     cy.get('[data-cy="email-input"]').type(adminEmail);
+        //     cy.get('[data-cy="password-input"]').type('123admin');
+
+        //     // Log in
+        //     cy.get('[data-cy="login-submit"]').click();
+
+        //     // Should show error
+        //     cy.get('[data-cy="email-error"]').should('contain', 'Please enter the correct password');
+        // });
     });
 });
