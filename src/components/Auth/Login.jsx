@@ -37,7 +37,15 @@ const Login = ({ setCurrentView }) => {
     const result = login(email, password);
     
     if (!result.success) {
-      setErrors({ email: result.error });
+      // Show error on the correct field
+      if (result.field === 'email') {
+        setErrors({ email: result.error });
+      } else if (result.field === 'password') {
+        setErrors({ password: result.error });
+      } else {
+        // fallback
+        setErrors({ email: result.error }); 
+      }
       return;
     }
     

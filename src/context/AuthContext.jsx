@@ -10,32 +10,41 @@ export const AuthProvider = ({ children }) => {
 
   const login = (email, password) => {
     // Check if admin account
-    const isAdmin = email === 'admin@cypressifier.com' && password === 'admin123';
+    const isAdmin = email === 'admin@cypressifier.com';
     
-    // Check if regular user exists
-    if (!isAdmin) {
-      const users = JSON.parse(localStorage.getItem('registered_users') || '[]');
-      const existingUser = users.find(u => u.email === email);
-      
-      if (!existingUser) {
-        return { success: false, error: 'User not found. Please sign up first.' };
+    if (isAdmin) {
+      // Validate admin password
+      if (password !== 'admin123') {
+        return { success: false, error: 'Incorrect password', field: 'password' };
       }
       
-      // In real app, check password here
       const userData = { 
         email, 
-        id: existingUser.id,
-        isAdmin: false
+        id: Date.now(),
+        isAdmin: true
       };
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
       return { success: true };
     }
     
+    // Check if regular user exists
+    const users = JSON.parse(localStorage.getItem('registered_users') || '[]');
+    const existingUser = users.find(u => u.email === email);
+    
+    if (!existingUser) {
+      return { success: false, error: 'User not found. Please sign up first.', field: 'email' };
+    }
+    
+    // Validate password (Bug Fix #1)
+    if (password !== existingUser.password) {
+      return { success: false, error: 'Incorrect password', field: 'password' };
+    }
+    
     const userData = { 
       email, 
-      id: Date.now(),
-      isAdmin: isAdmin
+      id: existingUser.id,
+      isAdmin: false
     };
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
@@ -54,6 +63,7 @@ export const AuthProvider = ({ children }) => {
     const userId = Date.now();
     const userData = { 
       email, 
+      password,
       id: userId,
       isAdmin: false,
       createdAt: new Date().toISOString()

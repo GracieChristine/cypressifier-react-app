@@ -34,12 +34,40 @@ describe('User Authentication', () => {
             cy.get('[data-cy="logout-btn"]').click();
         });
 
+        it('should show error when email exist already', () => {
+            // Fill in signup form
+            cy.get('[data-cy="email-input"]').type(userEmail);
+            cy.get('[data-cy="password-input"]').type(userPassword);
+            cy.get('[data-cy="confirm-password-input"]').type(userPassword);
+            
+            // Sign up
+            cy.get('[data-cy="signup-submit"]').click();
+
+            // Log out
+            cy.get('[data-cy="logout-btn"]').click();
+
+            // Navigate to signup again
+            cy.get('[data-cy="hero-signup-btn"]').click();
+
+            // Fill in signup form again
+            cy.get('[data-cy="email-input"]').type(userEmail);
+            cy.get('[data-cy="password-input"]').type(userPassword);
+            cy.get('[data-cy="confirm-password-input"]').type(userPassword);
+
+            // Sign up again
+            cy.get('[data-cy="signup-submit"]').click();
+            
+            // Should show error
+            cy.get('[data-cy="email-error"]').should('contain', 'User already exists. Please login.');
+        });
+
         it('should show error when email is invalid', () => {
             // Fill in signup form, with invalid email
             cy.get('[data-cy="email-input"]').type('notanemail');
             cy.get('[data-cy="password-input"]').type(userPassword);
             cy.get('[data-cy="confirm-password-input"]').type(userPassword);
             
+            // Sign up
             cy.get('[data-cy="signup-submit"]').click();
             
             // Should show error
@@ -52,6 +80,7 @@ describe('User Authentication', () => {
             cy.get('[data-cy="password-input"]').type('short');
             cy.get('[data-cy="confirm-password-input"]').type('short');
             
+            // Sign up
             cy.get('[data-cy="signup-submit"]').click();
             
             // Should show error
@@ -64,6 +93,7 @@ describe('User Authentication', () => {
             cy.get('[data-cy="password-input"]').type(userPassword);
             cy.get('[data-cy="confirm-password-input"]').type('password456');
             
+            // Sign up
             cy.get('[data-cy="signup-submit"]').click();
             
             // Should show error
@@ -76,6 +106,7 @@ describe('User Authentication', () => {
             cy.get('[data-cy="password-input"]').type(userPassword);
             cy.get('[data-cy="confirm-password-input"]').type('differentpassword');
             
+            // Sign up
             cy.get('[data-cy="signup-submit"]').click();
             
             // Should show error
@@ -88,6 +119,7 @@ describe('User Authentication', () => {
             cy.get('[data-cy="password-input"]').should('be.empty');
             cy.get('[data-cy="confirm-password-input"]').type(userPassword);
             
+            // Sign up
             cy.get('[data-cy="signup-submit"]').click();
             
             // Should show error
@@ -100,6 +132,7 @@ describe('User Authentication', () => {
             cy.get('[data-cy="password-input"]').type(userPassword);
             cy.get('[data-cy="confirm-password-input"]').should('be.empty');
             
+            // Sign up
             cy.get('[data-cy="signup-submit"]').click();
             
             // Should show error
@@ -150,18 +183,17 @@ describe('User Authentication', () => {
             cy.get('[data-cy="email-error"]').should('contain', 'User not found. Please sign up first.');
         });
 
-        // this is a bug...user can log in with incorrect password...
-        // it('should show error when password is incorrect', () => {
-        //     // Fill in login form
-        //     cy.get('[data-cy="email-input"]').type(userEmail);
-        //     cy.get('[data-cy="password-input"]').type(userPassword);
+        it('should show error when password is incorrect', () => {
+            // Fill in login form
+            cy.get('[data-cy="email-input"]').type(userEmail);
+            cy.get('[data-cy="password-input"]').type('123password');
 
-        //     // Log in
-        //     cy.get('[data-cy="login-submit"]').click();
+            // Log in
+            cy.get('[data-cy="login-submit"]').click();
 
-        //     // Should show error
-        //     cy.get('[data-cy="password-error"]').should('contain', 'Incorrect password.');
-        // });
+            // Should show error
+            cy.get('[data-cy="password-error"]').should('contain', 'Incorrect password');
+        });
 
         it('should show error when email invalid', () => {
             // Fill in login form
@@ -223,17 +255,16 @@ describe('User Authentication', () => {
             cy.get('[data-cy="logout-btn"]').click();
         });
 
-        // This is a bug right now...when password is incorrect for admin login, the app flagged the email as "not existing", which is incorrect.
-        // it('should show error when password is incorrect', () => {
-        //     // Fill in login form
-        //     cy.get('[data-cy="email-input"]').type(adminEmail);
-        //     cy.get('[data-cy="password-input"]').type('123admin');
+        it('should show error when password is incorrect', () => {
+            // Fill in login form
+            cy.get('[data-cy="email-input"]').type(adminEmail);
+            cy.get('[data-cy="password-input"]').type('123admin');
 
-        //     // Log in
-        //     cy.get('[data-cy="login-submit"]').click();
+            // Log in
+            cy.get('[data-cy="login-submit"]').click();
 
-        //     // Should show error
-        //     cy.get('[data-cy="email-error"]').should('contain', 'Please enter the correct password');
-        // });
+            // Should show error
+            cy.get('[data-cy="password-error"]').should('contain', 'Incorrect password');
+        });
     });
 });
