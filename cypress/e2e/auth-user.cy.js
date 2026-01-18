@@ -11,132 +11,95 @@ describe('User Authentication', () => {
         cy.clearLocalStorage();
     });
 
-    describe('User Sign Up', () => {
+    describe(`User Sign Up`, () => {
         beforeEach(() => {
             // Navigate to signup
             cy.get('[data-cy="hero-signup-btn"]').click();
         });
 
-        it('should successfully sign up and log out a new user', () => {
-            // Fill in signup form
-            cy.get('[data-cy="email-input"]').type(userEmail);
-            cy.get('[data-cy="password-input"]').type(userPassword);
-            cy.get('[data-cy="confirm-password-input"]').type(userPassword);
-            
-            // Submit
-            cy.get('[data-cy="signup-submit"]').click();
+        it(`should successfully sign up and log out a new user`, () => {
+            cy.signupUser(userEmail, userPassword);
             
             // Should redirect to user dashboard
             cy.contains('Dashboard').should('be.visible');
             cy.contains('Overview of your events').should('be.visible');
 
-            // Logout
-            cy.get('[data-cy="logout-btn"]').click();
+            cy.logout();
         });
 
-        it('should show error when email exist already', () => {
-            // Fill in signup form
-            cy.get('[data-cy="email-input"]').type(userEmail);
-            cy.get('[data-cy="password-input"]').type(userPassword);
-            cy.get('[data-cy="confirm-password-input"]').type(userPassword);
-            
-            // Sign up
-            cy.get('[data-cy="signup-submit"]').click();
+        it(`should show error when email exist already`, () => {
+            cy.signupUser(userEmail, userPassword);
 
-            // Log out
-            cy.get('[data-cy="logout-btn"]').click();
+            cy.logout();
 
             // Navigate to signup again
             cy.get('[data-cy="hero-signup-btn"]').click();
 
-            // Fill in signup form again
-            cy.get('[data-cy="email-input"]').type(userEmail);
-            cy.get('[data-cy="password-input"]').type(userPassword);
-            cy.get('[data-cy="confirm-password-input"]').type(userPassword);
-
-            // Sign up again
-            cy.get('[data-cy="signup-submit"]').click();
+            cy.signupUser(userEmail, userPassword);
             
             // Should show error
-            cy.get('[data-cy="email-error"]').should('contain', 'User already exists. Please login.');
+            cy.get('[data-cy="email-error"]').should('be.visible').and('have.text', 'User already exists. Please login.');
         });
 
-        it('should show error when email is invalid', () => {
-            // Fill in signup form, with invalid email
-            cy.get('[data-cy="email-input"]').type('notanemail');
-            cy.get('[data-cy="password-input"]').type(userPassword);
-            cy.get('[data-cy="confirm-password-input"]').type(userPassword);
-            
-            // Sign up
-            cy.get('[data-cy="signup-submit"]').click();
+        it(`should show error when email is invalid`, () => {
+            cy.signupUser('notanemail', userPassword);
             
             // Should show error
-            cy.get('[data-cy="email-error"]').should('contain', 'valid email');
+            cy.get('[data-cy="email-error"]').should('be.visible').and('have.text', 'Please enter a valid email address');
         });
 
-        it('should show error when password is invalid', () => {
-            // Fill in signup form, with not matching password
-            cy.get('[data-cy="email-input"]').type(userEmail);
-            cy.get('[data-cy="password-input"]').type('short');
-            cy.get('[data-cy="confirm-password-input"]').type('short');
-            
-            // Sign up
-            cy.get('[data-cy="signup-submit"]').click();
+        // passwor is invalid if less than 6 charcter/number
+        it(`should show error when password is invalid`, () => {
+            cy.signupUser(userEmail, 'short');
             
             // Should show error
-            cy.get('[data-cy="password-error"]').should('contain', 'Password must be at least 6 characters');
+            cy.get('[data-cy="password-error"]').should('be.visible').and('have.text', 'Password must be at least 6 characters');
         });
 
-        it('should show error when passwords do not match', () => {
-            // Fill in signup form, with not matching password
-            cy.get('[data-cy="email-input"]').type(userEmail);
-            cy.get('[data-cy="password-input"]').type(userPassword);
-            cy.get('[data-cy="confirm-password-input"]').type('password456');
-            
-            // Sign up
-            cy.get('[data-cy="signup-submit"]').click();
+        it(`should show error when passwords not matching`, () => {
+            cy.signupUser(userEmail, userPassword, 'password456');
             
             // Should show error
-            cy.get('[data-cy="confirm-password-error"]').should('contain', 'Passwords do not match');
+            cy.get('[data-cy="confirm-password-error"]').should('be.visible').and('have.text', 'Passwords do not match');
         });
 
-        it('should show error when require email is missing', () => {
-            // Fill in signup form, excluding email
+        it(`should show error when email not input`, () => {
+            // Fill in sign in form
             cy.get('[data-cy="email-input"]').should('be.empty');
             cy.get('[data-cy="password-input"]').type(userPassword);
-            cy.get('[data-cy="confirm-password-input"]').type('differentpassword');
-            
-            // Sign up
+            cy.get('[data-cy="confirm-password-input"]').type(userPassword);
+
+            // Submit
             cy.get('[data-cy="signup-submit"]').click();
             
             // Should show error
-            cy.get('[data-cy="email-error"]').should('contain', 'Email is required');
+            cy.get('[data-cy="email-error"]').should('be.visible').and('have.text', 'Email is required');
         });
 
-        it('should show error when require password is missing', () => {
-            // Fill in signup form, excluding password
+        it(`should show error when password not input`, () => {
+            // Fill in sign in form
             cy.get('[data-cy="email-input"]').type(userEmail);
             cy.get('[data-cy="password-input"]').should('be.empty');
             cy.get('[data-cy="confirm-password-input"]').type(userPassword);
-            
-            // Sign up
+
+            // Submit
             cy.get('[data-cy="signup-submit"]').click();
             
             // Should show error
-            cy.get('[data-cy="password-error"]').should('contain', 'Password is require');
+            cy.get('[data-cy="password-error"]').should('be.visible').and('have.text', 'Password is required');
         });
 
-        it('should show error when require confirm password is missing', () => {
-            // Fill in signup form, excluding confirm password
+        it(`should show error when confirm password not input`, () => {
+            // Fill in sign in form
             cy.get('[data-cy="email-input"]').type(userEmail);
             cy.get('[data-cy="password-input"]').type(userPassword);
             cy.get('[data-cy="confirm-password-input"]').should('be.empty');
-            
-            // Sign up
+
+            // Submit
             cy.get('[data-cy="signup-submit"]').click();
             
             // Should show error
-            cy.get('[data-cy="confirm-password-error"]').should('contain', 'Please confirm your password');
+            cy.get('[data-cy="confirm-password-error"]').should('be.visible').and('have.text', 'Please confirm your password');
         });
     });
 
@@ -144,70 +107,45 @@ describe('User Authentication', () => {
         beforeEach(() => {
             // Create a new user first
             cy.get('[data-cy="hero-signup-btn"]').click();
-            cy.get('[data-cy="email-input"]').type(userEmail)
-            cy.get('[data-cy="password-input"]').type(userPassword);
-            cy.get('[data-cy="confirm-password-input"]').type(userPassword);
-            cy.get('[data-cy="signup-submit"]').click();
-            
-            // Logout
-            cy.get('[data-cy="logout-btn"]').click();
+            cy.signupUser(userEmail, userPassword);
+            cy.logout();
 
             // Navigate to login
             cy.get('[data-cy="hero-login-btn"]').click();
         });
 
-        it('should succesfully log in and log out existing user', () => {
-            // Fill in login form
-            cy.get('[data-cy="email-input"]').type(userEmail);
-            cy.get('[data-cy="password-input"]').type(userPassword);
-
-            cy.get('[data-cy="login-submit"]').click();
+        it(`should succesfully log in and log out existing user`, () => {
+            cy.loginUser(userEmail, userPassword);
             
             // Should redirect to user dashboard
             cy.contains('Dashboard').should('be.visible');
             cy.contains('Overview of your events').should('be.visible');
 
-            // Logout
-            cy.get('[data-cy="logout-btn"]').click();
+            cy.logout();
         });
 
-        it('should show error when user doesn\'t exist', () => {
-            // Fill in singin form
-            cy.get('[data-cy="email-input"]').type('anothertestuser@example.com');
-            cy.get('[data-cy="password-input"]').type('password123');
-
-            // Log in
-            cy.get('[data-cy="login-submit"]').click();
+        it(`should show error when user not existing`, () => {
+            cy.loginUser('anothertestuser@example.com', userPassword);
 
             // Should show error
-            cy.get('[data-cy="email-error"]').should('contain', 'User not found. Please sign up first.');
+            cy.get('[data-cy="email-error"]').should('be.visible').and('have.text', 'User not found. Please sign up first.');
         });
 
-        it('should show error when password is incorrect', () => {
-            // Fill in login form
-            cy.get('[data-cy="email-input"]').type(userEmail);
-            cy.get('[data-cy="password-input"]').type('123password');
-
-            // Log in
-            cy.get('[data-cy="login-submit"]').click();
+        it(`should show error when password not correct`, () => {
+            cy.loginUser(userEmail, 'password456');
 
             // Should show error
-            cy.get('[data-cy="password-error"]').should('contain', 'Incorrect password');
+            cy.get('[data-cy="password-error"]').should('be.visible').and('have.text', 'Incorrect password');
         });
 
-        it('should show error when email invalid', () => {
-            // Fill in login form
-            cy.get('[data-cy="email-input"]').type('testuser@invalid');
-            cy.get('[data-cy="password-input"]').type(userPassword);
-
-            // Log in
-            cy.get('[data-cy="login-submit"]').click();
+        it(`should show error when email invalid`, () => {
+            cy.loginUser('testuser@invalid', userPassword);
 
             // Should show error
-            cy.get('[data-cy="email-error"]').should('contain', 'Please enter a valid email address');
+            cy.get('[data-cy="email-error"]').should('be.visible').and('have.text', 'Please enter a valid email address');
         });
 
-        it('should show error when require email is missing', () => {
+        it(`should show error when email not input`, () => {
             // Fill in login form, excluding email
             cy.get('[data-cy="email-input"]').should('be.empty');
             cy.get('[data-cy="password-input"]').type(userPassword);
@@ -216,11 +154,11 @@ describe('User Authentication', () => {
             cy.get('[data-cy="login-submit"]').click();
 
             // Should show error
-            cy.get('[data-cy="email-error"]').should('contain', 'Email is required');
+            cy.get('[data-cy="email-error"]').should('be.visible').and('have.text', 'Email is required');
 
         });
 
-        it('should show error when require password is missing', () => {
+        it(`should show error when password not input`, () => {
             // Fill in login form, excluding password
             cy.get('[data-cy="email-input"]').type(userEmail);
             cy.get('[data-cy="password-input"]').should('be.empty');
@@ -229,7 +167,7 @@ describe('User Authentication', () => {
             cy.get('[data-cy="login-submit"]').click();
 
             // Should show error
-            cy.get('[data-cy="password-error"]').should('contain', 'Password is required');
+            cy.get('[data-cy="password-error"]').should('be.visible').and('have.text', 'Password is required');
         });
     });
 
@@ -239,32 +177,21 @@ describe('User Authentication', () => {
             cy.get('[data-cy="hero-login-btn"]').click();
         });
 
-        it('should succesfully log in and log out as admin ', () => {
-            // Fill in login form
-            cy.get('[data-cy="email-input"]').type(adminEmail);
-            cy.get('[data-cy="password-input"]').type(adminPassword);
-
-            // Log in
-            cy.get('[data-cy="login-submit"]').click();
-
+        it(`should succesfully log in and log out as admin`, () => {
+            cy.loginUser(adminEmail, adminPassword);
+            
             // Should redirect to admin dashboard
             cy.contains('Admin Dashboard').should('be.visible');
             cy.contains('Manage all events').should('be.visible');
 
-            // Logout
-            cy.get('[data-cy="logout-btn"]').click();
+            cy.logout();
         });
 
-        it('should show error when password is incorrect', () => {
-            // Fill in login form
-            cy.get('[data-cy="email-input"]').type(adminEmail);
-            cy.get('[data-cy="password-input"]').type('123admin');
-
-            // Log in
-            cy.get('[data-cy="login-submit"]').click();
+        it(`should show error when password not correct`, () => {
+            cy.loginUser(adminEmail, 'admin456');
 
             // Should show error
-            cy.get('[data-cy="password-error"]').should('contain', 'Incorrect password');
+            cy.get('[data-cy="password-error"]').should('be.visible').and('have.text', 'Incorrect password');
         });
     });
 });
