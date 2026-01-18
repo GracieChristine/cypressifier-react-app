@@ -170,4 +170,58 @@ describe('User Event Management', () => {
       cy.get('[data-cy="event-name"]').should('have.text', eventData.name);
     });
   });
+
+  // Create events with different statuses
+  // For now, all will be "In Review" - we'll need admin to change status
+  describe('Event Filtering', () => {
+    beforeEach(() => {
+      // Create an event to edit
+      cy.get('[data-cy="create-event-btn"]').click();
+      cy.get('[data-cy="event-name-input"]').type(eventData.name);
+      cy.get('[data-cy="event-type-select"]').select(eventData.type);
+      cy.get('[data-cy="event-date-input"]').type(eventData.date);
+      cy.get('[data-cy="location-type-castle"]').click();
+      cy.get('[data-cy="event-description-input"]').type(eventData.description);
+      cy.get('[data-cy="event-submit-btn"]').click();
+    });
+
+    it('should show all events when "All Events" filter is selected', () => {
+      cy.get('[data-cy="filter-all"]').click();
+      
+      cy.get('[data-cy="event-card"]').should('exist');
+    });
+
+    it('should show all events when "In Review" filter is selected', () => {
+      cy.get('[data-cy="filter-in-review"]').click();
+      
+      cy.get('[data-cy="event-card"]').should('exist');
+    });
+
+    it('should show all events when "In Progress" filter is selected', () => {
+      cy.get('[data-cy="filter-in-progress"]').click();
+      
+    //   cy.get('[data-cy="event-card"]').should('exist');
+
+      // Should show no events message
+      cy.get('[data-cy="no-events"]').should('be.visible');
+    });
+
+    it('should show all events when "Completed" filter is selected', () => {
+      cy.get('[data-cy="filter-completed"]').click();
+      
+    //   cy.get('[data-cy="event-card"]').should('exist');
+
+      // Should show no events message
+      cy.get('[data-cy="no-events"]').should('be.visible');
+    });
+
+    it('should show all events when "Cancelled" filter is selected', () => {
+      cy.get('[data-cy="filter-cancelled"]').click();
+      
+    //   cy.get('[data-cy="event-card"]').should('exist');
+
+      // Should show no events message
+      cy.get('[data-cy="no-events"]').should('be.visible');
+    });
+  });
 });
