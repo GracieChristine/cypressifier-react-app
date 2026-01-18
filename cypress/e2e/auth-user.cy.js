@@ -13,8 +13,7 @@ describe('User Authentication', () => {
 
     describe(`User Sign Up`, () => {
         beforeEach(() => {
-            // Navigate to signup
-            cy.get('[data-cy="hero-signup-btn"]').click();
+            cy.splashToSignup();
         });
 
         it(`should successfully sign up and log out a new user`, () => {
@@ -33,7 +32,7 @@ describe('User Authentication', () => {
             cy.logout();
 
             // Navigate to signup again
-            cy.get('[data-cy="hero-signup-btn"]').click();
+            cy.splashToSignup();
 
             cy.signupUser(userEmail, userPassword);
             
@@ -106,12 +105,12 @@ describe('User Authentication', () => {
     describe('User Log In', () => {
         beforeEach(() => {
             // Create a new user first
-            cy.get('[data-cy="hero-signup-btn"]').click();
+            cy.splashToSignup();
             cy.signupUser(userEmail, userPassword);
             cy.logout();
 
             // Navigate to login
-            cy.get('[data-cy="hero-login-btn"]').click();
+            cy.splashToLogin();
         });
 
         it(`should succesfully log in and log out existing user`, () => {
@@ -173,8 +172,7 @@ describe('User Authentication', () => {
 
     describe('Admin Login', () => {
         beforeEach(() => {
-            // Navigate to login
-            cy.get('[data-cy="hero-login-btn"]').click();
+            cy.splashToLogin();
         });
 
         it(`should succesfully log in and log out as admin`, () => {

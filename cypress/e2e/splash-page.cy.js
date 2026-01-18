@@ -5,8 +5,8 @@ describe('Slash Page', () => {
         cy.clearLocalStorage();
     });
 
-    describe('Splash Page UI/UX', () => {
-        it('should display brand', () => {
+    describe(`Splash Page UI/UX`, () => {
+        it(`should display brand`, () => {
             cy.contains('Cypressifier').should('be.visible');
             cy.contains('European Estate Events').should('be.visible');
             cy.contains('Castles').should('be.visible');
@@ -14,30 +14,30 @@ describe('Slash Page', () => {
             cy.contains('Palaces').should('be.visible');
             cy.contains('Manor Houses').should('be.visible');
         });
-        it('should display tagline & offering', () => {
+        it(`should display tagline & offering`, () => {
             cy.contains('Create extraordinary moments').should('be.visible');
             cy.contains('Curated Selection').should('be.visible');
             cy.contains('Bespoke Service').should('be.visible');
             cy.contains('Unforgettable').should('be.visible');
         });
-        it('should display buttons', () => {
+        it(`should display buttons`, () => {
             cy.get('[data-cy="hero-signup-btn"]').should('be.visible').and('contain', 'Begin Your Journey');
             cy.get('[data-cy="hero-login-btn"]').should('be.visible').and('contain', 'Log In');
         });
-        it('should display statistics', () => {
+        it(`should display statistics`, () => {
             cy.contains('Historic Venues').should('be.visible');
             cy.contains('Countries').should('be.visible');
             cy.contains('Celebrations').should('be.visible');
         });
-        it('should display footter', () => {
+        it(`should display footter`, () => {
             cy.contains('© 2026 Cypressifier Event Planning.').should('be.visible');
         });
     });
 
-    describe('Splash Page Navigate to Sign Up Page', () => {
-        it('should navigate to signup page when clicking Begin Your Journey button', () => {
+    describe(`Splash Page Navigate to Sign Up Page`, () => {
+        it(`should navigate to signup page when clicking Begin Your Journey button`, () => {
             // Navigate to sign up page
-            cy.get('[data-cy="hero-signup-btn"]').click();
+            cy.splashToSignup();
 
             // Check it is indeed sign up page
             cy.contains('Create Account').should('be.visible');
@@ -61,10 +61,10 @@ describe('Slash Page', () => {
         });
     });
 
-    describe('Splash Page Navigate to Log In Page', () => {
-        it('should navigate to login page when clicking on Log In button', () => {
+    describe(`Splash Page Navigate to Log In Page`, () => {
+        it(`should navigate to login page when clicking on Log In button`, () => {
             // Navigate to login page
-            cy.get('[data-cy="hero-login-btn"]').click();
+            cy.splashToLogin();
 
             /// Check it is indeed login page
             cy.contains('Welcome Back!').should('be.visible');
