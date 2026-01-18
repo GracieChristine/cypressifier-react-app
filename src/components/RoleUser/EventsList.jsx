@@ -189,16 +189,6 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
                     <button
                       onClick={() => {
                         setSelectedEvent(event);
-                        setCurrentView('event-detail');
-                      }}
-                      className="flex-1 bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition text-sm"
-                      data-cy="view-event-btn"
-                    >
-                      View
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedEvent(event);
                         setCurrentView('event-form');
                       }}
                       className="flex-1 bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition text-sm disabled:bg-gray-400 disabled:cursor-not-allowed"

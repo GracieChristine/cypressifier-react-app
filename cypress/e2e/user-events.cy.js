@@ -9,7 +9,7 @@ describe('User Event Management', () => {
     type: 'Celebration',
     date: '2026-12-04',
     locationType: 'Garden Estate',
-    budget: '45000',
+    budget: '75000',
     guestCount: '120',
     description: 'Beautiful outdoor wedding in the English countryside.'
   };
@@ -38,8 +38,8 @@ describe('User Event Management', () => {
       // Select location type - Castle
       cy.get('[data-cy="location-type-castle"]').click();
       
-      // cy.get('[data-cy="event-budget-input"]').clear().type(eventData.budget);
-      // cy.get('[data-cy="event-description-input"]').type(eventData.description);
+      cy.get('[data-cy="event-budget-input"]').clear().type(eventData.budget);
+      cy.get('[data-cy="event-description-input"]').type(eventData.description);
       
       // Submit
       cy.get('[data-cy="event-submit-btn"]').click();
@@ -121,6 +121,48 @@ describe('User Event Management', () => {
       cy.get('[data-cy="event-card"]').should('have.length', 2);
       cy.contains('Event One').should('be.visible');
       cy.contains('Event Two').should('be.visible');
+    });
+  });
+
+  describe('Event Viewing / Editing', () => {
+    beforeEach(() => {
+      // Create an event to view
+      cy.get('[data-cy="create-event-btn"]').click();
+      cy.get('[data-cy="event-name-input"]').type(eventData.name);
+      cy.get('[data-cy="event-type-select"]').select(eventData.type);
+      cy.get('[data-cy="event-date-input"]').type(eventData.date);
+      cy.get('[data-cy="location-type-castle"]').click();
+      cy.get('[data-cy="event-description-input"]').type(eventData.description);
+      cy.get('[data-cy="event-submit-btn"]').click();
+    });
+
+    it('should view event details', () => {
+      // Click view button on the event
+      cy.get('[data-cy="edit-event-btn"]').first().click();
+      
+      // Should see event details
+      cy.get('[data-cy="event-name-input"]').should('have.attr', 'value', eventData.name).and('be.visible');
+      cy.contains('Update your event details').should('be.visible');
+    });
+
+    it('should navigate back from event detail to events list via x icon ', () => {
+      cy.get('[data-cy="edit-event-btn"]').first().click();
+      
+      // Click back
+      cy.get('[data-cy="cancel-btn"]').click();
+      
+      // Should be back on events list
+      cy.get('[data-cy="event-card"]').should('exist');
+    });
+
+    it('should navigate back from event detail to events list from button', () => {
+      cy.get('[data-cy="edit-event-btn"]').first().click();
+      
+      // Click back
+      cy.get('[data-cy="event-cancel-btn"]').click();
+      
+      // Should be back on events list
+      cy.get('[data-cy="event-card"]').should('exist');
     });
   });
 });
