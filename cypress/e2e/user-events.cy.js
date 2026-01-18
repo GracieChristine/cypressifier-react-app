@@ -224,4 +224,59 @@ describe('User Event Management', () => {
       cy.get('[data-cy="no-events"]').should('be.visible');
     });
   });
+
+  describe('Event Cancellation Request', () => {
+    beforeEach(() => {
+      // Create an event to cancel
+      cy.get('[data-cy="create-event-btn"]').click();
+      cy.get('[data-cy="event-name-input"]').type(eventData.name);
+      cy.get('[data-cy="event-type-select"]').select(eventData.type);
+      cy.get('[data-cy="event-date-input"]').type(eventData.date);
+      cy.get('[data-cy="location-type-castle"]').click();
+      cy.get('[data-cy="event-description-input"]').type(eventData.description);
+      cy.get('[data-cy="event-submit-btn"]').click();
+    });
+
+    it('should open cancellation modal when cancel button is clicked', () => {
+      cy.get('[data-cy="cancel-request-btn"]').first().click();
+      
+      // Modal should be visible
+      cy.get('[data-cy="cancel-reason-input"]').should('be.visible');
+    });
+
+    it('should show error when cancellation reason is empty', () => {
+      cy.get('[data-cy="cancel-request-btn"]').first().click();
+      
+      // Try to submit without reason
+      cy.get('[data-cy="confirm-cancel-request"]').click();
+      
+      // Should show error
+      cy.get('[data-cy="cancel-reason-error"]').should('have.text', 'Please provide a reason for cancellation');
+    });
+
+    it('should successfully submit cancellation request', () => {
+      cy.get('[data-cy="cancel-request-btn"]').first().click();
+      
+      // Fill in reason
+      cy.get('[data-cy="cancel-reason-input"]').type('Change of venue needed');
+      
+      // Submit
+      cy.get('[data-cy="confirm-cancel-request"]').click();
+      
+      // Button should change to pending
+      cy.get('[data-cy="cancel-request-btn"]').first().should('contain', '⏳');
+      
+      // Should show pending message
+      cy.contains('Cancellation request pending review').should('be.visible');
+    });
+
+    it('should close modal when cancel is clicked', () => {
+      cy.get('[data-cy="cancel-request-btn"]').first().click();
+      
+      cy.get('[data-cy="cancel-modal-close"]').click();
+      
+      // Modal should be gone
+      cy.get('[data-cy="cancel-reason-input"]').should('not.exist');
+    });
+  });
 });
