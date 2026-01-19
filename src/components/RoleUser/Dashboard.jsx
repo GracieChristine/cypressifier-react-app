@@ -37,8 +37,15 @@ const Dashboard = ({ setCurrentView, setSelectedEvent }) => {
 
   const totalEvents = events.length;
   const completedEvents = events.filter(e => e.status === 'Completed').length;
-  const totalBudget = events.reduce((sum, e) => sum + (parseInt(e.budget || e.setBudget || e.budgetTotal || 0)), 0);
-  const totalSpent = events.reduce((sum, e) => sum + (e.budgetSpent || 0), 0);
+  // Calculate total budget (exclude cancelled events)
+  const totalBudget = events
+    .filter(e => e.status !== 'Cancelled')
+    .reduce((sum, e) => sum + parseInt(e.budget || e.setBudget || e.budgetTotal || 0), 0);
+
+  // Calculate total spent (only completed events)
+  const totalSpent = events
+    .filter(e => e.status === 'Completed')
+    .reduce((sum, e) => sum + parseInt(e.budget || e.setBudget || e.budgetTotal || 0), 0);
 
   const getEventIcon = (type) => {
     const icons = {

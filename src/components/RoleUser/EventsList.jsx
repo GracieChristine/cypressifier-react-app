@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { formatDate } from '../../utils/dateHelpers';
-import { loadEventsFromStorage } from '../../utils/seedData';
+import { loadEventsFromStorage, saveEventsToStorage } from '../../utils/seedData';
+
 
 const EventsList = ({ setCurrentView, setSelectedEvent }) => {
   const { user } = useAuth();
@@ -26,7 +27,6 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
     const userEvents = localStorage.getItem(`events_${user.id}`);
     const parsedUserEvents = userEvents ? JSON.parse(userEvents) : [];
     
-    // Combine both (you can choose to use only one or merge them)
     // For now, prioritize seed data if it exists, otherwise use user data
     if (seedEvents.length > 0) {
       setEvents(seedEvents);
@@ -100,7 +100,7 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
     setEvents(updated);
     
     // Save to both storages
-    localStorage.setItem('cypressifier_events', JSON.stringify(updated));
+    saveEventsToStorage(updated);
     localStorage.setItem(`events_${user.id}`, JSON.stringify(updated));
     
     setCancelModalEvent(null);
@@ -127,7 +127,7 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
 
         {/* Filter Buttons */}
         <div className="bg-white rounded-lg shadow-md p-4 mb-6 flex gap-2 flex-wrap">
-          {['all', 'In Review', 'In Process', 'Completed', 'Cancelled'].map(status => (
+          {['all', 'In Review', 'In Progress', 'Completed', 'Cancelled'].map(status => (
             <button
               key={status}
               onClick={() => setFilter(status)}
@@ -158,85 +158,101 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
-            {filteredEvents.map(event => (
-              <div
-                key={event.id}
-                className="bg-white rounded-lg shadow-md hover:shadow-xl transition overflow-hidden h-full flex flex-col"
-                data-cy="event-card"
-              >
-                <div className="p-6 flex flex-col flex-1">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-3xl">{getEventIcon(event.type)}</span>
-                      <div>
-                        <h3 className="font-bold text-lg" data-cy="event-name">{event.name}</h3>
-                        <span className={`px-2 py-1 rounded text-xs ${getStatusColor(event.status)}`}>
-                          {event.status}
-                        </span>
+            {filteredEvents.map(event => {
+              const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
+              
+              return (
+                <div
+                  key={event.id}
+                  className="bg-white rounded-lg shadow-md hover:shadow-xl transition overflow-hidden h-full flex flex-col"
+                  data-cy="event-card"
+                >
+                  <div className="p-6 flex flex-col flex-1">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-3xl">{getEventIcon(event.type)}</span>
+                        <div>
+                          <h3 className="font-bold text-lg" data-cy="event-name">{event.name}</h3>
+                          <span className={`px-2 py-1 rounded text-xs ${getStatusColor(event.status)}`}>
+                            {event.status}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="space-y-2 text-sm text-gray-600 mb-4">
-                    <div className="flex items-center gap-2">
-                      <span>📅</span>
-                      <span>{formatDate(event.date)}</span>
+                    
+                    <div className="space-y-2 text-sm text-gray-600 mb-4">
+                      <div className="flex items-center gap-2">
+                        <span>📅</span>
+                        <span>{formatDate(event.date)}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span>{getLocationIcon(event.locationType)}</span>
+                        <span className="truncate">{event.locationType}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span>💰</span>
+                        <span>${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span>{getLocationIcon(event.locationType)}</span>
-                      <span className="truncate">{event.locationType}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span>💰</span>
-                      <span>${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}</span>
-                    </div>
-                  </div>
 
-                  {event.description && (
-                    <p className="text-sm text-gray-500 mb-4 line-clamp-2">{event.description}</p>
-                  )}
-                  
-                  {/* Spacer to push content to bottom */}
-                  <div className="flex-grow"></div>
+                    {event.description && (
+                      <p className="text-sm text-gray-500 mb-4 line-clamp-2">{event.description}</p>
+                    )}
+                    
+                    {/* Spacer to push content to bottom */}
+                    <div className="flex-grow"></div>
 
-                  {/* Cancellation Request Status */}
-                  {event.cancellationRequest && (
-                    <div className="bg-orange-50 border border-orange-200 rounded p-2 mb-4">
-                      <p className="text-xs text-orange-800 font-semibold">
-                        ⏳ Cancellation request pending review
-                      </p>
-                    </div>
-                  )}
+                    {/* Cancellation Request Status */}
+                    {event.cancellationRequest && (
+                      <div className="bg-orange-50 border border-orange-200 rounded p-2 mb-4">
+                        <p className="text-xs text-orange-800 font-semibold">
+                          ⏳ Cancellation request pending review
+                        </p>
+                      </div>
+                    )}
 
-                  {/* Buttons always at bottom */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        setSelectedEvent(event);
-                        setCurrentView('event-form');
-                      }}
-                      className="flex-1 bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition text-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
-                      data-cy="edit-event-btn"
-                      disabled={event.status === 'Cancelled' || event.status === 'Completed'}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => {
-                        setCancelModalEvent(event);
-                        setCancelReason('');
-                        setCancelError('');
-                      }}
-                      className="px-4 bg-orange-500 text-white py-2 rounded hover:bg-orange-600 transition text-sm disabled:bg-gray-300 disabled:cursor-not-allowed"
-                      data-cy="cancel-request-btn"
-                      disabled={event.status === 'Cancelled' || event.status === 'Completed' || event.cancellationRequest}
-                    >
-                      {event.cancellationRequest ? '⏳' : '🚫'}
-                    </button>
+                    {/* Buttons - Different for Completed/Cancelled */}
+                    {isReadOnly ? (
+                      <button
+                        onClick={() => {
+                          setSelectedEvent(event);
+                          setCurrentView('event-detail');
+                        }}
+                        className="w-full bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition text-sm"
+                        data-cy="view-event-btn"
+                      >
+                        👁️ View Details
+                      </button>
+                    ) : (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            setSelectedEvent(event);
+                            setCurrentView('event-form');
+                          }}
+                          className="flex-1 bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition text-sm"
+                          data-cy="edit-event-btn"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => {
+                            setCancelModalEvent(event);
+                            setCancelReason('');
+                            setCancelError('');
+                          }}
+                          className="px-4 bg-orange-500 text-white py-2 rounded hover:bg-orange-600 transition text-sm disabled:bg-gray-300 disabled:cursor-not-allowed"
+                          data-cy="cancel-request-btn"
+                          disabled={event.cancellationRequest}
+                        >
+                          {event.cancellationRequest ? '⏳' : '🚫'}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

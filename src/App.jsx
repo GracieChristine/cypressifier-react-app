@@ -83,8 +83,8 @@ function App() {
           />
         )}
         <DevSeedPanel onSeedComplete={() => {
-          // Just log for now, or trigger refresh in specific components
-          console.log('Events seeded!');
+          // Force a re-render by updating the view
+          setCurrentView(prevView => prevView);
         }} />
       </div>
       <Footer />
