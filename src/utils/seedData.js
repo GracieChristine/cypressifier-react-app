@@ -111,7 +111,7 @@ function generateEvent(status) {
         ? getRandomDate(-90, 90)  // Past cancellation
         : getRandomDate(0, 180);   // Future cancellation
       break;
-    case 'In Process':
+    case 'In Progress':
       date = getRandomDate(30, 120); // 30-150 days from now
       break;
     case 'In Review':

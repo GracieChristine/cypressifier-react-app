@@ -1,15 +1,34 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { formatDate } from '../../utils/dateHelpers';
+import { loadEventsFromStorage } from '../../utils/seedData';
 
 const Dashboard = ({ setCurrentView, setSelectedEvent }) => {
   const { user } = useAuth();
   
-  const [events, setEvents] = useState(() => {
-    if (!user) return [];
-    const saved = localStorage.getItem(`events_${user.id}`);
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [events, setEvents] = useState([]);
+
+  // Add useEffect to load events
+  React.useEffect(() => {
+    if (!user) {
+      setEvents([]);
+      return;
+    }
+
+    // Load from shared seed data storage
+    const seedEvents = loadEventsFromStorage();
+    
+    // Also load user-specific events if they exist
+    const userEvents = localStorage.getItem(`events_${user.id}`);
+    const parsedUserEvents = userEvents ? JSON.parse(userEvents) : [];
+    
+    // Prioritize seed data if it exists, otherwise use user data
+    if (seedEvents.length > 0) {
+      setEvents(seedEvents);
+    } else {
+      setEvents(parsedUserEvents);
+    }
+  }, [user]);
 
   const upcomingEvents = events
     .filter(e => new Date(e.date) >= new Date() && e.status !== 'Completed' && e.status !== 'Cancelled')
@@ -18,7 +37,7 @@ const Dashboard = ({ setCurrentView, setSelectedEvent }) => {
 
   const totalEvents = events.length;
   const completedEvents = events.filter(e => e.status === 'Completed').length;
-  const totalBudget = events.reduce((sum, e) => sum + (e.setBudget || e.budgetTotal || 0), 0);
+  const totalBudget = events.reduce((sum, e) => sum + (parseInt(e.budget || e.setBudget || e.budgetTotal || 0)), 0);
   const totalSpent = events.reduce((sum, e) => sum + (e.budgetSpent || 0), 0);
 
   const getEventIcon = (type) => {

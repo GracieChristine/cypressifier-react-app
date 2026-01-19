@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { formatDate } from '../../utils/dateHelpers';
+import { loadEventsFromStorage } from '../../utils/seedData';
 
 const AdminDashboard = ({ setCurrentView, setSelectedEvent }) => {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
     const loadEvents = () => {
-      // Load ALL events from ALL users
-      const allEvents = [];
+      // Load from seed storage first
+      let allEvents = loadEventsFromStorage();
+      
+      // Also load from user-specific storage and merge
       const keys = Object.keys(localStorage);
-      const seenIds = new Set(); // Track unique event IDs
+      const seenIds = new Set(allEvents.map(e => e.id)); // Track IDs from seed data
       
       keys.forEach(key => {
         if (key.startsWith('events_')) {
