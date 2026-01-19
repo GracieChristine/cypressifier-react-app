@@ -1,153 +1,98 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-const Signup = ({ setCurrentView }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [errors, setErrors] = useState({});
+const Signup = () => {
+  const navigate = useNavigate();
   const { signup } = useAuth();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [error, setError] = useState('');
 
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const [showWelcome, setShowWelcome] = useState(false);
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newErrors = {};
+    setError('');
 
-    if (!email) {
-      newErrors.email = 'Email is required';
-    } else if (!validateEmail(email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-
-    if (!password) {
-      newErrors.password = 'Password is required';
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-
-    if (!confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
-    } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
       return;
     }
 
-    setErrors({});
-    const result = signup(email, password);
+    const success = signup(formData.email, formData.password);
     
-    if (!result.success) {
-      setErrors({ email: result.error });
-      return;
-    }
-    
-    if (result.isNewUser) {
-      setShowWelcome(true);
-      setTimeout(() => {
-        setCurrentView('dashboard');
-      }, 2000);
+    if (success) {
+      navigate('/dashboard');
     } else {
-      setCurrentView('dashboard');
+      setError('Email already exists');
     }
   };
 
-  // Add welcome message in the return statement, before the form:
-  {showWelcome && (
-    <div className="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-      <p className="font-semibold">Welcome! 🎉</p>
-      <p className="text-sm">Your account has been created. Redirecting...</p>
-    </div>
-  )}
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
-      <div className="bg-white p-8 rounded-lg shadow-xl w-96">
-        <div className="text-center mb-6">
-          <div className="text-5xl mb-2">✨</div>
-          <h2 className="text-2xl font-bold">Create Account</h2>
-          <p className="text-gray-600 text-sm">Start planning amazing events</p>
-        </div>
-        <div className="space-y-4">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center py-12 px-4">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+        <h2 className="text-3xl font-bold text-center mb-6">Sign Up</h2>
+        
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" data-cy="signup-error">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-gray-700 mb-2">Email</label>
             <input
               type="email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (errors.email) setErrors({ ...errors, email: '' });
-              }}
-              className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                errors.email ? 'border-red-500' : ''
-              }`}
-              data-cy="email-input"
-              placeholder="you@example.com"
+              value={formData.email}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              required
+              data-cy="signup-email"
             />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1" data-cy="email-error">{errors.email}</p>
-            )}
           </div>
+
           <div>
             <label className="block text-gray-700 mb-2">Password</label>
             <input
               type="password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                if (errors.password) setErrors({ ...errors, password: '' });
-              }}
-              className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                errors.password ? 'border-red-500' : ''
-              }`}
-              data-cy="password-input"
-              placeholder="••••••••"
+              value={formData.password}
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              required
+              data-cy="signup-password"
             />
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-1" data-cy="password-error">{errors.password}</p>
-            )}
           </div>
+
           <div>
             <label className="block text-gray-700 mb-2">Confirm Password</label>
             <input
               type="password"
-              value={confirmPassword}
-              onChange={(e) => {
-                setConfirmPassword(e.target.value);
-                if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: '' });
-              }}
-              onKeyPress={(e) => e.key === 'Enter' && handleSubmit(e)}
-              className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                errors.confirmPassword ? 'border-red-500' : ''
-              }`}
-              data-cy="confirm-password-input"
-              placeholder="••••••••"
+              value={formData.confirmPassword}
+              onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              required
+              data-cy="signup-confirm-password"
             />
-            {errors.confirmPassword && (
-              <p className="text-red-500 text-sm mt-1" data-cy="confirm-password-error">{errors.confirmPassword}</p>
-            )}
           </div>
+
           <button
-            onClick={handleSubmit}
-            className="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition"
+            type="submit"
+            className="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition"
             data-cy="signup-submit"
           >
             Sign Up
           </button>
-        </div>
-        <p className="mt-4 text-center text-gray-600">
+        </form>
+
+        <p className="text-center mt-4 text-gray-600">
           Already have an account?{' '}
-          <button 
-            onClick={() => setCurrentView('login')} 
-            className="text-purple-600 hover:underline font-semibold"
-            data-cy="login-link"
+          <button
+            onClick={() => navigate('/login')}
+            className="text-purple-600 hover:underline"
+            data-cy="signup-login-link"
           >
             Login
           </button>

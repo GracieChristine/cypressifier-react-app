@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { formatDate } from '../../utils/dateHelpers';
 import { loadEventsFromStorage } from '../../utils/seedData';
 
-const AdminDashboard = ({ setCurrentView, setSelectedEvent }) => {
+const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
@@ -75,6 +77,7 @@ const AdminDashboard = ({ setCurrentView, setSelectedEvent }) => {
     const colors = {
       'In Review': 'bg-blue-100 text-blue-700',
       'In Progress': 'bg-yellow-100 text-yellow-700',
+      'In Process': 'bg-yellow-100 text-yellow-700',
       'Completed': 'bg-green-100 text-green-700',
       'Cancelled': 'bg-red-100 text-red-700'
     };
@@ -216,10 +219,7 @@ const AdminDashboard = ({ setCurrentView, setSelectedEvent }) => {
                         <div className="flex gap-2">
                           {/* Show View/Edit based on status and cancellation */}
                           <button
-                            onClick={() => {
-                              setSelectedEvent(event);
-                              setCurrentView('admin-event-edit');
-                            }}
+                            onClick={() => navigate(`/admin/events/${event.id}/edit`)}
                             className={`px-3 py-1 text-white rounded text-sm transition ${
                               event.status === 'In Progress' && !event.cancellationRequest
                                 ? 'bg-blue-500 hover:bg-blue-600'

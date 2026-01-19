@@ -1,366 +1,278 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { loadEventsFromStorage, saveEventsToStorage } from '../../utils/seedData';
 
-// Location type configurations with minimum budgets
-const LOCATION_TYPES = {
-  'Castle': { 
-    min: 50000, 
-    icon: '🏰',
-    description: 'Historic castles with grand halls and royal ambiance'
-  },
-  'Chateau': { 
-    min: 45000, 
-    icon: '🏛️',
-    description: 'French country estates with elegant architecture'
-  },
-  'Manor House': { 
-    min: 35000, 
-    icon: '🏡',
-    description: 'Stately manor homes with period features'
-  },
-  'Garden Estate': { 
-    min: 30000, 
-    icon: '🌿',
-    description: 'Romantic gardens and outdoor pavilions'
-  },
-  'Villa': { 
-    min: 40000, 
-    icon: '🏘️',
-    description: 'Luxury villas with Mediterranean charm'
-  },
-  'Historic Abbey': { 
-    min: 55000, 
-    icon: '⛪',
-    description: 'Centuries-old abbeys with Gothic grandeur'
-  }
-};
-
-const EventForm = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
+const EventForm = () => {
   const { user } = useAuth();
-  
-  console.log('EventForm user:', user);
+  const navigate = useNavigate();
+  const { id } = useParams(); // Get event ID from URL if editing
   
   const [formData, setFormData] = useState({
     name: '',
     type: 'Wedding',
     date: '',
     locationType: 'Castle',
-    setBudget: 10000,
+    budget: '',
     guestCount: '',
-    status: 'In Review',
     description: ''
   });
+
   const [errors, setErrors] = useState({});
-  const today = new Date().toISOString().split('T')[0];
+  const isEditing = !!id;
 
+  // Load event data if editing
   useEffect(() => {
-    if (selectedEvent) {
-      setFormData({
-        ...selectedEvent,
-        setBudget: selectedEvent.setBudget || selectedEvent.budgetTotal || selectedEvent.estimatedBudget || '',
-        date: selectedEvent.date // Keep the date as-is without timezone conversion
-      });
+    if (isEditing) {
+      const events = loadEventsFromStorage();
+      const event = events.find(e => e.id === id);
+      
+      if (event) {
+        setFormData({
+          name: event.name || '',
+          type: event.type || 'Wedding',
+          date: event.date || '',
+          locationType: event.locationType || 'Castle',
+          budget: event.budget || event.setBudget || event.budgetTotal || '',
+          guestCount: event.guestCount || '',
+          description: event.description || ''
+        });
+      }
     }
-  }, [selectedEvent]);
-
-  // Update budget when location type changes
-  const handleLocationTypeChange = (newLocationType) => {
-    const minBudget = LOCATION_TYPES[newLocationType].min;
-    setFormData({ 
-      ...formData, 
-      locationType: newLocationType,
-      setBudget: Math.max(formData.setBudget, minBudget) // Keep higher of current or minimum
-    });
-  };
+  }, [id, isEditing]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Validation
     const newErrors = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'Event name is required';
-    }
-
-    if (!formData.date) {
-      newErrors.date = 'Event date is required';
-    } else if (new Date(formData.date) < new Date(today)) {
-      newErrors.date = 'Event date cannot be in the past';
-    }
-
-    const minBudget = LOCATION_TYPES[formData.locationType].min;
-    if (formData.setBudget < minBudget) {
-      newErrors.budget = `Minimum budget for ${formData.locationType} is $${minBudget.toLocaleString()}`;
-    }
+    if (!formData.name.trim()) newErrors.name = 'Event name is required';
+    if (!formData.date) newErrors.date = 'Date is required';
+    if (!formData.budget || formData.budget <= 0) newErrors.budget = 'Valid budget is required';
+    if (!formData.guestCount || formData.guestCount <= 0) newErrors.guestCount = 'Valid guest count is required';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
-    const events = JSON.parse(localStorage.getItem(`events_${user.id}`) || '[]');
+    const events = loadEventsFromStorage();
     
-    if (selectedEvent) {
-      const updated = events.map(e => e.id === selectedEvent.id ? { 
-        ...formData, 
-        id: selectedEvent.id,
-        budgetTotal: parseFloat(formData.setBudget) || 0,
-        budgetSpent: e.budgetSpent || 0,
-        setBudget: parseFloat(formData.setBudget) || 0,
-        locationType: formData.locationType,
-        location: formData.locationType // For backward compatibility with display
-      } : e);
-      localStorage.setItem(`events_${user.id}`, JSON.stringify(updated));
+    if (isEditing) {
+      // Update existing event
+      const updatedEvents = events.map(e => 
+        e.id === id 
+          ? { 
+              ...e, 
+              ...formData,
+              setBudget: parseInt(formData.budget),
+              budgetTotal: parseInt(formData.budget)
+            }
+          : e
+      );
+      saveEventsToStorage(updatedEvents);
+      localStorage.setItem(`events_${user.id}`, JSON.stringify(updatedEvents));
     } else {
-      const newEvent = { 
-        ...formData, 
-        id: Date.now(), 
-        createdAt: new Date().toISOString(),
+      // Create new event
+      const newEvent = {
+        id: `event_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        ...formData,
         status: 'In Review',
+        setBudget: parseInt(formData.budget),
+        budgetTotal: parseInt(formData.budget),
+        budgetSpent: 0,
         userId: user.id,
         userEmail: user.email,
-        budgetTotal: parseFloat(formData.setBudget) || 0,
-        budgetSpent: 0,
-        setBudget: parseFloat(formData.setBudget) || 0,
-        guestCount: parseInt(formData.guestCount) || 0,
-        location: formData.locationType
+        createdAt: new Date().toISOString()
       };
-      localStorage.setItem(`events_${user.id}`, JSON.stringify([...events, newEvent]));
+      
+      const updatedEvents = [...events, newEvent];
+      saveEventsToStorage(updatedEvents);
+      localStorage.setItem(`events_${user.id}`, JSON.stringify(updatedEvents));
     }
-    
-    setSelectedEvent(null);
-    setCurrentView('events');
+
+    navigate('/events');
   };
 
-  const selectedLocationInfo = LOCATION_TYPES[formData.locationType];
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-8">
-      <div className="container mx-auto max-w-4xl px-4">
+      <div className="max-w-3xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg p-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-3xl font-display">{selectedEvent ? 'Edit Event' : 'Plan Your Event'}</h2>
-              <p className="text-sm text-gray-600 mt-1 font-serif">
-                {selectedEvent ? 'Update your event details' : 'Create an unforgettable experience at Europe\'s finest venues'}
-              </p>
-            </div>
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold text-gray-800">
+              {isEditing ? 'Edit Event' : 'Create New Event'}
+            </h1>
             <button
-              onClick={() => {
-                setSelectedEvent(null);
-                setCurrentView('events');
-              }}
-              className="text-gray-500 hover:text-gray-700 text-2xl"
-              data-cy="cancel-btn"
+              onClick={() => navigate('/events')}
+              className="text-gray-600 hover:text-gray-800"
             >
-              ✕
+              ← Back to Events
             </button>
           </div>
 
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-gray-700 mb-2 font-semibold">Event Name *</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => {
-                    setFormData({ ...formData, name: e.target.value });
-                    if (errors.name) setErrors({ ...errors, name: '' });
-                  }}
-                  className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                    errors.name ? 'border-red-500' : ''
-                  }`}
-                  placeholder="The Ashford Wedding"
-                  data-cy="event-name-input"
-                  required
-                />
-                {errors.name && (
-                  <p className="text-red-500 text-sm mt-1" data-cy="name-error">{errors.name}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-gray-700 mb-2 font-semibold">Event Date *</label>
-                <input
-                  type="date"
-                  value={formData.date}
-                  min={today}
-                  onChange={(e) => {
-                    setFormData({ ...formData, date: e.target.value });
-                    if (errors.date) setErrors({ ...errors, date: '' });
-                  }}
-                  className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                    errors.date ? 'border-red-500' : ''
-                  }`}
-                  data-cy="event-date-input"
-                  required
-                />
-                {errors.date && (
-                  <p className="text-red-500 text-sm mt-1" data-cy="date-error">{errors.date}</p>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-gray-700 mb-2 font-semibold">Event Type</label>
-                <select
-                  value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  data-cy="event-type-select"
-                >
-                  <option value="Wedding">Wedding</option>
-                  <option value="Anniversary">Anniversary</option>
-                  <option value="Gala">Gala</option>
-                  <option value="Corporate Retreat">Corporate Retreat</option>
-                  <option value="Celebration">Celebration</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-
-              <div>
-                  <label className="block text-gray-700 mb-2 font-semibold">RVSP Count *</label>
-                  <input
-                    type="number"
-                    value={formData.guestCount}
-                    onChange={(e) => setFormData({ ...formData, guestCount: e.target.value })}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="150"
-                    min="0"
-                    data-cy="event-guest-count-input"
-                  />
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Event Name *
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  errors.name ? 'border-red-500' : ''
+                }`}
+                placeholder="e.g., Annual Company Gala"
+                data-cy="event-name-input"
+              />
+              {errors.name && (
+                <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+              )}
             </div>
 
             <div>
-              <label className="block text-gray-700 mb-2 font-semibold">Venue Type *</label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {Object.entries(LOCATION_TYPES).map(([type, info]) => (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => handleLocationTypeChange(type)}
-                    className={`p-4 border-2 rounded-lg text-left transition-all ${
-                      formData.locationType === type
-                        ? 'border-purple-500 bg-purple-50'
-                        : 'border-gray-200 hover:border-purple-300'
-                    }`}
-                    data-cy={`location-type-${type.toLowerCase().replace(' ', '-')}`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="text-3xl">{info.icon}</span>
-                      <div>
-                        <div className="font-semibold text-gray-800">{type}</div>
-                        <div className="text-xs text-gray-600 mt-1">{info.description}</div>
-                        <div className="text-xs text-purple-600 mt-1 font-semibold">
-                          From ${info.min.toLocaleString()}
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Event Type *
+              </label>
+              <select
+                name="type"
+                value={formData.type}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                data-cy="event-type-select"
+              >
+                <option value="Wedding">💒 Wedding</option>
+                <option value="Birthday">🎂 Birthday</option>
+                <option value="Corporate">💼 Corporate</option>
+                <option value="Conference">🎤 Conference</option>
+                <option value="Party">🎊 Party</option>
+                <option value="Other">🎉 Other</option>
+              </select>
             </div>
-
-            <div className="space-y-6"></div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-gray-700 mb-2 font-semibold">Set Budget *</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2 text-gray-500">$</span>
-                  <input
-                    type="number"
-                    value={formData.setBudget}
-                    onChange={(e) => {
-                      setFormData({ ...formData, setBudget: e.target.value });
-                      if (errors.budget) setErrors({ ...errors, budget: '' });
-                    }}
-                    className={`w-full pl-7 pr-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                      errors.budget ? 'border-red-500' : ''
-                    }`}
-                    placeholder={selectedLocationInfo.min.toString()}
-                    min={selectedLocationInfo.min}
-                    data-cy="event-budget-input"
-                  />
-                </div>
-                <p className="text-sm text-gray-500 mt-1">
-                  Minimum for {formData.locationType}: ${selectedLocationInfo.min.toLocaleString()}
-                </p>
-                {errors.budget && (
-                  <p className="text-red-500 text-sm mt-1" data-cy="budget-error">{errors.budget}</p>
-                )}
-              </div>
-              
-            </div>
-            
-            
-            
-            
 
             <div>
-              <label className="block text-gray-700 mb-2 font-semibold">Vision & Details</label>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Event Date *
+              </label>
+              <input
+                type="date"
+                name="date"
+                value={formData.date}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  errors.date ? 'border-red-500' : ''
+                }`}
+                data-cy="event-date-input"
+              />
+              {errors.date && (
+                <p className="text-red-500 text-sm mt-1">{errors.date}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Location Type *
+              </label>
+              <select
+                name="locationType"
+                value={formData.locationType}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                data-cy="event-location-select"
+              >
+                <option value="Castle">🏰 Castle</option>
+                <option value="Chateau">🏛️ Chateau</option>
+                <option value="Manor House">🏡 Manor House</option>
+                <option value="Garden Estate">🌿 Garden Estate</option>
+                <option value="Villa">🏘️ Villa</option>
+                <option value="Historic Abbey">⛪ Historic Abbey</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Budget ($) *
+              </label>
+              <input
+                type="number"
+                name="budget"
+                value={formData.budget}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  errors.budget ? 'border-red-500' : ''
+                }`}
+                placeholder="50000"
+                min="0"
+                data-cy="event-budget-input"
+              />
+              {errors.budget && (
+                <p className="text-red-500 text-sm mt-1">{errors.budget}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Guest Count *
+              </label>
+              <input
+                type="number"
+                name="guestCount"
+                value={formData.guestCount}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  errors.guestCount ? 'border-red-500' : ''
+                }`}
+                placeholder="150"
+                min="1"
+                data-cy="event-guests-input"
+              />
+              {errors.guestCount && (
+                <p className="text-red-500 text-sm mt-1">{errors.guestCount}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Description
+              </label>
               <textarea
+                name="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
+                onChange={handleChange}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 rows="4"
-                placeholder="Describe your vision... preferred regions, specific requirements, style preferences..."
+                placeholder="Brief description of your event..."
                 data-cy="event-description-input"
               />
-              <p className="text-sm text-gray-500 mt-1">
-                Our team will work with you to find the perfect {formData.locationType.toLowerCase()} for your event
-              </p>
             </div>
 
-            {selectedEvent && user && user.isAdmin && (
-              <div>
-                <label className="block text-gray-700 mb-2 font-semibold">Status</label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  data-cy="event-status-select"
-                >
-                  <option value="In Review">In Review</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Cancelled">Cancelled</option>
-                </select>
-                <p className="text-sm text-gray-500 mt-1">Update event status (Admin only)</p>
-              </div>
-            )}
-
-            {!selectedEvent && (
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                <p className="text-sm text-purple-900 font-serif">
-                  <strong className="font-display">Next Steps:</strong> Our planning team will review your request and contact you within 48 hours to discuss venue options, availability, and begin crafting your perfect event.
-                </p>
-              </div>
-            )}
-
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <button
-                onClick={handleSubmit}
-                className="flex-1 bg-royal-700 text-white py-3 rounded-lg hover:bg-royal-800 transition font-sans font-semibold shadow-lg"
+                type="submit"
+                className="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-semibold"
                 data-cy="event-submit-btn"
               >
-                {selectedEvent ? 'Update Event' : 'Submit Request'}
+                {isEditing ? 'Update Event' : 'Create Event'}
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setSelectedEvent(null);
-                  setCurrentView('events');
-                }}
-                className="px-6 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition font-sans"
+                onClick={() => navigate('/events')}
+                className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition font-semibold"
                 data-cy="event-cancel-btn"
               >
                 Cancel
               </button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>

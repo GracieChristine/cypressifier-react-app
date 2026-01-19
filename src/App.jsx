@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 // Layout Components
@@ -21,81 +22,140 @@ import AdminEventEdit from './components/RoleAdmin/EventEdit';
 // Dev Components
 import DevSeedPanel from './components/DevSeedPanel';
 
-function App() {
-  const [currentView, setCurrentView] = useState('splash');
-  const [selectedEvent, setSelectedEvent] = useState(null);
+// Protected Route wrapper
+function ProtectedRoute({ children, adminOnly = false }) {
   const { user } = useAuth();
+  
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  if (adminOnly && !user.isAdmin) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  return children;
+}
 
-  useEffect(() => {
-    if (currentView === 'splash') return;
-    
-    if (user && currentView === 'login') {
-      // Route based on user role
-      if (user.isAdmin) {
-        setCurrentView('admin-dashboard');
-      } else {
-        setCurrentView('dashboard');
-      }
-    } else if (!user && !['login', 'signup', 'splash'].includes(currentView)) {
-      setCurrentView('splash');
-    }
-  }, [user, currentView]);
+// Public Route wrapper (redirect to dashboard if already logged in)
+function PublicRoute({ children }) {
+  const { user } = useAuth();
+  
+  if (user) {
+    return <Navigate to={user.isAdmin ? "/admin/dashboard" : "/dashboard"} replace />;
+  }
+  
+  return children;
+}
 
+// Main App Layout
+function AppLayout({ children, showNavbar = true }) {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {currentView !== 'splash' && <Navbar currentView={currentView} setCurrentView={setCurrentView} />}
+      {showNavbar && <Navbar />}
       <div className="flex-1">
-        {currentView === 'splash' && <SplashPage setCurrentView={setCurrentView} />}
-        {currentView === 'login' && <Login setCurrentView={setCurrentView} />}
-        {currentView === 'signup' && <Signup setCurrentView={setCurrentView} />}
-        
-        {/* User Routes */}
-        {currentView === 'dashboard' && user && !user.isAdmin && (
-          <UserDashboard setCurrentView={setCurrentView} setSelectedEvent={setSelectedEvent} />
-        )}
-        {currentView === 'events' && user && !user.isAdmin && (
-          <UserEventsList setCurrentView={setCurrentView} setSelectedEvent={setSelectedEvent} />
-        )}
-        {currentView === 'event-form' && user && !user.isAdmin && (
-          <UserEventForm 
-            setCurrentView={setCurrentView} 
-            selectedEvent={selectedEvent}
-            setSelectedEvent={setSelectedEvent}
-          />
-        )}
-        {currentView === 'event-detail' && user && !user.isAdmin && (
-          <UserEventDetail 
-            setCurrentView={setCurrentView}
-            selectedEvent={selectedEvent}
-            setSelectedEvent={setSelectedEvent}
-          />
-        )}
-
-        {/* Admin Routes */}
-        {currentView === 'admin-dashboard' && user && user.isAdmin && (
-          <AdminDashboard setCurrentView={setCurrentView} setSelectedEvent={setSelectedEvent} />
-        )}
-        {currentView === 'admin-event-edit' && user && user.isAdmin && (
-          <AdminEventEdit 
-            setCurrentView={setCurrentView}
-            selectedEvent={selectedEvent}
-            setSelectedEvent={setSelectedEvent}
-          />
-        )}
-        <DevSeedPanel onSeedComplete={() => {
-          // Force a re-render by updating the view
-          setCurrentView(prevView => prevView);
-        }} />
+        {children}
       </div>
       <Footer />
+      <DevSeedPanel onSeedComplete={() => window.location.reload()} />
     </div>
   );
 }
 
-export default function Root() {
+function App() {
   return (
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={
+            <AppLayout showNavbar={false}>
+              <PublicRoute>
+                <SplashPage />
+              </PublicRoute>
+            </AppLayout>
+          } />
+          
+          <Route path="/login" element={
+            <AppLayout showNavbar={false}>
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            </AppLayout>
+          } />
+          
+          <Route path="/signup" element={
+            <AppLayout showNavbar={false}>
+              <PublicRoute>
+                <Signup />
+              </PublicRoute>
+            </AppLayout>
+          } />
+
+          {/* User Protected Routes */}
+          <Route path="/dashboard" element={
+            <AppLayout>
+              <ProtectedRoute>
+                <UserDashboard />
+              </ProtectedRoute>
+            </AppLayout>
+          } />
+          
+          <Route path="/events" element={
+            <AppLayout>
+              <ProtectedRoute>
+                <UserEventsList />
+              </ProtectedRoute>
+            </AppLayout>
+          } />
+          
+          <Route path="/events/new" element={
+            <AppLayout>
+              <ProtectedRoute>
+                <UserEventForm />
+              </ProtectedRoute>
+            </AppLayout>
+          } />
+          
+          <Route path="/events/:id/edit" element={
+            <AppLayout>
+              <ProtectedRoute>
+                <UserEventForm />
+              </ProtectedRoute>
+            </AppLayout>
+          } />
+          
+          <Route path="/events/:id" element={
+            <AppLayout>
+              <ProtectedRoute>
+                <UserEventDetail />
+              </ProtectedRoute>
+            </AppLayout>
+          } />
+
+          {/* Admin Protected Routes */}
+          <Route path="/admin/dashboard" element={
+            <AppLayout>
+              <ProtectedRoute adminOnly={true}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            </AppLayout>
+          } />
+          
+          <Route path="/admin/events/:id/edit" element={
+            <AppLayout>
+              <ProtectedRoute adminOnly={true}>
+                <AdminEventEdit />
+              </ProtectedRoute>
+            </AppLayout>
+          } />
+
+          {/* Catch all - redirect to splash */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
+
+export default App;

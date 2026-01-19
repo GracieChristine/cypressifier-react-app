@@ -1,15 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { loadEventsFromStorage, saveEventsToStorage } from '../../utils/seedData';
 
-const AdminEventEdit = ({ setCurrentView, selectedEvent, setSelectedEvent }) => {
+const AdminEventEdit = () => {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [markAsCompleted, setMarkAsCompleted] = useState(false);
   const [completionNotes, setCompletionNotes] = useState('');
   const [acceptComment, setAcceptComment] = useState('');
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
 
+  // Load event from storage
+  useEffect(() => {
+    const events = loadEventsFromStorage();
+    const event = events.find(e => e.id === id);
+    
+    if (event) {
+      setSelectedEvent(event);
+    } else {
+      // Event not found, redirect to dashboard
+      navigate('/admin/dashboard');
+    }
+  }, [id, navigate]);
+
   if (!selectedEvent) {
-    setCurrentView('admin-dashboard');
-    return null;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-elegant-50 to-royal-50/30 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">⏳</div>
+          <p className="text-gray-600">Loading event...</p>
+        </div>
+      </div>
+    );
   }
 
   const isNewSubmission = selectedEvent.status === 'In Review' && !selectedEvent.cancellationRequest;
@@ -17,27 +42,32 @@ const AdminEventEdit = ({ setCurrentView, selectedEvent, setSelectedEvent }) => 
   const isInProgress = selectedEvent.status === 'In Progress' && !selectedEvent.cancellationRequest;
   const isReadOnly = selectedEvent.status === 'Completed' || (selectedEvent.status === 'Cancelled' && !selectedEvent.cancellationRequest);
 
-  const handleAcceptSubmission = () => {
-    const userEvents = JSON.parse(localStorage.getItem(`events_${selectedEvent.userId}`) || '[]');
+  const updateEvent = (updatedEvent) => {
+    const events = loadEventsFromStorage();
+    const updated = events.map(e => e.id === selectedEvent.id ? updatedEvent : e);
+    saveEventsToStorage(updated);
     
-    const updated = userEvents.map(e => 
-      e.id === selectedEvent.id 
-        ? { 
-            ...e, 
-            status: 'In Progress',
-            adminComment: acceptComment || 'Event accepted and moved to In Progress.',
-            acceptedBy: 'Admin',
-            acceptedAt: new Date().toISOString()
-          }
-        : e
-    );
+    // Also update user-specific storage if userId exists
+    if (selectedEvent.userId) {
+      localStorage.setItem(`events_${selectedEvent.userId}`, JSON.stringify(updated));
+    }
     
-    localStorage.setItem(`events_${selectedEvent.userId}`, JSON.stringify(updated));
     window.dispatchEvent(new Event('storage'));
+  };
+
+  const handleAcceptSubmission = () => {
+    const updatedEvent = {
+      ...selectedEvent,
+      status: 'In Progress',
+      adminComment: acceptComment || 'Event accepted and moved to In Progress.',
+      acceptedBy: 'Admin',
+      acceptedAt: new Date().toISOString()
+    };
+    
+    updateEvent(updatedEvent);
     
     alert('Event accepted and moved to In Progress!');
-    setSelectedEvent(null);
-    setCurrentView('admin-dashboard');
+    navigate('/admin/dashboard');
   };
 
   const handleRejectSubmission = () => {
@@ -46,106 +76,71 @@ const AdminEventEdit = ({ setCurrentView, selectedEvent, setSelectedEvent }) => 
       return;
     }
 
-    const userEvents = JSON.parse(localStorage.getItem(`events_${selectedEvent.userId}`) || '[]');
+    const updatedEvent = {
+      ...selectedEvent,
+      status: 'Cancelled',
+      rejectionReason: rejectReason,
+      rejectedBy: 'Admin',
+      rejectedAt: new Date().toISOString()
+    };
     
-    const updated = userEvents.map(e => 
-      e.id === selectedEvent.id 
-        ? { 
-            ...e, 
-            status: 'Cancelled',
-            rejectionReason: rejectReason,
-            rejectedBy: 'Admin',
-            rejectedAt: new Date().toISOString()
-          }
-        : e
-    );
-    
-    localStorage.setItem(`events_${selectedEvent.userId}`, JSON.stringify(updated));
-    window.dispatchEvent(new Event('storage'));
+    updateEvent(updatedEvent);
     
     alert('Event rejected.');
-    setSelectedEvent(null);
-    setCurrentView('admin-dashboard');
+    navigate('/admin/dashboard');
   };
 
   const handleApproveCancellation = () => {
-    const userEvents = JSON.parse(localStorage.getItem(`events_${selectedEvent.userId}`) || '[]');
+    const updatedEvent = {
+      ...selectedEvent,
+      status: 'Cancelled',
+      cancellationRequest: false,
+      cancellationApproved: true,
+      cancellationApprovedBy: 'Admin',
+      cancellationApprovedAt: new Date().toISOString()
+    };
     
-    const updated = userEvents.map(e => 
-      e.id === selectedEvent.id 
-        ? { 
-            ...e, 
-            status: 'Cancelled',
-            cancellationRequest: false,
-            cancellationApproved: true,
-            cancellationApprovedBy: 'Admin',
-            cancellationApprovedAt: new Date().toISOString()
-          }
-        : e
-    );
-    
-    localStorage.setItem(`events_${selectedEvent.userId}`, JSON.stringify(updated));
-    window.dispatchEvent(new Event('storage'));
+    updateEvent(updatedEvent);
     
     alert('Cancellation approved. Event status changed to Cancelled.');
-    setSelectedEvent(null);
-    setCurrentView('admin-dashboard');
+    navigate('/admin/dashboard');
   };
 
   const handleDenyCancellation = () => {
-    const userEvents = JSON.parse(localStorage.getItem(`events_${selectedEvent.userId}`) || '[]');
+    const updatedEvent = {
+      ...selectedEvent,
+      cancellationRequest: false,
+      cancellationDenied: true,
+      cancellationDeniedBy: 'Admin',
+      cancellationDeniedAt: new Date().toISOString()
+    };
     
-    const updated = userEvents.map(e => 
-      e.id === selectedEvent.id 
-        ? { 
-            ...e, 
-            cancellationRequest: false,
-            cancellationDenied: true,
-            cancellationDeniedBy: 'Admin',
-            cancellationDeniedAt: new Date().toISOString()
-          }
-        : e
-    );
-    
-    localStorage.setItem(`events_${selectedEvent.userId}`, JSON.stringify(updated));
-    window.dispatchEvent(new Event('storage'));
+    updateEvent(updatedEvent);
     
     alert('Cancellation request denied.');
-    setSelectedEvent(null);
-    setCurrentView('admin-dashboard');
+    navigate('/admin/dashboard');
   };
 
   const handleSaveProgress = () => {
-    const userEvents = JSON.parse(localStorage.getItem(`events_${selectedEvent.userId}`) || '[]');
+    const updatedEvent = {
+      ...selectedEvent,
+      status: markAsCompleted ? 'Completed' : 'In Progress',
+      completionNotes: markAsCompleted ? completionNotes : undefined,
+      completedBy: markAsCompleted ? 'Admin' : undefined,
+      completedAt: markAsCompleted ? new Date().toISOString() : undefined
+    };
     
-    const updated = userEvents.map(e => 
-      e.id === selectedEvent.id 
-        ? { 
-            ...e, 
-            status: markAsCompleted ? 'Completed' : 'In Progress',
-            completionNotes: markAsCompleted ? completionNotes : undefined,
-            completedBy: markAsCompleted ? 'Admin' : undefined,
-            completedAt: markAsCompleted ? new Date().toISOString() : undefined
-          }
-        : e
-    );
-    
-    localStorage.setItem(`events_${selectedEvent.userId}`, JSON.stringify(updated));
-    window.dispatchEvent(new Event('storage'));
+    updateEvent(updatedEvent);
     
     alert(markAsCompleted ? 'Event marked as Completed!' : 'Event updated!');
-    setSelectedEvent(null);
-    setCurrentView('admin-dashboard');
+    navigate('/admin/dashboard');
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-elegant-50 to-royal-50/30 py-6 px-8">
       <div className="max-w-4xl mx-auto">
         <button
-          onClick={() => {
-            setSelectedEvent(null);
-            setCurrentView('admin-dashboard');
-          }}
+          onClick={() => navigate('/admin/dashboard')}
           className="mb-4 text-royal-700 hover:text-royal-900 font-semibold flex items-center gap-2"
         >
           ← Back to Dashboard
@@ -167,7 +162,7 @@ const AdminEventEdit = ({ setCurrentView, selectedEvent, setSelectedEvent }) => 
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-gray-600">User Name:</span>
-                  <span className="ml-2 font-semibold">{selectedEvent.userEmail.split('@')[0].toUpperCase() || 'Not available'}</span>
+                  <span className="ml-2 font-semibold">{selectedEvent.userEmail?.split('@')[0].toUpperCase() || 'Not available'}</span>
                 </div>
                 <div>
                   <span className="text-gray-600">Client ID</span>
@@ -195,7 +190,7 @@ const AdminEventEdit = ({ setCurrentView, selectedEvent, setSelectedEvent }) => 
                 </div>
                 <div>
                   <span className="text-gray-600">Budget:</span>
-                  <span className="ml-2 font-semibold">${selectedEvent.setBudget?.toLocaleString()}</span>
+                  <span className="ml-2 font-semibold">${parseInt(selectedEvent.budget || selectedEvent.setBudget || selectedEvent.budgetTotal || 0).toLocaleString()}</span>
                 </div>
                 <div>
                   <span className="text-gray-600">Guests:</span>
@@ -339,10 +334,7 @@ const AdminEventEdit = ({ setCurrentView, selectedEvent, setSelectedEvent }) => 
                       {markAsCompleted ? '✅ Save & Mark Completed' : '💾 Save Changes'}
                     </button>
                     <button
-                      onClick={() => {
-                        setSelectedEvent(null);
-                        setCurrentView('admin-dashboard');
-                      }}
+                      onClick={() => navigate('/admin/dashboard')}
                       className="px-6 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition"
                       data-cy="admin-cancel-btn"
                     >

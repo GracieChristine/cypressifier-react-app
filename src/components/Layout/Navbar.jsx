@@ -1,99 +1,82 @@
 import React from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-const Navbar = ({ currentView, setCurrentView }) => {
+const Navbar = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
-    setCurrentView('splash');
+    navigate('/');
   };
 
-  const handleTitleClick = () => {
-    if (!user) {
-      setCurrentView('splash');
-    } else if (user.isAdmin) {
-      setCurrentView('admin-dashboard');
-    } else {
-      setCurrentView('dashboard');
-    }
-  };
+  const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="bg-royal-700 text-white p-4 shadow-lg">
-      <div className="max-w-full px-8 flex justify-between items-center">
-        <div className="flex items-center gap-6">
-          <button 
-            onClick={handleTitleClick}
-            className="text-2xl font-display hover:opacity-80 transition-opacity"
-          >
-            <span className="font-display">Cypressifier</span>
-          </button>
-          {user && !user.isAdmin && (
-            <div className="flex gap-4">
-              <button
-                onClick={() => setCurrentView('dashboard')}
-                className={`hover:underline ${currentView === 'dashboard' ? 'font-bold' : ''}`}
-                data-cy="nav-dashboard"
+    <nav className="bg-white shadow-md">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex items-center">
+            <Link to={user?.isAdmin ? "/admin/dashboard" : "/dashboard"} className="text-xl font-bold text-purple-600">
+              Cypressifier
+            </Link>
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            {user && !user.isAdmin && (
+              <>
+                <Link
+                  to="/dashboard"
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    isActive('/dashboard')
+                      ? 'bg-purple-100 text-purple-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  to="/events"
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    isActive('/events')
+                      ? 'bg-purple-100 text-purple-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  My Events
+                </Link>
+              </>
+            )}
+            
+            {user && user.isAdmin && (
+              <Link
+                to="/admin/dashboard"
+                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  isActive('/admin/dashboard')
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
               >
-                Dashboard
-              </button>
-              <button
-                onClick={() => setCurrentView('events')}
-                className={`hover:underline ${currentView === 'events' ? 'font-bold' : ''}`}
-                data-cy="nav-events"
-              >
-                My Events
-              </button>
-            </div>
-          )}
-          {user && user.isAdmin && (
-            <div className="flex gap-4">
-              <button
-                onClick={() => setCurrentView('admin-dashboard')}
-                className={`hover:underline ${currentView === 'admin-dashboard' ? 'font-bold' : ''}`}
-                data-cy="nav-admin-dashboard"
-              >
-                👑 Admin Dashboard
-              </button>
-            </div>
-          )}
-        </div>
-        <div className="space-x-4 flex items-center">
-          {user && user.isAdmin && (
-            <span className="bg-yellow-500 text-yellow-900 px-3 py-1 rounded text-sm font-semibold">
-              ADMIN
-            </span>
-          )}
-          {user ? (
-            <>
-              <span className="text-sm">{user.email}</span>
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded transition"
-                data-cy="logout-btn"
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <button 
-                onClick={() => setCurrentView('login')} 
-                className="hover:underline"
-                data-cy="nav-login"
-              >
-                Login
-              </button>
-              <button 
-                onClick={() => setCurrentView('signup')} 
-                className="hover:underline"
-                data-cy="nav-signup"
-              >
-                Sign Up
-              </button>
-            </>
-          )}
+                Admin Dashboard
+              </Link>
+            )}
+            
+            {user && (
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-gray-600">
+                  {user.email}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-500 text-white px-4 py-2 rounded-md text-sm hover:bg-red-600"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </nav>

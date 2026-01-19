@@ -1,108 +1,29 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const SplashPage = ({ setCurrentView }) => {
+const SplashPage = () => {
+  const navigate = useNavigate();
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-elegant-50 via-white to-royal-50/30 relative overflow-hidden flex flex-col">
-      {/* Subtle European-inspired pattern overlay */}
-      <div className="absolute inset-0 opacity-[0.03]">
-        <div className="absolute top-10 left-10 w-64 h-64 border-2 border-elegant-400 rounded-full"></div>
-        <div className="absolute top-32 right-20 w-96 h-96 border border-royal-300 rounded-full"></div>
-        <div className="absolute bottom-20 left-1/4 w-80 h-80 border border-elegant-300 rounded-full"></div>
-        <div className="absolute top-1/2 right-1/3 w-72 h-72 border-2 border-royal-200 rounded-full"></div>
-      </div>
-
-      {/* Hero Section */}
-      <div className="relative z-10 flex-1 flex items-center pt-20">
-        <div className="max-w-6xl mx-auto px-8 w-full">
-          <div className="text-center mb-24">
-            {/* Elegant header */}
-            <div className="mb-8">
-              <h1 className="text-7xl md:text-8xl font-display text-royal-900 mb-10 leading-tight tracking-wide">
-                Cypressifier
-              </h1>
-              <p className="text-3xl md:text-4xl font-serif text-elegant-700 italic mb-3">
-                European Estate Events
-              </p>
-              <div className="flex items-center justify-center gap-3 text-gray-600 font-serif text-lg">
-                <span>Castles</span>
-                <span>•</span>
-                <span>Châteaux</span>
-                <span>•</span>
-                <span>Palaces</span>
-                <span>•</span>
-                <span>Manor Houses</span>
-              </div>
-            </div>
-
-            <div className="max-w-3xl mx-auto">
-              <p className="text-xl font-serif text-gray-700 leading-relaxed mb-16">
-                Create extraordinary moments in Europe's most distinguished venues. 
-                From medieval castles to aristocratic estates, we curate unforgettable 
-                celebrations in the continent's most breathtaking locations.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button
-                  onClick={() => setCurrentView('signup')}
-                  className="px-12 py-4 bg-royal-700 text-white font-sans text-lg rounded-lg border-2 border-royal-700 hover:border-royal-900 hover:bg-royal-800 transition-all duration-300 shadow-md hover:shadow-lg"
-                  data-cy="hero-signup-btn"
-                >
-                  Begin Your Journey
-                </button>
-                <button
-                  onClick={() => setCurrentView('login')}
-                  className="px-12 py-4 bg-white text-royal-700 font-sans text-lg rounded-lg border-2 border-royal-300 hover:border-royal-500 transition-all duration-300 shadow-md hover:shadow-lg"
-                  data-cy="hero-login-btn"
-                >
-                  Log In
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Why Choose Us */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 mb-16">
-            <div className="text-center">
-              {/* <div className="text-4xl mb-3">🎯</div> */}
-              <h3 className="text-xl font-display mb-2 text-royal-900">Curated Selection</h3>
-              <p className="font-serif text-gray-600 leading-relaxed text-sm">
-                Handpicked historic venues across the UK and continental Europe
-              </p>
-            </div>
-
-            <div className="text-center">
-              {/* <div className="text-4xl mb-3">💎</div> */}
-              <h3 className="text-xl font-display mb-2 text-royal-900">Bespoke Service</h3>
-              <p className="font-serif text-gray-600 leading-relaxed text-sm">
-                Personalized planning tailored to your vision and requirements
-              </p>
-            </div>
-
-            <div className="text-center">
-              {/* <div className="text-4xl mb-3">✨</div> */}
-              <h3 className="text-xl font-display mb-2 text-royal-900">Unforgettable</h3>
-              <p className="font-serif text-gray-600 leading-relaxed text-sm">
-                Create timeless memories in Europe's most prestigious settings
-              </p>
-            </div>
-          </div>
-
-          {/* Social Proof */}
-          <div className="mt-24 pt-12 border-t border-gray-200">
-            <div className="grid grid-cols-3 gap-8 max-w-3xl mx-auto text-center">
-              <div>
-                <div className="text-4xl font-display text-royal-700 mb-2">200+</div>
-                <div className="font-serif text-gray-600 text-sm">Historic Venues</div>
-              </div>
-              <div>
-                <div className="text-4xl font-display text-royal-700 mb-2">15</div>
-                <div className="font-serif text-gray-600 text-sm">Countries</div>
-              </div>
-              <div>
-                <div className="text-4xl font-display text-royal-700 mb-2">500+</div>
-                <div className="font-serif text-gray-600 text-sm">Celebrations</div>
-              </div>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center">
+      <div className="text-center text-white px-4">
+        <h1 className="text-6xl font-bold mb-4">Cypressifier</h1>
+        <p className="text-2xl mb-8">Event Management System</p>
+        <div className="space-x-4">
+          <button
+            onClick={() => navigate('/login')}
+            className="bg-white text-purple-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-100 transition"
+            data-cy="splash-login-btn"
+          >
+            Login
+          </button>
+          <button
+            onClick={() => navigate('/signup')}
+            className="bg-purple-800 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-purple-900 transition"
+            data-cy="splash-signup-btn"
+          >
+            Sign Up
+          </button>
         </div>
       </div>
     </div>

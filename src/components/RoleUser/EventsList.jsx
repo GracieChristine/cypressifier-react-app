@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { formatDate } from '../../utils/dateHelpers';
 import { loadEventsFromStorage, saveEventsToStorage } from '../../utils/seedData';
 
-
-const EventsList = ({ setCurrentView, setSelectedEvent }) => {
+const EventsList = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   
   const [events, setEvents] = useState([]);
   const [filter, setFilter] = useState('all');
@@ -117,7 +118,7 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
             <p className="text-gray-600">Manage all your events</p>
           </div>
           <button
-            onClick={() => setCurrentView('event-form')}
+            onClick={() => navigate('/events/new')}
             className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition shadow-lg"
             data-cy="create-event-btn"
           >
@@ -150,7 +151,7 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
             <h3 className="text-xl font-semibold mb-2">No events yet</h3>
             <p className="text-gray-600 mb-4">Create your first event to get started!</p>
             <button
-              onClick={() => setCurrentView('event-form')}
+              onClick={() => navigate('/events/new')}
               className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition"
             >
               Create Event
@@ -214,10 +215,7 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
                     {/* Buttons - Different for Completed/Cancelled */}
                     {isReadOnly ? (
                       <button
-                        onClick={() => {
-                          setSelectedEvent(event);
-                          setCurrentView('event-detail');
-                        }}
+                        onClick={() => navigate(`/events/${event.id}`)}
                         className="w-full bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition text-sm"
                         data-cy="view-event-btn"
                       >
@@ -226,10 +224,7 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
                     ) : (
                       <div className="flex gap-2">
                         <button
-                          onClick={() => {
-                            setSelectedEvent(event);
-                            setCurrentView('event-form');
-                          }}
+                          onClick={() => navigate(`/events/${event.id}/edit`)}
                           className="flex-1 bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition text-sm"
                           data-cy="edit-event-btn"
                         >

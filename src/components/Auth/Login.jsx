@@ -1,125 +1,84 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-const Login = ({ setCurrentView }) => {
+const Login = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState({});
-  const { login } = useAuth();
-
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newErrors = {};
+    setError('');
 
-    if (!email) {
-      newErrors.email = 'Email is required';
-    } else if (!validateEmail(email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-
-    if (!password) {
-      newErrors.password = 'Password is required';
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    setErrors({});
-    const result = login(email, password);
+    const success = login(email, password);
     
-    if (!result.success) {
-      // Show error on the correct field
-      if (result.field === 'email') {
-        setErrors({ email: result.error });
-      } else if (result.field === 'password') {
-        setErrors({ password: result.error });
+    if (success) {
+      // AuthContext will handle redirecting based on user role
+      const user = JSON.parse(localStorage.getItem('currentUser'));
+      if (user.isAdmin) {
+        navigate('/admin/dashboard');
       } else {
-        // fallback
-        setErrors({ email: result.error }); 
+        navigate('/dashboard');
       }
-      return;
-    }
-    
-    const userData = JSON.parse(localStorage.getItem('user'));
-    if (userData && userData.isAdmin) {
-      setCurrentView('admin-dashboard');
     } else {
-      setCurrentView('dashboard');
+      setError('Invalid credentials');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
-      <div className="bg-white p-8 rounded-lg shadow-xl w-96">
-        <div className="text-center mb-6">
-          <div className="text-5xl mb-2">🎉</div>
-          <h2 className="text-2xl font-bold">Welcome Back!</h2>
-          <p className="text-gray-600 text-sm">Login to manage your events</p>
-        </div>
-        <div className="space-y-4">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center py-12 px-4">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+        <h2 className="text-3xl font-bold text-center mb-6">Login</h2>
+        
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" data-cy="login-error">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-gray-700 mb-2">Email</label>
             <input
               type="email"
               value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (errors.email) setErrors({ ...errors, email: '' });
-              }}
-              onKeyPress={(e) => e.key === 'Enter' && handleSubmit(e)}
-              className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                errors.email ? 'border-red-500' : ''
-              }`}
-              data-cy="email-input"
-              placeholder="you@example.com"
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              required
+              data-cy="login-email"
             />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1" data-cy="email-error">{errors.email}</p>
-            )}
           </div>
+
           <div>
             <label className="block text-gray-700 mb-2">Password</label>
             <input
               type="password"
               value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                if (errors.password) setErrors({ ...errors, password: '' });
-              }}
-              onKeyPress={(e) => e.key === 'Enter' && handleSubmit(e)}
-              className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                errors.password ? 'border-red-500' : ''
-              }`}
-              data-cy="password-input"
-              placeholder="••••••••"
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              required
+              data-cy="login-password"
             />
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-1" data-cy="password-error">{errors.password}</p>
-            )}
           </div>
+
           <button
-            onClick={handleSubmit}
-            className="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition"
+            type="submit"
+            className="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition"
             data-cy="login-submit"
           >
             Login
           </button>
-        </div>
-        <p className="mt-4 text-center text-gray-600">
+        </form>
+
+        <p className="text-center mt-4 text-gray-600">
           Don't have an account?{' '}
-          <button 
-            onClick={() => setCurrentView('signup')} 
-            className="text-purple-600 hover:underline font-semibold"
-            data-cy="signup-link"
+          <button
+            onClick={() => navigate('/signup')}
+            className="text-purple-600 hover:underline"
+            data-cy="login-signup-link"
           >
             Sign up
           </button>
