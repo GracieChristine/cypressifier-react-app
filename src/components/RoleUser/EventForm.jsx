@@ -13,11 +13,6 @@ const LOCATION_TYPES = {
     icon: '🏛️',
     description: 'French country estates with elegant architecture'
   },
-  // 'Palace': { 
-  //   min: 75000, 
-  //   icon: '👑',
-  //   description: 'Opulent palaces fit for royalty'
-  // },
   'Manor House': { 
     min: 35000, 
     icon: '🏡',

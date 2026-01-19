@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
+
+// Layout Components
 import Navbar from './components/Layout/Navbar';
 import Footer from './components/Layout/Footer';
 import Login from './components/Auth/Login';
@@ -16,12 +18,20 @@ import UserEventDetail from './components/RoleUser/EventDetail';
 import AdminDashboard from './components/RoleAdmin/Dashboard';
 import AdminEventEdit from './components/RoleAdmin/EventEdit';
 
+// Dev Components
+import DevSeedPanel from './components/DevSeedPanel';
+import { loadEventsFromStorage } from './utils/seedData';
 
 
 function App() {
   const [currentView, setCurrentView] = useState('splash');
   const [selectedEvent, setSelectedEvent] = useState(null);
   const { user } = useAuth();
+
+  const loadEvents = () => {
+    const storedEvents = loadEventsFromStorage();
+    setEvents(storedEvents);
+  }
 
   useEffect(() => {
     if (currentView === 'splash') return;
@@ -36,6 +46,7 @@ function App() {
     } else if (!user && !['login', 'signup', 'splash'].includes(currentView)) {
       setCurrentView('splash');
     }
+    loadEvents();
   }, [user, currentView]);
 
   return (
@@ -79,6 +90,7 @@ function App() {
             setSelectedEvent={setSelectedEvent}
           />
         )}
+        <DevSeedPanel onSeedComplete={loadEvents} />
       </div>
       <Footer />
     </div>
