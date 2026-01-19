@@ -192,7 +192,7 @@ const AdminDashboard = ({ setCurrentView, setSelectedEvent }) => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-700 font-semibold">
-                          ${event.setBudget?.toLocaleString() || event.budgetTotal?.toLocaleString() || 0}
+                          ${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}
                         </div>
                       </td>
                       <td className="px-6 py-4">
