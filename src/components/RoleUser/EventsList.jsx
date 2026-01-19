@@ -1,19 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { formatDate } from '../../utils/dateHelpers';
+import { loadEventsFromStorage } from '../../utils/seedData';
 
 const EventsList = ({ setCurrentView, setSelectedEvent }) => {
   const { user } = useAuth();
   
-  const [events, setEvents] = useState(() => {
-    if (!user) return [];
-    const saved = localStorage.getItem(`events_${user.id}`);
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [events, setEvents] = useState([]);
   const [filter, setFilter] = useState('all');
   const [cancelModalEvent, setCancelModalEvent] = useState(null);
   const [cancelReason, setCancelReason] = useState('');
   const [cancelError, setCancelError] = useState('');
+
+  // Load events on mount and when localStorage changes
+  useEffect(() => {
+    if (!user) {
+      setEvents([]);
+      return;
+    }
+
+    // Load from shared seed data storage
+    const seedEvents = loadEventsFromStorage();
+    
+    // Also load user-specific events if they exist
+    const userEvents = localStorage.getItem(`events_${user.id}`);
+    const parsedUserEvents = userEvents ? JSON.parse(userEvents) : [];
+    
+    // Combine both (you can choose to use only one or merge them)
+    // For now, prioritize seed data if it exists, otherwise use user data
+    if (seedEvents.length > 0) {
+      setEvents(seedEvents);
+    } else {
+      setEvents(parsedUserEvents);
+    }
+  }, [user]);
 
   const filteredEvents = events.filter(event => {
     if (filter === 'all') return true;
@@ -39,6 +59,7 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
   const getStatusColor = (status) => {
     const colors = {
       'In Review': 'bg-blue-100 text-blue-700',
+      'In Process': 'bg-yellow-100 text-yellow-700',
       'In Progress': 'bg-yellow-100 text-yellow-700',
       'Completed': 'bg-green-100 text-green-700',
       'Cancelled': 'bg-red-100 text-red-700'
@@ -78,7 +99,11 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
     );
     
     setEvents(updated);
+    
+    // Save to both storages
+    localStorage.setItem('cypressifier_events', JSON.stringify(updated));
     localStorage.setItem(`events_${user.id}`, JSON.stringify(updated));
+    
     setCancelModalEvent(null);
     setCancelReason('');
     setCancelError('');
@@ -103,7 +128,7 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
 
         {/* Filter Buttons */}
         <div className="bg-white rounded-lg shadow-md p-4 mb-6 flex gap-2 flex-wrap">
-          {['all', 'In Review', 'In Progress', 'Completed', 'Cancelled'].map(status => (
+          {['all', 'In Review', 'In Process', 'Completed', 'Cancelled'].map(status => (
             <button
               key={status}
               onClick={() => setFilter(status)}
@@ -164,7 +189,7 @@ const EventsList = ({ setCurrentView, setSelectedEvent }) => {
                     </div>
                     <div className="flex items-center gap-2">
                       <span>💰</span>
-                      <span>${event.setBudget?.toLocaleString() || event.budgetTotal?.toLocaleString() || 0}</span>
+                      <span>${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}</span>
                     </div>
                   </div>
 

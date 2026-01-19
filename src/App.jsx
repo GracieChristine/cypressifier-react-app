@@ -20,18 +20,11 @@ import AdminEventEdit from './components/RoleAdmin/EventEdit';
 
 // Dev Components
 import DevSeedPanel from './components/DevSeedPanel';
-import { loadEventsFromStorage } from './utils/seedData';
-
 
 function App() {
   const [currentView, setCurrentView] = useState('splash');
   const [selectedEvent, setSelectedEvent] = useState(null);
   const { user } = useAuth();
-
-  const loadEvents = () => {
-    const storedEvents = loadEventsFromStorage();
-    setEvents(storedEvents);
-  }
 
   useEffect(() => {
     if (currentView === 'splash') return;
@@ -46,7 +39,6 @@ function App() {
     } else if (!user && !['login', 'signup', 'splash'].includes(currentView)) {
       setCurrentView('splash');
     }
-    loadEvents();
   }, [user, currentView]);
 
   return (
@@ -90,7 +82,10 @@ function App() {
             setSelectedEvent={setSelectedEvent}
           />
         )}
-        <DevSeedPanel onSeedComplete={loadEvents} />
+        <DevSeedPanel onSeedComplete={() => {
+          // Just log for now, or trigger refresh in specific components
+          console.log('Events seeded!');
+        }} />
       </div>
       <Footer />
     </div>
