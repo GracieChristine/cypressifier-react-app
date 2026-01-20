@@ -139,7 +139,7 @@ const DevSeedPanel = ({ onSeedComplete }) => {
           {result.count && (
             <div className="space-y-1 text-xs opacity-90">
               <p>📋 In Review: {result.count['In Review']}</p>
-              <p>⚙️ In Progress: {result.count['In Process']}</p>
+              <p>⚙️ In Progress: {result.count['In Progress']}</p>
               <p>✅ Completed: {result.count['Completed']}</p>
               <p>❌ Cancelled: {result.count['Cancelled']}</p>
               <p className="font-bold mt-1">Total Generated: {result.count.Total}</p>

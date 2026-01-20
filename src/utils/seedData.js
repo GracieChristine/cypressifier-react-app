@@ -144,9 +144,9 @@ export function generateSeedEvents(clearExisting = false) {
     events.push(generateEvent('In Review'));
   }
   
-  // In Process: 6 events
+  // In Progress: 6 events
   for (let i = 0; i < 6; i++) {
-    events.push(generateEvent('In Process'));
+    events.push(generateEvent('In Progress'));
   }
   
   // Completed: 12 events
@@ -163,7 +163,7 @@ export function generateSeedEvents(clearExisting = false) {
     events,
     count: {
       'In Review': 8,
-      'In Process': 6,
+      'In Progress': 6,
       'Completed': 12,
       'Cancelled': 4,
       'Total': events.length
