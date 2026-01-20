@@ -12,6 +12,13 @@ const AdminEventEdit = () => {
   const [acceptComment, setAcceptComment] = useState('');
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
+  
+  // New modals
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [showApproveCancelModal, setShowApproveCancelModal] = useState(false);
+  const [showDenyCancelModal, setShowDenyCancelModal] = useState(false);
+  const [showCompletedModal, setShowCompletedModal] = useState(false);
 
   // Load event from storage
   useEffect(() => {
@@ -21,7 +28,6 @@ const AdminEventEdit = () => {
     if (event) {
       setSelectedEvent(event);
     } else {
-      // Event not found, redirect to dashboard
       navigate('/admin/dashboard');
     }
   }, [id, navigate]);
@@ -46,12 +52,6 @@ const AdminEventEdit = () => {
     const events = loadEventsFromStorage();
     const updated = events.map(e => e.id === selectedEvent.id ? updatedEvent : e);
     saveEventsToStorage(updated);
-    
-    // Also update user-specific storage if userId exists
-    if (selectedEvent.userId) {
-      localStorage.setItem(`events_${selectedEvent.userId}`, JSON.stringify(updated));
-    }
-    
     window.dispatchEvent(new Event('storage'));
   };
 
@@ -65,14 +65,12 @@ const AdminEventEdit = () => {
     };
     
     updateEvent(updatedEvent);
-    
-    alert('Event accepted and moved to In Progress!');
-    navigate('/admin/dashboard');
+    setSuccessMessage('Event accepted and moved to In Progress!');
+    setShowSuccessModal(true);
   };
 
   const handleRejectSubmission = () => {
     if (!rejectReason.trim()) {
-      alert('Please provide a reason for rejection');
       return;
     }
 
@@ -85,12 +83,12 @@ const AdminEventEdit = () => {
     };
     
     updateEvent(updatedEvent);
-    
-    alert('Event rejected.');
-    navigate('/admin/dashboard');
+    setShowRejectModal(false);
+    setSuccessMessage('Event has been rejected.');
+    setShowSuccessModal(true);
   };
 
-  const handleApproveCancellation = () => {
+  const confirmApproveCancellation = () => {
     const updatedEvent = {
       ...selectedEvent,
       status: 'Cancelled',
@@ -101,12 +99,12 @@ const AdminEventEdit = () => {
     };
     
     updateEvent(updatedEvent);
-    
-    alert('Cancellation approved. Event status changed to Cancelled.');
-    navigate('/admin/dashboard');
+    setShowApproveCancelModal(false);
+    setSuccessMessage('Cancellation approved. Event status changed to Cancelled.');
+    setShowSuccessModal(true);
   };
 
-  const handleDenyCancellation = () => {
+  const confirmDenyCancellation = () => {
     const updatedEvent = {
       ...selectedEvent,
       cancellationRequest: false,
@@ -116,23 +114,43 @@ const AdminEventEdit = () => {
     };
     
     updateEvent(updatedEvent);
-    
-    alert('Cancellation request denied.');
-    navigate('/admin/dashboard');
+    setShowDenyCancelModal(false);
+    setSuccessMessage('Cancellation request has been denied.');
+    setShowSuccessModal(true);
   };
 
   const handleSaveProgress = () => {
+    if (markAsCompleted) {
+      setShowCompletedModal(true);
+    } else {
+      const updatedEvent = {
+        ...selectedEvent,
+        status: 'In Progress'
+      };
+      
+      updateEvent(updatedEvent);
+      setSuccessMessage('Event updated successfully!');
+      setShowSuccessModal(true);
+    }
+  };
+
+  const confirmMarkCompleted = () => {
     const updatedEvent = {
       ...selectedEvent,
-      status: markAsCompleted ? 'Completed' : 'In Progress',
-      completionNotes: markAsCompleted ? completionNotes : undefined,
-      completedBy: markAsCompleted ? 'Admin' : undefined,
-      completedAt: markAsCompleted ? new Date().toISOString() : undefined
+      status: 'Completed',
+      completionNotes: completionNotes,
+      completedBy: 'Admin',
+      completedAt: new Date().toISOString()
     };
     
     updateEvent(updatedEvent);
-    
-    alert(markAsCompleted ? 'Event marked as Completed!' : 'Event updated!');
+    setShowCompletedModal(false);
+    setSuccessMessage('Event has been marked as Completed!');
+    setShowSuccessModal(true);
+  };
+
+  const closeSuccessModal = () => {
+    setShowSuccessModal(false);
     navigate('/admin/dashboard');
   };
 
@@ -259,14 +277,14 @@ const AdminEventEdit = () => {
                 </p>
                 <div className="flex gap-2">
                   <button
-                    onClick={handleApproveCancellation}
+                    onClick={() => setShowApproveCancelModal(true)}
                     className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm"
                     data-cy="approve-cancellation-btn"
                   >
                     Approve Cancellation
                   </button>
                   <button
-                    onClick={handleDenyCancellation}
+                    onClick={() => setShowDenyCancelModal(true)}
                     className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition text-sm"
                     data-cy="deny-cancellation-btn"
                   >
@@ -390,7 +408,8 @@ const AdminEventEdit = () => {
             <div className="flex gap-3">
               <button
                 onClick={handleRejectSubmission}
-                className="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700 transition"
+                disabled={!rejectReason.trim()}
+                className="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
                 data-cy="confirm-reject-btn"
               >
                 Confirm Rejection
@@ -403,6 +422,103 @@ const AdminEventEdit = () => {
                 className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
               >
                 Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Approve Cancellation Confirmation Modal */}
+      {showApproveCancelModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold mb-4">Approve Cancellation?</h3>
+            <p className="text-gray-700 mb-6">
+              Are you sure you want to approve this cancellation request? The event status will be changed to <strong>Cancelled</strong>.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={confirmApproveCancellation}
+                className="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700 transition"
+              >
+                Yes, Approve
+              </button>
+              <button
+                onClick={() => setShowApproveCancelModal(false)}
+                className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Deny Cancellation Confirmation Modal */}
+      {showDenyCancelModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold mb-4">Deny Cancellation Request?</h3>
+            <p className="text-gray-700 mb-6">
+              Are you sure you want to deny this cancellation request? The event will remain <strong>{selectedEvent.status}</strong>.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={confirmDenyCancellation}
+                className="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
+              >
+                Yes, Deny Request
+              </button>
+              <button
+                onClick={() => setShowDenyCancelModal(false)}
+                className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mark as Completed Confirmation Modal */}
+      {showCompletedModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold mb-4">Mark Event as Completed?</h3>
+            <p className="text-gray-700 mb-6">
+              Are you sure you want to mark this event as <strong>Completed</strong>? This action confirms the event has been successfully finished.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={confirmMarkCompleted}
+                className="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
+              >
+                Yes, Mark Completed
+              </button>
+              <button
+                onClick={() => setShowCompletedModal(false)}
+                className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="text-center">
+              <div className="text-6xl mb-4">✅</div>
+              <h3 className="text-xl font-bold mb-4">Success!</h3>
+              <p className="text-gray-700 mb-6">{successMessage}</p>
+              <button
+                onClick={closeSuccessModal}
+                className="w-full bg-royal-600 text-white py-2 rounded hover:bg-royal-700 transition"
+              >
+                Return to Dashboard
               </button>
             </div>
           </div>
