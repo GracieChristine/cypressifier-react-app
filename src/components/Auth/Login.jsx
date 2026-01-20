@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+
+import Footer from '../Layout/Footer';
+
 import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
@@ -54,12 +57,12 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex flex-col">
       {/* Simple Header */}
-      <div className="bg-white shadow-sm">
+      <div className="bg-gradient-to-br from-purple-50 to-pink-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <h1>
-              <Link to="/" className="text-xl font-bold text-purple-600">
+              <Link to="/" className="text-2xl font-bold text-purple-600 hover:text-purple-700 transition">
                 Cypressifier
               </Link>
             </h1>
@@ -67,7 +70,7 @@ const Login = () => {
       </div>
 
       {/* Login Form */}
-      <div className="flex items-center justify-center py-12 px-4">
+      <div className="flex-1 flex items-center justify-center py-12 px-4">
         <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
           <p className="text-3xl font-bold text-center mb-6">Login</p>
 
@@ -133,6 +136,7 @@ const Login = () => {
           </p>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

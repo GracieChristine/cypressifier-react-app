@@ -49,14 +49,14 @@ function PublicRoute({ children }) {
 }
 
 // Main App Layout
-function AppLayout({ children, showNavbar = true }) {
+function AppLayout({ children, showNavbar = true , showFooter = true }) {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {showNavbar && <Navbar />}
       <div className="flex-1">
         {children}
       </div>
-      <Footer />
+      {showFooter && <Footer />}
       <DevSeedPanel onSeedComplete={() => window.location.reload()} />
     </div>
   );
@@ -69,7 +69,7 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={
-            <AppLayout showNavbar={false}>
+            <AppLayout showNavbar={false} showFooter={false}>
               <PublicRoute>
                 <SplashPage />
               </PublicRoute>
@@ -77,7 +77,7 @@ function App() {
           } />
           
           <Route path="/login" element={
-            <AppLayout showNavbar={false}>
+            <AppLayout showNavbar={false} showFooter={false}>
               <PublicRoute>
                 <Login />
               </PublicRoute>
@@ -85,7 +85,7 @@ function App() {
           } />
           
           <Route path="/signup" element={
-            <AppLayout showNavbar={false}>
+            <AppLayout showNavbar={false} showFooter={false}>
               <PublicRoute>
                 <Signup />
               </PublicRoute>
