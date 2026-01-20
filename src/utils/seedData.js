@@ -130,7 +130,8 @@ function generateEvent(status) {
     budget: budget.toString(),
     guestCount: guestCount.toString(),
     description: getRandomItem(DESCRIPTIONS),
-    status: status
+    status: status,
+    isMockData: true
   };
 }
 

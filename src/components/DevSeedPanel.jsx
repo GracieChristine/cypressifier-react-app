@@ -51,20 +51,20 @@ const DevSeedPanel = ({ onSeedComplete }) => {
     
     setTimeout(() => {
       try {
-        // Clear the seed storage completely
-        clearEventsFromStorage();
+        // Load all events
+        const allEvents = loadEventsFromStorage();
         
-        // Also clear all user-specific storage
-        const keys = Object.keys(localStorage);
-        keys.forEach(key => {
-          if (key.startsWith('events_')) {
-            localStorage.removeItem(key);
-          }
-        });
+        // Keep only user-created events (filter out mock data)
+        const userEvents = allEvents.filter(event => !event.isMockData);
+        
+        // Save back only user events
+        saveEventsToStorage(userEvents);
+        
+        const removedCount = allEvents.length - userEvents.length;
         
         setResult({
           type: 'success',
-          message: 'All test events cleared successfully',
+          message: `Cleared ${removedCount} mock events. ${userEvents.length} user events kept.`,
           count: null
         });
         
