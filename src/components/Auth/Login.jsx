@@ -44,18 +44,23 @@ const Login = () => {
 
     setErrors({});
 
-    const success = login(email, password);
-    
-    if (success) {
-      const user = JSON.parse(localStorage.getItem('currentUser'));
-      if (user.isAdmin) {
-        navigate('/admin/dashboard');
-      } else {
-        navigate('/dashboard');
-      }
+    const result = login(email, password);
+
+    if (result.success) {
+      const user = JSON.parse(localStorage.getItem('user'));
+    if (user.isAdmin) {
+      navigate('/admin/dashboard');
     } else {
-      setErrors('Invalid credentials');
+      navigate('/dashboard');
     }
+  } else {
+    // Handle field-specific errors
+    if (result.field) {
+      setErrors({ [result.field]: result.error });
+    } else {
+      setErrors({ email: result.error });
+    }
+  }
   };
 
   return (
