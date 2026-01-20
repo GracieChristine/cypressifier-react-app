@@ -170,9 +170,9 @@ const EventForm = () => {
       <div className="max-w-3xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg p-8">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-800">
+            <p className="text-3xl font-bold text-gray-800">
               {isEditing ? 'Edit Event' : 'Create New Event'}
-            </h1>
+            </p>
             <button
               onClick={() => navigate('/events')}
               className="text-gray-600 hover:text-gray-800"
@@ -265,30 +265,6 @@ const EventForm = () => {
 
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
-                Budget ($) *
-              </label>
-              <input
-                type="number"
-                name="budget"
-                value={formData.budget}
-                onChange={handleChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                  errors.budget ? 'border-red-500' : ''
-                }`}
-                placeholder={currentMinBudget.toString()}
-                min={currentMinBudget}
-                data-cy="event-budget-input"
-              />
-              <p className="text-sm text-gray-600 mt-1">
-                Minimum budget for {formData.locationType}: ${currentMinBudget.toLocaleString()}
-              </p>
-              {errors.budget && (
-                <p className="text-red-500 text-sm mt-1">{errors.budget}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">
                 Guest Count *
               </label>
               <input
@@ -305,6 +281,30 @@ const EventForm = () => {
               />
               {errors.guestCount && (
                 <p className="text-red-500 text-sm mt-1">{errors.guestCount}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Budget ($) *
+              </label>
+              <input
+                type="number"
+                name="budget"
+                value={formData.budget.toLocaleString()}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  errors.budget ? 'border-red-500' : ''
+                }`}
+                placeholder={currentMinBudget.toLocaleString()}
+                min={currentMinBudget.toLocaleString()}
+                data-cy="event-budget-input"
+              />
+              <p className="text-sm text-gray-600 mt-1">
+                Minimum budget for {formData.locationType}: ${currentMinBudget.toLocaleString()}
+              </p>
+              {errors.budget && (
+                <p className="text-red-500 text-sm mt-1">{errors.budget}</p>
               )}
             </div>
 
