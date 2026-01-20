@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+// Layout Components
 import Footer from '../Layout/Footer';
 
+// Auth Context
 import { useAuth } from '../../context/AuthContext';
 
 const Signup = () => {
@@ -65,7 +67,7 @@ const Signup = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex flex-col">
       {/* Simple Header */}
-      <div className="bg-gradient-to-br from-purple-50 to-pink-50 shadow-sm">
+      <div className="bg-gradient-to-br from-purple-50 to-pink-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <h1>
               <Link to="/" className="text-2xl font-bold text-purple-600 hover:text-purple-700 transition">
