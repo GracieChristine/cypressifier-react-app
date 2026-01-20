@@ -3,17 +3,50 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { loadEventsFromStorage, saveEventsToStorage } from '../../utils/seedData';
 
+const LOCATION_TYPES = {
+  'Castle': { 
+    min: 50000, 
+    icon: '🏰',
+    description: 'Historic castles with grand halls and royal ambiance'
+  },
+  'Chateau': { 
+    min: 45000, 
+    icon: '🏛️',
+    description: 'French country estates with elegant architecture'
+  },
+  'Manor House': { 
+    min: 35000, 
+    icon: '🏡',
+    description: 'Stately manor homes with period features'
+  },
+  'Garden Estate': { 
+    min: 30000, 
+    icon: '🌿',
+    description: 'Romantic gardens and outdoor pavilions'
+  },
+  'Villa': { 
+    min: 40000, 
+    icon: '🏘️',
+    description: 'Luxury villas with Mediterranean charm'
+  },
+  'Historic Abbey': { 
+    min: 55000, 
+    icon: '⛪',
+    description: 'Centuries-old abbeys with Gothic grandeur'
+  }
+};
+
 const EventForm = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { id } = useParams(); // Get event ID from URL if editing
+  const { id } = useParams();
   
   const [formData, setFormData] = useState({
     name: '',
     type: 'Wedding',
     date: '',
     locationType: 'Castle',
-    budget: '',
+    budget: '50000', // Default to Castle minimum
     guestCount: '',
     description: ''
   });
@@ -48,8 +81,19 @@ const EventForm = () => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = 'Event name is required';
     if (!formData.date) newErrors.date = 'Date is required';
-    if (!formData.budget || formData.budget <= 0) newErrors.budget = 'Valid budget is required';
-    if (!formData.guestCount || formData.guestCount <= 0) newErrors.guestCount = 'Valid guest count is required';
+    
+    const budgetValue = parseInt(formData.budget);
+    const minBudget = LOCATION_TYPES[formData.locationType].min;
+    
+    if (!formData.budget || isNaN(budgetValue) || budgetValue <= 0) {
+      newErrors.budget = 'Valid budget is required';
+    } else if (budgetValue < minBudget) {
+      newErrors.budget = `Budget must be at least $${minBudget.toLocaleString()} for ${formData.locationType}`;
+    }
+    
+    if (!formData.guestCount || formData.guestCount <= 0) {
+      newErrors.guestCount = 'Valid guest count is required';
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -101,6 +145,25 @@ const EventForm = () => {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
+
+  const handleLocationChange = (e) => {
+    const newLocation = e.target.value;
+    const minBudget = LOCATION_TYPES[newLocation].min;
+    
+    setFormData(prev => ({
+      ...prev,
+      locationType: newLocation,
+      budget: minBudget.toString() // Auto-set to minimum
+    }));
+    
+    // Clear budget error if it existed
+    if (errors.budget) {
+      setErrors(prev => ({ ...prev, budget: '' }));
+    }
+  };
+
+  const currentMinBudget = LOCATION_TYPES[formData.locationType].min;
+  const currentBudgetValue = parseInt(formData.budget) || 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-8">
@@ -185,17 +248,19 @@ const EventForm = () => {
               <select
                 name="locationType"
                 value={formData.locationType}
-                onChange={handleChange}
+                onChange={handleLocationChange}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 data-cy="event-location-select"
               >
-                <option value="Castle">🏰 Castle</option>
-                <option value="Chateau">🏛️ Chateau</option>
-                <option value="Manor House">🏡 Manor House</option>
-                <option value="Garden Estate">🌿 Garden Estate</option>
-                <option value="Villa">🏘️ Villa</option>
-                <option value="Historic Abbey">⛪ Historic Abbey</option>
+                {Object.entries(LOCATION_TYPES).map(([name, data]) => (
+                  <option key={name} value={name}>
+                    {data.icon} {name}
+                  </option>
+                ))}
               </select>
+              <p className="text-sm text-gray-600 mt-1">
+                {LOCATION_TYPES[formData.locationType].description}
+              </p>
             </div>
 
             <div>
@@ -210,10 +275,13 @@ const EventForm = () => {
                 className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                   errors.budget ? 'border-red-500' : ''
                 }`}
-                placeholder="50000"
-                min="0"
+                placeholder={currentMinBudget.toString()}
+                min={currentMinBudget}
                 data-cy="event-budget-input"
               />
+              <p className="text-sm text-gray-600 mt-1">
+                Minimum budget for {formData.locationType}: ${currentMinBudget.toLocaleString()}
+              </p>
               {errors.budget && (
                 <p className="text-red-500 text-sm mt-1">{errors.budget}</p>
               )}
