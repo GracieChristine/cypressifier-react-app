@@ -21,19 +21,9 @@ const EventsList = () => {
       return;
     }
 
-    // Load from shared seed data storage
-    const seedEvents = loadEventsFromStorage();
-    
-    // Also load user-specific events if they exist
-    const userEvents = localStorage.getItem(`events_${user.id}`);
-    const parsedUserEvents = userEvents ? JSON.parse(userEvents) : [];
-    
-    // For now, prioritize seed data if it exists, otherwise use user data
-    if (seedEvents.length > 0) {
-      setEvents(seedEvents);
-    } else {
-      setEvents(parsedUserEvents);
-    }
+    // Only load from seed storage
+    const allEvents = loadEventsFromStorage();
+    setEvents(allEvents);
   }, [user]);
 
   const filteredEvents = events.filter(event => {
@@ -86,7 +76,9 @@ const EventsList = () => {
       return;
     }
 
-    const updated = events.map(e => 
+    const allEvents = loadEventsFromStorage();
+    
+    const updated = allEvents.map(e => 
       e.id === cancelModalEvent.id 
         ? { 
             ...e, 
@@ -100,9 +92,8 @@ const EventsList = () => {
     
     setEvents(updated);
     
-    // Save to both storages
+    // Save only to seed storage
     saveEventsToStorage(updated);
-    localStorage.setItem(`events_${user.id}`, JSON.stringify(updated));
     
     setCancelModalEvent(null);
     setCancelReason('');

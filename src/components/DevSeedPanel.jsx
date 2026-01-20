@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Sprout, Trash2, Loader2, X, Plus } from 'lucide-react';
-import { generateSeedEvents, saveEventsToStorage, clearEventsFromStorage } from '../utils/seedData';
+import { generateSeedEvents, saveEventsToStorage, clearEventsFromStorage, loadEventsFromStorage } from '../utils/seedData';
 
 const DevSeedPanel = ({ onSeedComplete }) => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const [isMinimized, setIsMinimized] = useState(true); // Changed to true for minimized by default
+  const [isMinimized, setIsMinimized] = useState(true);
 
   const handleSeed = () => {
     setLoading(true);
@@ -13,12 +13,16 @@ const DevSeedPanel = ({ onSeedComplete }) => {
     
     setTimeout(() => {
       try {
+        // Load existing events
+        const existingEvents = loadEventsFromStorage();
+        
         // Generate new seed data
         const { events, count } = generateSeedEvents();
         
-        // Save to localStorage (this adds to existing)
-        const existing = JSON.parse(localStorage.getItem('cypressifier_events') || '[]');
-        const allEvents = [...existing, ...events];
+        // Combine existing + new events
+        const allEvents = [...existingEvents, ...events];
+        
+        // Save to seed storage
         saveEventsToStorage(allEvents);
         
         setResult({
@@ -47,7 +51,16 @@ const DevSeedPanel = ({ onSeedComplete }) => {
     
     setTimeout(() => {
       try {
+        // Clear the seed storage completely
         clearEventsFromStorage();
+        
+        // Also clear all user-specific storage
+        const keys = Object.keys(localStorage);
+        keys.forEach(key => {
+          if (key.startsWith('events_')) {
+            localStorage.removeItem(key);
+          }
+        });
         
         setResult({
           type: 'success',
@@ -139,7 +152,7 @@ const DevSeedPanel = ({ onSeedComplete }) => {
           {result.count && (
             <div className="space-y-1 text-xs opacity-90">
               <p>📋 In Review: {result.count['In Review']}</p>
-              <p>⚙️ In Progress: {result.count['In Progress']}</p>
+              <p>⚙️ In Progress: {result.count['In Process']}</p>
               <p>✅ Completed: {result.count['Completed']}</p>
               <p>❌ Cancelled: {result.count['Cancelled']}</p>
               <p className="font-bold mt-1">Total Generated: {result.count.Total}</p>

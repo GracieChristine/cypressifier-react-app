@@ -102,6 +102,8 @@ const EventForm = () => {
 
     const events = loadEventsFromStorage();
     
+    // In the handleSubmit function, replace the localStorage.setItem lines:
+
     if (isEditing) {
       // Update existing event
       const updatedEvents = events.map(e => 
@@ -114,8 +116,7 @@ const EventForm = () => {
             }
           : e
       );
-      saveEventsToStorage(updatedEvents);
-      localStorage.setItem(`events_${user.id}`, JSON.stringify(updatedEvents));
+      saveEventsToStorage(updatedEvents); // Only this line - remove the user-specific save
     } else {
       // Create new event
       const newEvent = {
@@ -131,8 +132,7 @@ const EventForm = () => {
       };
       
       const updatedEvents = [...events, newEvent];
-      saveEventsToStorage(updatedEvents);
-      localStorage.setItem(`events_${user.id}`, JSON.stringify(updatedEvents));
+      saveEventsToStorage(updatedEvents); // Only this line - remove the user-specific save
     }
 
     navigate('/events');

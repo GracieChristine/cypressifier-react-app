@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
@@ -33,13 +33,10 @@ const Login = () => {
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <h1>
-            <button
-            onClick={() => navigate('/')}
-            className="text-2xl font-bold text-purple-600 hover:text-purple-700 transition"
-          >
-            Cypressifier
-          </button>
-          </h1>
+              <Link to="/" className="text-xl font-bold text-purple-600">
+                Cypressifier
+              </Link>
+            </h1>
         </div>
       </div>
 

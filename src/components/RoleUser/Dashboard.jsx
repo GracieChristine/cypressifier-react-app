@@ -17,19 +17,9 @@ const Dashboard = () => {
       return;
     }
 
-    // Load from shared seed data storage
-    const seedEvents = loadEventsFromStorage();
-    
-    // Also load user-specific events if they exist
-    const userEvents = localStorage.getItem(`events_${user.id}`);
-    const parsedUserEvents = userEvents ? JSON.parse(userEvents) : [];
-    
-    // Prioritize seed data if it exists, otherwise use user data
-    if (seedEvents.length > 0) {
-      setEvents(seedEvents);
-    } else {
-      setEvents(parsedUserEvents);
-    }
+    // Only load from seed storage
+    const allEvents = loadEventsFromStorage();
+    setEvents(allEvents);
   }, [user]);
 
   const upcomingEvents = events
