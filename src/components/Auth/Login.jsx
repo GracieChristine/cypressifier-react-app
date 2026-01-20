@@ -54,13 +54,13 @@ const Login = () => {
       navigate('/dashboard');
     }
   } else {
-    // Handle field-specific errors
-    if (result.field) {
-      setErrors({ [result.field]: result.error });
-    } else {
-      setErrors({ email: result.error });
+      // Handle field-specific errors
+      if (result.field) {
+        setErrors({ [result.field]: result.error });
+      } else {
+        setErrors({ email: result.error });
+      }
     }
-  }
   };
 
   return (

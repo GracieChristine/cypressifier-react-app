@@ -62,6 +62,21 @@ const Signup = () => {
     } else {
       setErrors('Email already exists');
     }
+
+    const result = signup(formData.email, formData.password);
+
+    if (result.success) {  
+      navigate('/dashboard');
+    } else {
+      // setErrors(result.error);
+      
+      // Handle field-specific errors
+      if (result.field) {
+        setErrors({ [result.field]: result.error });
+      } else {
+        setErrors({ email: result.error });
+      }
+    }
   };
 
   return (
