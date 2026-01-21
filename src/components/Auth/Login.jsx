@@ -78,7 +78,7 @@ const Login = () => {
 
       {/* Login Form */}
       <div className="flex-1 flex items-center justify-center py-12 px-4">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8" data-cy="login-form">
           <p className="text-3xl font-bold text-center mb-6">Login</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
