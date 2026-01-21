@@ -1,32 +1,33 @@
 // Navigation Related Commands
-Cypress.Commands.add(`splashToSignup`, () => {
-    // Navigate to signup from splash page
-    cy.get('[data-cy="hero-signup-btn"]').click();
+Cypress.Commands.add(`landingToSignup`, () => {
+    // Navigate from landing page to signup
+    cy.get('[data-cy="landing-signup-btn"]')
+    .click();
 });
 
-Cypress.Commands.add(`navToSignup`, () => {
-    // Navigate to signup from nav
-    cy.get('[data-cy="nav-signup"]').click();
+Cypress.Commands.add(`landingToLogin`, () => {
+    // Navigate from landing page to login
+    cy.get('[data-cy="landing-login-btn"]')
+    .click();
 });
 
-Cypress.Commands.add(`linkToSignup`, () => {
-    // Navigate to signup from nav
-    cy.get('[data-cy="signup-link"]').click();
+Cypress.Commands.add(`signupToLogin`, () => {
+    // Navigate from singup to login
+    cy.get('[data-cy="signup-login-link"]')
+    .click();
 });
 
-Cypress.Commands.add(`splashToLogin`, () => {
-    // Navigate to login from splash page
-    cy.get('[data-cy="hero-login-btn"]').click();
+Cypress.Commands.add(`loginToSignup`, () => {
+    // Navigate from login to signup
+    cy.get('[data-cy="login-signup-link"]'
+
+    ).click();
 });
 
-Cypress.Commands.add(`navToLogin`, () => {
-    // Navigate to login from nav
-    cy.get('[data-cy="nav-login"]').click();
-});
-
-Cypress.Commands.add(`linkToLogin`, () => {
-    // Navigate to login from nav
-    cy.get('[data-cy="login-link"]').click();
+Cypress.Commands.add(`backToLanding`, () => {
+    // Navigate back to landing page
+    cy.get('[data-cy="nav-brand-name"]')
+    .click();
 });
 
 // User Auth Related Commands

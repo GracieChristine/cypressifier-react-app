@@ -37,8 +37,7 @@ describe(`Landing Page`, () => {
 
     describe(`Navigate to Sign Up`, () => {
         beforeEach(() => {
-            cy.get('[data-cy="landing-signup-btn"]')
-            .click();
+            cy.landingToSignup();
         });
 
         it(`should navigate to signup page`, () => {
@@ -55,16 +54,14 @@ describe(`Landing Page`, () => {
         });
 
         it(`should navigate to login`, () => {
-            cy.get('[data-cy="signup-login-link"]')
-            .click();
+            cy.signupToLogin();
 
             cy.url()
             .should('include', '/login');
         });
 
         it(`should navigate back to landing page`, () => {
-            cy.get('[data-cy="nav-brand-name"]')
-            .click();
+            cy.backToLanding();
 
             cy.url()
             .should('include', '/');
@@ -73,8 +70,7 @@ describe(`Landing Page`, () => {
 
     describe(`Navigate to Log In`, () => {
         beforeEach(() => {
-            cy.get('[data-cy="landing-login-btn"]')
-            .click();
+            cy.landingToLogin();
         });
         
         it(`should navigate to login page`, () => {
@@ -89,16 +85,14 @@ describe(`Landing Page`, () => {
         });
 
         it(`should navigate to signup`, () => {
-            cy.get('[data-cy="login-signup-link"]')
-            .click();
+            cy.loginToSignup();
 
             cy.url()
             .should('include', '/signup');
         });
 
         it(`should navigate back to landing page`, () => {
-            cy.get('[data-cy="nav-brand-name"]')
-            .click();
+            cy.backToLanding();
 
             cy.url()
             .should('include', '/');
