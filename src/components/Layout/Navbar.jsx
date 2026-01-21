@@ -23,7 +23,7 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <h1>
-              <Link to={user?.isAdmin ? "/admin/dashboard" : "/dashboard"} className="text-xl font-bold text-purple-600">
+              <Link to={user?.isAdmin ? "/admin/dashboard" : "/dashboard"} className="text-xl font-bold text-purple-600" data-cy="nav-brand-name">
                 Cypressifier
               </Link>
             </h1>

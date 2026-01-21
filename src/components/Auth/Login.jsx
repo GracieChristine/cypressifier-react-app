@@ -69,7 +69,7 @@ const Login = () => {
       <div className="bg-gradient-to-br from-purple-50 to-pink-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <h1>
-              <Link to="/" className="text-2xl font-bold text-purple-600 hover:text-purple-700 transition">
+              <Link to="/" className="text-2xl font-bold text-purple-600 hover:text-purple-700 transition" data-cy="nav-brand-name">
                 Cypressifier
               </Link>
             </h1>

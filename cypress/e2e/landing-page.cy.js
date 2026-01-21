@@ -34,4 +34,55 @@ describe(`Landing Page`, () => {
             .and('be.visible');
         });
     });
+
+    describe(`Navigate to Sign Up`, () => {
+        beforeEach(() => {
+            cy.get('[data-cy="landing-signup-btn"]')
+            .click();
+        });
+
+        it(`should navigate to signup page`, () => {
+            cy.url()
+            .should('include', '/signup');
+        });
+
+        it(`should display signup form`, () => {
+            cy.get('[data-cy="signup-form"]')
+            .should('be.visible');
+        });
+
+        it(`should navigate to login`, () => {
+            cy.get('[data-cy="signup-login-link"]')
+            .click();
+
+            cy.url()
+            .should('include', '/login');
+        });
+
+        it(`should navigate back to landing page`, () => {
+            cy.get('[data-cy="nav-brand-name"]')
+            .click();
+
+            cy.url()
+            .should('include', '/');
+        });
+    });
+
+    describe(`Navigate to Log In`, () => {
+        beforeEach(() => {
+
+        });
+        
+        it(``, () => {
+
+        });
+
+        it(``, () => {
+
+        });
+
+        it(``, () => {
+
+        });
+    });
 });
