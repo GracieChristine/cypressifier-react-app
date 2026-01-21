@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const SplashPage = () => {
+const LandingPage = () => {
   const navigate = useNavigate();
 
   return (
@@ -30,4 +30,4 @@ const SplashPage = () => {
   );
 };
 
-export default SplashPage;
+export default LandingPage;

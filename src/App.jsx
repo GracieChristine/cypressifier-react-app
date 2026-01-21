@@ -7,7 +7,7 @@ import Navbar from './components/Layout/Navbar';
 import Footer from './components/Layout/Footer';
 import Login from './components/Auth/Login';
 import Signup from './components/Auth/Signup';
-import SplashPage from './components/Landing/SplashPage';
+import LandingPage from './components/Landing/LandingPage';
 
 // User Components
 import UserDashboard from './components/RoleUser/Dashboard';
@@ -71,7 +71,7 @@ function App() {
           <Route path="/" element={
             <AppLayout showNavbar={false} showFooter={false}>
               <PublicRoute>
-                <SplashPage />
+                <LandingPage />
               </PublicRoute>
             </AppLayout>
           } />

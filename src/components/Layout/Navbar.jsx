@@ -9,7 +9,10 @@ const Navbar = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    // Small delay to ensure state updates propagate
+    setTimeout(() => {
+      navigate('/');
+    }, 0);
   };
 
   const isActive = (path) => location.pathname === path;
