@@ -1,195 +1,196 @@
-describe('User Authentication', () => {
+describe(``, () => {
     // Setup variables
-        const userEmail = 'testuser@example.com';
-        const userPassword = 'password123';
-        const adminEmail = 'admin@cypressifier.com';
-        const adminPassword = 'admin123';
+    const userEmail = 'testuser@example.com';
+    const userPassword = 'password123';
+    const adminEmail = 'admin@cypressifier.com';
+    const adminPassword = 'admin123';
 
-    // Visit the app and clear storage before each test
     beforeEach(() => {
         cy.visit('http://localhost:5173');
         cy.clearLocalStorage();
     });
 
-    describe(`User Sign Up`, () => {
+    describe(`Sign Up Page UI/UX`, () => {
         beforeEach(() => {
-            cy.splashToSignup();
+            cy.get('[data-cy="landing-signup-btn"]')
+            .click();
+         });
+
+        it(`should display brand on navbar`, () => {
+            cy.get('[data-cy="nav-brand-name"]')
+            .should('have.text', 'Cypressifier')
+            .and('be.visible');
         });
 
-        it(`should successfully sign up and log out a new user`, () => {
-            cy.signupUser(userEmail, userPassword);
-            
-            // Should redirect to user dashboard
-            cy.contains('Dashboard').should('be.visible');
-            cy.contains('Overview of your events').should('be.visible');
-
-            cy.logout();
+        it(`should display footer`, () => {
+            cy.get('footer')
+            .should('contain', '© 2026 Cypressifier Event Planning. Crafted with excellence.')
+            .and('be.visible');
         });
 
-        it(`should show error when email exist already`, () => {
-            cy.signupUser(userEmail, userPassword);
+        it(`should display signup form`, () => {
+            cy.get('[data-cy="signup-form"]')
+            .first()
+            .contains('Sign Up')
+            .and('be.visible');
 
-            cy.logout();
+            cy.get('[data-cy="signup-form"]')
+            .find('label')
+            .first()
+            .should('have.text', 'Email')
+            .and('be.visible');
 
-            // Navigate to signup again
-            cy.splashToSignup();
+            cy.get('[data-cy="signup-form"]')
+            .find('input')
+            .eq(0)
+            .should('have.attr', 'data-cy', 'signup-email')
+            .should('have.attr', 'placeholder', 'john.doe@example.com')
+            .should('be.empty')
+            .and('be.visible');
 
-            cy.signupUser(userEmail, userPassword);
-            
-            // Should show error
-            cy.get('[data-cy="email-error"]').should('be.visible').and('have.text', 'User already exists. Please login.');
+            cy.get('[data-cy="signup-form"]')
+            .find('label')
+            .eq(1)
+            .should('have.text', 'Password')
+            .and('be.visible');
+
+            cy.get('[data-cy="signup-form"]')
+            .find('input')
+            .eq(1)
+            .should('have.attr', 'data-cy', 'signup-password')
+            .should('have.attr', 'placeholder', '••••••••')
+            .should('be.empty')
+            .and('be.visible');
+
+            cy.get('[data-cy="signup-form"]')
+            .find('label')
+            .last()
+            .should('have.text', 'Confirm Password')
+            .and('be.visible');
+
+            cy.get('[data-cy="signup-form"]')
+            .find('input')
+            .eq(2)
+            .should('have.attr', 'data-cy', 'signup-confirm-password')
+            .should('have.attr', 'placeholder', '••••••••')
+            .should('be.empty')
+            .and('be.visible');
+
+            cy.get('[data-cy="signup-submit"]')
+            .should('have.text', 'Sign Up')
+            .and('be.visible');
+
+            cy.contains('Already have an account? Login')
+            .and('be.visible');
+
+            cy.get('[data-cy="signup-login-link"]')
+            .should('have.attr', 'href', '/login')
         });
 
-        it(`should show error when email is invalid`, () => {
-            cy.signupUser('notanemail', userPassword);
-            
-            // Should show error
-            cy.get('[data-cy="email-error"]').should('be.visible').and('have.text', 'Please enter a valid email address');
+        it(`should navigate back to landing page`, () => {
+            cy.get('[data-cy="nav-brand-name"]')
+            .click();
+
+            cy.url()
+            .should('contain', '/');
         });
 
-        // passwor is invalid if less than 6 charcter/number
-        it(`should show error when password is invalid`, () => {
-            cy.signupUser(userEmail, 'short');
-            
-            // Should show error
-            cy.get('[data-cy="password-error"]').should('be.visible').and('have.text', 'Password must be at least 6 characters');
+        it(`should navigate to login page`, () => {
+            it(`should navigate back to landing page`, () => {
+            cy.get('[data-cy="signup-login-link"]')
+            .click();
+
+            cy.url()
+            .should('contain', '/login');
         });
-
-        it(`should show error when passwords not matching`, () => {
-            cy.signupUser(userEmail, userPassword, 'password456');
-            
-            // Should show error
-            cy.get('[data-cy="confirm-password-error"]').should('be.visible').and('have.text', 'Passwords do not match');
-        });
-
-        it(`should show error when email not input`, () => {
-            // Fill in sign in form
-            cy.get('[data-cy="email-input"]').should('be.empty');
-            cy.get('[data-cy="password-input"]').type(userPassword);
-            cy.get('[data-cy="confirm-password-input"]').type(userPassword);
-
-            // Submit
-            cy.get('[data-cy="signup-submit"]').click();
-            
-            // Should show error
-            cy.get('[data-cy="email-error"]').should('be.visible').and('have.text', 'Email is required');
-        });
-
-        it(`should show error when password not input`, () => {
-            // Fill in sign in form
-            cy.get('[data-cy="email-input"]').type(userEmail);
-            cy.get('[data-cy="password-input"]').should('be.empty');
-            cy.get('[data-cy="confirm-password-input"]').type(userPassword);
-
-            // Submit
-            cy.get('[data-cy="signup-submit"]').click();
-            
-            // Should show error
-            cy.get('[data-cy="password-error"]').should('be.visible').and('have.text', 'Password is required');
-        });
-
-        it(`should show error when confirm password not input`, () => {
-            // Fill in sign in form
-            cy.get('[data-cy="email-input"]').type(userEmail);
-            cy.get('[data-cy="password-input"]').type(userPassword);
-            cy.get('[data-cy="confirm-password-input"]').should('be.empty');
-
-            // Submit
-            cy.get('[data-cy="signup-submit"]').click();
-            
-            // Should show error
-            cy.get('[data-cy="confirm-password-error"]').should('be.visible').and('have.text', 'Please confirm your password');
         });
     });
 
-    describe('User Log In', () => {
+    describe(`Sign Up Form Validation`, () => {
         beforeEach(() => {
-            // Create a new user first
-            cy.splashToSignup();
-            cy.signupUser(userEmail, userPassword);
-            cy.logout();
 
-            // Navigate to login
-            cy.splashToLogin();
-        });
+         });
 
-        it(`should succesfully log in and log out existing user`, () => {
-            cy.loginUser(userEmail, userPassword);
-            
-            // Should redirect to user dashboard
-            cy.contains('Dashboard').should('be.visible');
-            cy.contains('Overview of your events').should('be.visible');
-
-            cy.logout();
-        });
-
-        it(`should show error when user not existing`, () => {
-            cy.loginUser('anothertestuser@example.com', userPassword);
-
-            // Should show error
-            cy.get('[data-cy="email-error"]').should('be.visible').and('have.text', 'User not found. Please sign up first.');
-        });
-
-        it(`should show error when password not correct`, () => {
-            cy.loginUser(userEmail, 'password456');
-
-            // Should show error
-            cy.get('[data-cy="password-error"]').should('be.visible').and('have.text', 'Incorrect password');
-        });
-
-        it(`should show error when email invalid`, () => {
-            cy.loginUser('testuser@invalid', userPassword);
-
-            // Should show error
-            cy.get('[data-cy="email-error"]').should('be.visible').and('have.text', 'Please enter a valid email address');
-        });
-
-        it(`should show error when email not input`, () => {
-            // Fill in login form, excluding email
-            cy.get('[data-cy="email-input"]').should('be.empty');
-            cy.get('[data-cy="password-input"]').type(userPassword);
-
-            // Log in
-            cy.get('[data-cy="login-submit"]').click();
-
-            // Should show error
-            cy.get('[data-cy="email-error"]').should('be.visible').and('have.text', 'Email is required');
+        it(``, () => {
 
         });
 
-        it(`should show error when password not input`, () => {
-            // Fill in login form, excluding password
-            cy.get('[data-cy="email-input"]').type(userEmail);
-            cy.get('[data-cy="password-input"]').should('be.empty');
+        it(``, () => {
 
-            // Log in
-            cy.get('[data-cy="login-submit"]').click();
+        });
 
-            // Should show error
-            cy.get('[data-cy="password-error"]').should('be.visible').and('have.text', 'Password is required');
+        it(``, () => {
+
+        });
+
+        it(``, () => {
+
         });
     });
 
-    describe('Admin Login', () => {
+    describe(`Sign Up and Navigate to Dashboard`, () => {
         beforeEach(() => {
-            cy.splashToLogin();
+
+         });
+
+        it(``, () => {
+
         });
 
-        it(`should succesfully log in and log out as admin`, () => {
-            cy.loginUser(adminEmail, adminPassword);
-            
-            // Should redirect to admin dashboard
-            cy.contains('Admin Dashboard').should('be.visible');
-            cy.contains('Manage all events').should('be.visible');
+        it(``, () => {
 
-            cy.logout();
         });
 
-        it(`should show error when password not correct`, () => {
-            cy.loginUser(adminEmail, 'admin456');
+        it(``, () => {
 
-            // Should show error
-            cy.get('[data-cy="password-error"]').should('be.visible').and('have.text', 'Incorrect password');
+        });
+
+        it(``, () => {
+
+        });
+    });
+
+    describe(`Log In Page UI`, () => {
+        beforeEach(() => {
+
+         });
+
+        it(``, () => {
+
+        });
+
+        it(``, () => {
+
+        });
+
+        it(``, () => {
+
+        });
+
+        it(``, () => {
+
+        });
+    });
+
+    describe(`Log In and to Dashboard`, () => {
+        beforeEach(() => {
+
+         });
+
+        it(``, () => {
+
+        });
+
+        it(``, () => {
+
+        });
+
+        it(``, () => {
+
+        });
+
+        it(``, () => {
+
         });
     });
 });

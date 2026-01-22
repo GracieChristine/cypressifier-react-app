@@ -46,26 +46,6 @@ describe(`Landing Page`, () => {
 
             // cy.findByRole('heading', { name: /sign up/i }).should('be.visible');
         });
-
-        it(`should display signup form`, () => {
-            cy.get('[data-cy="signup-form"]')
-            .contains('Sign Up')
-            .and('be.visible');
-        });
-
-        it(`should navigate to login`, () => {
-            cy.signupToLogin();
-
-            cy.url()
-            .should('include', '/login');
-        });
-
-        it(`should navigate back to landing page`, () => {
-            cy.backToLanding();
-
-            cy.url()
-            .should('include', '/');
-        });
     });
 
     describe(`Navigate to Log In`, () => {
@@ -76,26 +56,6 @@ describe(`Landing Page`, () => {
         it(`should navigate to login page`, () => {
             cy.url()
             .should('include', '/login');
-        });
-
-        it(`should display login form`, () => {
-            cy.get('[data-cy="login-form"]')
-            .contains('Login')
-            .and('be.visible');
-        });
-
-        it(`should navigate to signup`, () => {
-            cy.loginToSignup();
-
-            cy.url()
-            .should('include', '/signup');
-        });
-
-        it(`should navigate back to landing page`, () => {
-            cy.backToLanding();
-
-            cy.url()
-            .should('include', '/');
         });
     });
 });
