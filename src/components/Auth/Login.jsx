@@ -81,7 +81,7 @@ const Login = () => {
         <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8" data-cy="login-form">
           <p className="text-3xl font-bold text-center mb-6">Login</p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div>
               <label className="block text-gray-700 mb-2">Email</label>
               <input
