@@ -19,24 +19,27 @@ describe(``, () => {
         it(`should display brand on navbar`, () => {
             cy.get('[data-cy="nav-brand-name"]')
             .should('have.text', 'Cypressifier')
+            .should('have.attr', 'href', '/')
             .and('be.visible');
         });
 
         it(`should display footer`, () => {
             cy.get('footer')
-            .should('contain', '© 2026 Cypressifier Event Planning. Crafted with excellence.')
+            .should('have.text', '© 2026 Cypressifier Event Planning. Crafted with excellence.')
             .and('be.visible');
         });
 
         it(`should display signup form - general`, () => {
             cy.get('[data-cy="signup-form"]')
             .first()
-            .contains('Sign Up')
+            .should('contain', 'Sign Up')
             .and('be.visible');
 
-            cy.contains('Already have an account? Login')
+            cy.get('[data-cy="signup-form"]')
+            cy.should('contain', 'Already have an account? Login')
             .and('be.visible');
 
+            cy.get('[data-cy="signup-form"]')
             cy.get('[data-cy="signup-login-link"]')
             .should('have.attr', 'href', '/login');
         });
@@ -272,6 +275,53 @@ describe(``, () => {
 
     describe(`Log In Page UI`, () => {
         beforeEach(() => {
+            cy.get('[data-cy="landing-login-btn"]')
+            .click();
+         });
+
+        it(`should display brand on navbar`, () => {
+            cy.get('[data-cy="nav-brand-name"]')
+            .should('have.text', 'Cypressifier')
+            .should('have.attr', 'href', '/')
+            .and('be.visible');
+        });
+
+        it(`should display footer`, () => {
+            cy.get('footer')
+            .should('have.text', '© 2026 Cypressifier Event Planning. Crafted with excellence.')
+            .and('be.visible');
+        });
+
+        it(`should display login form - general`, () => {
+            cy.get('[data-cy="login-form"]')
+            .find('p:first-child')
+            .should('contain', 'Login')
+            .and('be.visible');
+
+            cy.get('[data-cy="login-form"]')
+            cy.should('contain', 'Don\'t have an account? Sign up')
+            .and('be.visible');
+
+            cy.get('[data-cy="login-form"]')
+            cy.get('[data-cy="login-signup-link"]')
+            .should('have.attr', 'href', '/signup');
+        });
+
+        it(`should display login form - email`, () => {
+            cy.get('[data-cy="login-form"]')
+        });
+
+        it(`should display login form - password`, () => {
+            cy.get('[data-cy="login-form"]')
+        });
+
+        it(`should display login form - button`, () => {
+            cy.get('[data-cy="login-form"]')
+        });
+    });
+
+    describe(`Log In Form Validation`, () => {
+        beforeEach(() => {
 
          });
 
@@ -293,6 +343,28 @@ describe(``, () => {
     });
 
     describe(`Log In and to Dashboard`, () => {
+        beforeEach(() => {
+
+         });
+
+        it(``, () => {
+
+        });
+
+        it(``, () => {
+
+        });
+
+        it(``, () => {
+
+        });
+
+        it(``, () => {
+
+        });
+    });
+
+    describe(`Log Out and back to Landing Page`, () => {
         beforeEach(() => {
 
          });
