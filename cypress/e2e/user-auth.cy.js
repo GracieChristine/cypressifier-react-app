@@ -28,18 +28,20 @@ describe(``, () => {
             .and('be.visible');
         });
 
-        it(`should display signup form`, () => {
+        it(`should display signup form - general`, () => {
             cy.get('[data-cy="signup-form"]')
             .first()
             .contains('Sign Up')
             .and('be.visible');
 
-            cy.get('[data-cy="signup-form"]')
-            .find('label')
-            .first()
-            .should('have.text', 'Email')
+            cy.contains('Already have an account? Login')
             .and('be.visible');
 
+            cy.get('[data-cy="signup-login-link"]')
+            .should('have.attr', 'href', '/login');
+        });
+
+        it(`should display signup form - email`, () => {
             cy.get('[data-cy="signup-form"]')
             .find('input')
             .eq(0)
@@ -53,6 +55,14 @@ describe(``, () => {
             .eq(1)
             .should('have.text', 'Password')
             .and('be.visible');
+        });
+
+        it(`should display signup form - password`, () => {
+            cy.get('[data-cy="signup-form"]')
+            .find('label')
+            .eq(1)
+            .should('have.text', 'Password')
+            .and('be.visible');
 
             cy.get('[data-cy="signup-form"]')
             .find('input')
@@ -61,7 +71,9 @@ describe(``, () => {
             .should('have.attr', 'placeholder', '••••••••')
             .should('be.empty')
             .and('be.visible');
+        });
 
+        it(`should display signup form - confirm password`, () => {
             cy.get('[data-cy="signup-form"]')
             .find('label')
             .last()
@@ -75,16 +87,12 @@ describe(``, () => {
             .should('have.attr', 'placeholder', '••••••••')
             .should('be.empty')
             .and('be.visible');
+        });
 
+        it(`should display signup form - button`, () => {
             cy.get('[data-cy="signup-submit"]')
             .should('have.text', 'Sign Up')
             .and('be.visible');
-
-            cy.contains('Already have an account? Login')
-            .and('be.visible');
-
-            cy.get('[data-cy="signup-login-link"]')
-            .should('have.attr', 'href', '/login')
         });
 
         it(`should navigate back to landing page`, () => {
@@ -242,23 +250,23 @@ describe(``, () => {
 
     describe(`Sign Up and Navigate to Dashboard`, () => {
         beforeEach(() => {
-
+            cy.get('[data-cy="landing-signup-btn"]')
+            .click();
          });
 
-        it(``, () => {
+        it(`should signed in and navigate to user dashboard`, () => {
+            cy.get('[data-cy="signup-email"]')
+            .type(userEmail);
+            cy.get('[data-cy="signup-password"]')
+            .type(userPassword);
+            cy.get('[data-cy="signup-confirm-password"]')
+            .type(userPassword);
 
-        });
+            cy.get('form')
+            .submit();
 
-        it(``, () => {
-
-        });
-
-        it(``, () => {
-
-        });
-
-        it(``, () => {
-
+            cy.url()
+            .should('include', '/dashboard');
         });
     });
 
