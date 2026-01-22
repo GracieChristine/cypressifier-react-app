@@ -55,14 +55,6 @@ const Signup = () => {
 
     setErrors({});
 
-    const success = signup(formData.email, formData.password);
-    
-    if (success) {
-      navigate('/dashboard');
-    } else {
-      setErrors('Email already exists');
-    }
-
     const result = signup(formData.email, formData.password);
 
     if (result.success) {  
@@ -97,7 +89,7 @@ const Signup = () => {
         <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8" data-cy="signup-form">
           <p className="text-3xl font-bold text-center mb-6">Sign Up</p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div>
               <label className="block text-gray-700 mb-2">Email</label>
               <input

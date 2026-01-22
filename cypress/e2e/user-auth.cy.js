@@ -108,23 +108,135 @@ describe(``, () => {
 
     describe(`Sign Up Form Validation`, () => {
         beforeEach(() => {
-
+            cy.get('[data-cy="landing-signup-btn"]')
+            .click();
          });
 
-        it(``, () => {
+        it(`should show error when email is invalid`, () => {
+            cy.get('[data-cy="signup-email"]')
+            .type('notavalidemail');
+            cy.get('[data-cy="signup-password"]')
+            .type(userPassword);
+            cy.get('[data-cy="signup-confirm-password"]')
+            .type(userPassword);
 
+            cy.get('form')
+            .submit();
+
+            cy.get('[data-cy="email-error"]')
+            .should('have.text', 'Please enter a valid email address')
+            .and('be.visible');
         });
 
-        it(``, () => {
+        it(`should show error when email is not enter`, () => {
+            cy.get('[data-cy="signup-email"]')
+            .should('be.empty');
+            cy.get('[data-cy="signup-password"]')
+            .type(userPassword);
+            cy.get('[data-cy="signup-confirm-password"]')
+            .type(userPassword);
 
+            cy.get('form')
+            .submit();
+
+            cy.get('[data-cy="email-error"]')
+            .should('have.text', 'Email is required')
+            .and('be.visible');
         });
 
-        it(``, () => {
+        it(`should show error when password is invalid`, () => {
+            cy.get('[data-cy="signup-email"]')
+            .type(userEmail);
+            cy.get('[data-cy="signup-password"]')
+            .type('short');
+            cy.get('[data-cy="signup-confirm-password"]')
+            .type('short');
 
+            cy.get('form')
+            .submit();
+
+            cy.get('[data-cy="password-error"]')
+            .should('have.text', 'Password must be at least 6 characters')
+            .and('be.visible');
         });
 
-        it(``, () => {
+        it(`should show error when password is not enter`, () => {
+            cy.get('[data-cy="signup-email"]')
+            .type(userEmail);
+            cy.get('[data-cy="signup-password"]')
+            .should('be.empty');
+            cy.get('[data-cy="signup-confirm-password"]')
+            .type(userPassword);
 
+            cy.get('form')
+            .submit();
+
+            cy.get('[data-cy="password-error"]')
+            .should('have.text', 'Password is required')
+            .and('be.visible');
+        });
+
+        it(`should show error when confirm password is not matching`, () => {
+            cy.get('[data-cy="signup-email"]')
+            .type(userEmail);
+            cy.get('[data-cy="signup-password"]')
+            .type(userPassword);
+            cy.get('[data-cy="signup-confirm-password"]')
+            .type('123password');
+
+            cy.get('form')
+            .submit();
+
+            cy.get('[data-cy="confirm-password-error"]')
+            .should('have.text', 'Passwords do not match')
+            .and('be.visible');
+        });
+
+        it(`should show error when confirm password is not enter`, () => {
+            cy.get('[data-cy="signup-email"]')
+            .type(userEmail);
+            cy.get('[data-cy="signup-password"]')
+            .type(userPassword);
+            cy.get('[data-cy="signup-confirm-password"]')
+            .should('be.empty');
+
+            cy.get('form')
+            .submit();
+
+            cy.get('[data-cy="confirm-password-error"]')
+            .should('have.text', 'Please confirm your password')
+            .and('be.visible');
+        });
+
+        it(`should show error when email is register already`, () => {
+            cy.get('[data-cy="signup-email"]')
+            .type(userEmail);
+            cy.get('[data-cy="signup-password"]')
+            .type(userPassword);
+            cy.get('[data-cy="signup-confirm-password"]')
+            .type(userPassword);
+
+            cy.get('form')
+            .submit();
+
+            cy.get('[data-cy="nav-logout-btn"]').click();
+
+            cy.get('[data-cy="landing-signup-btn"]')
+            .click();
+
+            cy.get('[data-cy="signup-email"]')
+            .type(userEmail);
+            cy.get('[data-cy="signup-password"]')
+            .type(userPassword);
+            cy.get('[data-cy="signup-confirm-password"]')
+            .type(userPassword);
+
+            cy.get('form')
+            .submit();
+
+            cy.get('[data-cy="email-error"]')
+            .should('have.text', 'User already exists. Please login.')
+            .and('be.visible');
         });
     });
 
