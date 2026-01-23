@@ -1,4 +1,4 @@
-describe(``, () => {
+describe(`Sign Up and Log In Pages`, () => {
     // Setup variables
     const userEmail = 'testuser@example.com';
     const userPassword = 'password123';
@@ -278,7 +278,7 @@ describe(``, () => {
             .submit();
 
             cy.url()
-            .should('include', '/dashboard');
+            .should('include', '/user/events');
         });
     });
 
@@ -501,7 +501,7 @@ describe(``, () => {
 
         it(`should navigate to dashboard`, () => {
             cy.url()
-            .should('contain', '/dashboard');
+            .should('contain', '/user/events');
         });
 
         it(`should log out and navigate back to landing page`, () => {

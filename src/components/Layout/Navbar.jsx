@@ -35,7 +35,7 @@ const Navbar = () => {
                 <Link
                   to="/events"
                   className={`px-3 py-2 rounded-md text-sm font-medium ${
-                    isActive('/events')
+                    isActive('/user/events')
                       ? 'bg-purple-100 text-purple-700'
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}

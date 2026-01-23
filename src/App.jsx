@@ -10,7 +10,6 @@ import Signup from './components/Auth/Signup';
 import LandingPage from './components/Landing/LandingPage';
 
 // User Components
-// import UserDashboard from './components/RoleUser/Dashboard';
 import UserEventsList from './components/RoleUser/EventsList';
 import UserEventForm from './components/RoleUser/EventForm';
 import UserEventDetail from './components/RoleUser/EventDetail';
@@ -42,7 +41,7 @@ function PublicRoute({ children }) {
   const { user } = useAuth();
   
   if (user) {
-    return <Navigate to={user.isAdmin ? "/admin/dashboard" : "/events"} replace />;
+    return <Navigate to={user.isAdmin ? "/admin/dashboard" : "/user/events"} replace />;
   }
   
   return children;
@@ -93,15 +92,7 @@ function App() {
           } />
 
           {/* User Protected Routes */}
-          {/* <Route path="/dashboard" element={
-            <AppLayout>
-              <ProtectedRoute>
-                <UserEventListing />
-              </ProtectedRoute>
-            </AppLayout>
-          } /> */}
-          
-          <Route path="/events" element={
+          <Route path="/user/events" element={
             <AppLayout>
               <ProtectedRoute>
                 <UserEventsList />
@@ -109,7 +100,7 @@ function App() {
             </AppLayout>
           } />
           
-          <Route path="/events/new" element={
+          <Route path="/user/events/new" element={
             <AppLayout>
               <ProtectedRoute>
                 <UserEventForm />
@@ -117,7 +108,7 @@ function App() {
             </AppLayout>
           } />
           
-          <Route path="/events/:id/edit" element={
+          <Route path="/user/events/:id/edit" element={
             <AppLayout>
               <ProtectedRoute>
                 <UserEventForm />
@@ -125,7 +116,7 @@ function App() {
             </AppLayout>
           } />
           
-          <Route path="/events/:id" element={
+          <Route path="/user/events/:id" element={
             <AppLayout>
               <ProtectedRoute>
                 <UserEventDetail />
