@@ -10,7 +10,7 @@ import Signup from './components/Auth/Signup';
 import LandingPage from './components/Landing/LandingPage';
 
 // User Components
-import UserDashboard from './components/RoleUser/Dashboard';
+// import UserDashboard from './components/RoleUser/Dashboard';
 import UserEventsList from './components/RoleUser/EventsList';
 import UserEventForm from './components/RoleUser/EventForm';
 import UserEventDetail from './components/RoleUser/EventDetail';
@@ -42,7 +42,7 @@ function PublicRoute({ children }) {
   const { user } = useAuth();
   
   if (user) {
-    return <Navigate to={user.isAdmin ? "/admin/dashboard" : "/dashboard"} replace />;
+    return <Navigate to={user.isAdmin ? "/admin/dashboard" : "/events"} replace />;
   }
   
   return children;
@@ -93,13 +93,13 @@ function App() {
           } />
 
           {/* User Protected Routes */}
-          <Route path="/dashboard" element={
+          {/* <Route path="/dashboard" element={
             <AppLayout>
               <ProtectedRoute>
-                <UserDashboard />
+                <UserEventListing />
               </ProtectedRoute>
             </AppLayout>
-          } />
+          } /> */}
           
           <Route path="/events" element={
             <AppLayout>

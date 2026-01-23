@@ -51,7 +51,7 @@ const Login = () => {
     if (user.isAdmin) {
       navigate('/admin/dashboard');
     } else {
-      navigate('/dashboard');
+      navigate('/events');
     }
   } else {
       // Handle field-specific errors

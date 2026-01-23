@@ -58,7 +58,7 @@ const Signup = () => {
     const result = signup(formData.email, formData.password);
 
     if (result.success) {  
-      navigate('/dashboard');
+      navigate('/events');
     } else {
       // setErrors(result.error);
       

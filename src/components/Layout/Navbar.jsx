@@ -23,7 +23,7 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <h1>
-              <Link to={user?.isAdmin ? "/admin/dashboard" : "/dashboard"} className="text-xl font-bold text-purple-600" data-cy="nav-brand-name">
+              <Link to={user?.isAdmin ? "/admin/dashboard" : "/events"} className="text-xl font-bold text-purple-600" data-cy="nav-brand-name">
                 Cypressifier
               </Link>
             </h1>
@@ -32,16 +32,6 @@ const Navbar = () => {
           <div className="flex items-center space-x-4">
             {user && !user.isAdmin && (
               <>
-                <Link
-                  to="/dashboard"
-                  className={`px-3 py-2 rounded-md text-sm font-medium ${
-                    isActive('/dashboard')
-                      ? 'bg-purple-100 text-purple-700'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  Dashboard
-                </Link>
                 <Link
                   to="/events"
                   className={`px-3 py-2 rounded-md text-sm font-medium ${
