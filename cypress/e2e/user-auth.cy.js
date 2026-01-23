@@ -469,47 +469,75 @@ describe(``, () => {
         });
     });
 
-    describe(`Log In and to Dashboard`, () => {
+    describe(`User Authentication`, () => {
         beforeEach(() => {
+            cy.get('[data-cy="landing-signup-btn"]')
+            .click();
 
-         });
+            cy.get('[data-cy="signup-email"]')
+            .type(userEmail);
+            cy.get('[data-cy="signup-password"]')
+            .type(userPassword);
+            cy.get('[data-cy="signup-confirm-password"]')
+            .type(userPassword);
 
-        it(``, () => {
+            cy.get('form')
+            .submit();
 
+            cy.get('[data-cy="nav-logout-btn"]')
+            .click();
+
+            cy.get('[data-cy="landing-login-btn"]')
+            .click();
+
+            cy.get('[data-cy="login-email"]')
+            .type(userEmail);
+            cy.get('[data-cy="login-password"]')
+            .type(userPassword);
+
+            cy.get('form')
+            .submit();
         });
 
-        it(``, () => {
-
+        it(`should navigate to dashboard`, () => {
+            cy.url()
+            .should('contain', '/dashboard');
         });
 
-        it(``, () => {
+        it(`should log out and navigate back to landing page`, () => {
+            cy.get('[data-cy="nav-logout-btn"]')
+            .click();
 
-        });
-
-        it(``, () => {
-
+            cy.url()
+            .should('contain', '/');
         });
     });
 
-    describe(`Log Out and back to Landing Page`, () => {
+    describe(`Admin User Authentication`, () => {
         beforeEach(() => {
+            cy.get('[data-cy="landing-login-btn"]')
+            .click();
 
-         });
+            cy.get('[data-cy="login-email"]')
+            .type(adminEmail);
+            cy.get('[data-cy="login-password"]')
+            .type(adminPassword);
 
-        it(``, () => {
-
+            cy.get('form')
+            .submit();
         });
 
-        it(``, () => {
-
+        it(`should navigate to admin dashboard`, () => {
+            cy.url()
+            .should('contain', '/admin/dashboard');
         });
 
-        it(``, () => {
+        it(`should log out and navigate back to landing page`, () => {
+            cy.get('[data-cy="nav-logout-btn"]')
+            .click();
 
-        });
-
-        it(``, () => {
-
+            cy.url()
+            .should('contain', '/');
         });
     });
 });
