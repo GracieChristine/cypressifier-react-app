@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
 import { Sprout, Trash2, Loader2, X, Plus } from 'lucide-react';
 import { generateSeedEvents, saveEventsToStorage, clearEventsFromStorage, loadEventsFromStorage } from '../utils/seedData';
+import { useAuth } from '../context/AuthContext';
 
 const DevSeedPanel = ({ onSeedComplete }) => {
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [isMinimized, setIsMinimized] = useState(true);
 
+  // Only show when user is logged in
+  if (!user) {
+    return null;
+  }
+  
   const handleSeed = () => {
     setLoading(true);
     setResult(null);
@@ -16,8 +23,8 @@ const DevSeedPanel = ({ onSeedComplete }) => {
         // Load existing events
         const existingEvents = loadEventsFromStorage();
         
-        // Generate new seed data
-        const { events, count } = generateSeedEvents();
+        // Generate new seed data with current user info
+        const { events, count } = generateSeedEvents(user.id, user.email);  // Pass user here
         
         // Combine existing + new events
         const allEvents = [...existingEvents, ...events];
@@ -27,7 +34,7 @@ const DevSeedPanel = ({ onSeedComplete }) => {
         
         setResult({
           type: 'success',
-          message: `Added ${events.length} new events (Total: ${allEvents.length})`,
+          message: `Added ${events.length} new events as ${user.isAdmin ? 'Admin' : user.email} (Total: ${allEvents.length})`,  // Updated message
           count: count
         });
         
@@ -54,19 +61,33 @@ const DevSeedPanel = ({ onSeedComplete }) => {
         // Load all events
         const allEvents = loadEventsFromStorage();
         
-        // Keep only user-created events (filter out mock data)
-        const userEvents = allEvents.filter(event => !event.isMockData);
-        
-        // Save back only user events
-        saveEventsToStorage(userEvents);
-        
-        const removedCount = allEvents.length - userEvents.length;
-        
-        setResult({
-          type: 'success',
-          message: `Cleared ${removedCount} mock events. ${userEvents.length} user events kept.`,
-          count: null
-        });
+        if (user.isAdmin) {
+          // Admin can clear ALL mock data
+          const userEvents = allEvents.filter(event => !event.isMockData);
+          saveEventsToStorage(userEvents);
+          
+          const removedCount = allEvents.length - userEvents.length;
+          
+          setResult({
+            type: 'success',
+            message: `Cleared ${removedCount} mock events (all users). ${userEvents.length} user events kept.`,
+            count: null
+          });
+        } else {
+          // Regular user can only clear THEIR mock data
+          const userEvents = allEvents.filter(event => 
+            !event.isMockData || event.userId !== user.id
+          );
+          saveEventsToStorage(userEvents);
+          
+          const removedCount = allEvents.length - userEvents.length;
+          
+          setResult({
+            type: 'success',
+            message: `Cleared ${removedCount} of your mock events. ${userEvents.length} events kept.`,
+            count: null
+          });
+        }
         
         if (onSeedComplete) {
           onSeedComplete();
@@ -102,13 +123,15 @@ const DevSeedPanel = ({ onSeedComplete }) => {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Sprout className="w-5 h-5 text-yellow-400" />
-          <span className="font-bold text-sm">DEV MODE</span>
+          <span className="font-bold text-sm">
+            DEV MODE {user.isAdmin ? '- Admin' : `- ${user.email.split('@')[0]}`}
+          </span>
         </div>
         <button 
           onClick={() => setIsMinimized(true)}
           className="text-gray-400 hover:text-white transition-colors"
           title="Minimize"
-          data-cy="ds-panel-window-collapse-btn"
+          data-cy="ds-panel-collapse-btn"
         >
           <X className="w-4 h-4" />
         </button>
@@ -141,7 +164,7 @@ const DevSeedPanel = ({ onSeedComplete }) => {
           data-cy="ds-panel-clear-event-btn"
         >
           <Trash2 className="w-4 h-4" />
-          Clear All Test Data
+          {user.isAdmin ? 'Clear All Mock Data' : 'Clear My Mock Data'}
         </button>
       </div>
 

@@ -22,7 +22,12 @@ const EventsList = () => {
     }
 
     const allEvents = loadEventsFromStorage();
-    setEvents(allEvents);
+    
+    // Filter to only show current user's events (unless admin)
+    const userEvents = user.isAdmin
+      ? allEvents
+      : allEvents.filter(e => e.userId === user.id);
+    setEvents(userEvents);
   }, [user]);
 
   // Calculate stats
@@ -258,26 +263,25 @@ const EventsList = () => {
           </div>
         </div>
 
-        {/* Upcoming Events - This Week */}
-        {thisWeekEvents.length > 0 && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <span>🔥</span> This Week
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {thisWeekEvents.map(event => renderEventCard(event, true))}
-            </div>
-          </div>
-        )}
-
-        {/* Upcoming Events - Next Week */}
-        {nextWeekEvents.length > 0 && (
+        {/* Upcoming Events - Combined This Week & Next Week */}
+        {(thisWeekEvents.length > 0 || nextWeekEvents.length > 0) && (
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
               Upcoming Events
             </h2>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {nextWeekEvents.map(event => renderEventCard(event, true))}
+              {thisWeekEvents.length > 0 && (
+                <>
+                  {thisWeekEvents.map(event => renderEventCard(event, true))}
+                </>
+              )}
+              
+              {nextWeekEvents.length > 0 && (
+                <>
+                  {nextWeekEvents.map(event => renderEventCard(event, true))}
+                </>
+              )}
             </div>
           </div>
         )}

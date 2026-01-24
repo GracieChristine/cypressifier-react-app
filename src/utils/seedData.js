@@ -93,29 +93,28 @@ function generateId() {
 }
 
 // Generate a single event
-function generateEvent(status) {
+function generateEvent(status, userId, userEmail) {
   const type = getRandomItem(Object.keys(EVENT_NAMES));
   const locationType = getRandomItem(LOCATION_TYPES);
   const basePrice = LOCATION_MINIMUMS[locationType];
   const budget = basePrice + Math.floor(Math.random() * 50000);
-  const guestCount = 50 + Math.floor(Math.random() * 251); // 50-300 guests
+  const guestCount = 50 + Math.floor(Math.random() * 251);
   
-  // Date logic based on status
   let date;
   switch(status) {
     case 'Completed':
-      date = getRandomDate(-180, 90); // 90-180 days ago
+      date = getRandomDate(-180, 90);
       break;
     case 'Cancelled':
       date = Math.random() > 0.5 
-        ? getRandomDate(-90, 90)  // Past cancellation
-        : getRandomDate(0, 180);   // Future cancellation
+        ? getRandomDate(-90, 90)
+        : getRandomDate(0, 180);
       break;
-    case 'In Progress':
-      date = getRandomDate(30, 120); // 30-150 days from now
+    case 'In Process':
+      date = getRandomDate(30, 120);
       break;
     case 'In Review':
-      date = getRandomDate(60, 180); // 60-240 days from now
+      date = getRandomDate(60, 180);
       break;
     default:
       date = getRandomDate(0, 180);
@@ -131,33 +130,35 @@ function generateEvent(status) {
     guestCount: guestCount.toString(),
     description: getRandomItem(DESCRIPTIONS),
     status: status,
-    isMockData: true
+    isMockData: true,
+    userId: userId,
+    userEmail: userEmail
   };
 }
 
 // Main seed function
-export function generateSeedEvents(clearExisting = false) {
+export function generateSeedEvents(userId, userEmail) {
   const events = [];
   
   // Generate varied amounts for each status
   // In Review: 8 events
   for (let i = 0; i < 8; i++) {
-    events.push(generateEvent('In Review'));
+    events.push(generateEvent('In Review', userId, userEmail));
   }
   
   // In Progress: 6 events
   for (let i = 0; i < 6; i++) {
-    events.push(generateEvent('In Progress'));
+    events.push(generateEvent('In Progress', userId, userEmail));
   }
   
   // Completed: 12 events
   for (let i = 0; i < 12; i++) {
-    events.push(generateEvent('Completed'));
+    events.push(generateEvent('Completed', userId, userEmail));
   }
   
   // Cancelled: 4 events
   for (let i = 0; i < 4; i++) {
-    events.push(generateEvent('Cancelled'));
+    events.push(generateEvent('Cancelled', userId, userEmail));
   }
 
   return {

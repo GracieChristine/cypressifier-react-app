@@ -86,6 +86,15 @@ describe(`Dashboard Page`, () => {
             cy.get('[data-cy="dashboard"]')
             .get('[data-cy="dashboard-stat"]')
             .and('be.visible');
+
+            cy.get('[data-cy="ds-panel-expand-btn"]')
+            .click();
+
+            cy.get('[data-cy="ds-panel-add-event-btn"]')
+            .click();
+
+            cy.get('[data-cy="ds-panel-collapse-btn"]')
+            .click();
         });
 
         it(`should display 5 stat boxes`, () => {
@@ -98,7 +107,7 @@ describe(`Dashboard Page`, () => {
         it(`should display all stat box correctly`, () => {
             cy.get('[data-cy="dashboard-stat"]')
             .find('[data-cy="dashboard-stat-box"]:first-child')
-            .should('have.text', 'All (0)')
+            .should('have.text', 'All (30)')
             .should('have.css', 'color', 'rgb(55, 65, 81)')
             .should('have.css', 'background-color', 'rgb(243, 244, 246)')
             .and('be.visible');
@@ -108,7 +117,7 @@ describe(`Dashboard Page`, () => {
             cy.get('[data-cy="dashboard-stat"]')
             .find('[data-cy="dashboard-stat-box"]')
             .eq(1)
-            .should('have.text', 'In Review (0)')
+            .should('have.text', 'In Review (8)')
             .should('have.css', 'color', 'rgb(29, 78, 216)')
             .should('have.css', 'background-color', 'rgb(219, 234, 254)')
             .and('be.visible');
@@ -118,7 +127,7 @@ describe(`Dashboard Page`, () => {
             cy.get('[data-cy="dashboard-stat"]')
             .find('[data-cy="dashboard-stat-box"]')
             .eq(2)
-            .should('have.text', 'In Progress (0)')
+            .should('have.text', 'In Progress (6)')
             .should('have.css', 'color', 'rgb(161, 98, 7)')
             .should('have.css', 'background-color', 'rgb(254, 249, 195)')
             .and('be.visible');
@@ -128,7 +137,7 @@ describe(`Dashboard Page`, () => {
             cy.get('[data-cy="dashboard-stat"]')
             .find('[data-cy="dashboard-stat-box"]')
             .eq(3)
-            .should('have.text', 'Completed (0)')
+            .should('have.text', 'Completed (12)')
             .should('have.css', 'color', 'rgb(21, 128, 61)')
             .should('have.css', 'background-color', 'rgb(220, 252, 231)')
             .and('be.visible');
@@ -138,7 +147,7 @@ describe(`Dashboard Page`, () => {
             cy.get('[data-cy="dashboard-stat"]')
             .find('[data-cy="dashboard-stat-box"]')
             .eq(4)
-            .should('have.text', 'Cancelled (0)')
+            .should('have.text', 'Cancelled (4)')
             .should('have.css', 'color', 'rgb(185, 28, 28)')
             .should('have.css', 'background-color', 'rgb(254, 226, 226)')
             .and('be.visible');
@@ -147,15 +156,62 @@ describe(`Dashboard Page`, () => {
 
     describe(`Dashboard - Table`, () => {
         beforeEach(() => {
+            cy.get('[data-cy="dashboard"]')
+            .get('[data-cy="dashboard-table"]')
+            .and('be.visible');
 
+            cy.get('[data-cy="ds-panel-expand-btn"]')
+            .click();
+
+            cy.get('[data-cy="ds-panel-add-event-btn"]')
+            .click();
+
+            cy.get('[data-cy="ds-panel-collapse-btn"]')
+            .click();
         });
 
-        it(``, () => {
+        it(`should display 5 columns`, () => {
+            cy.get('[data-cy="dashboard-table"]')
+            .get('th')
+            .should('have.length', 5)
+            .and('be.visible');
 
+            cy.get('[data-cy="dashboard-table"]')
+            .find('th')
+            .eq(0)
+            .should('have.text', 'Event')
+            .and('be.visible');
+
+            cy.get('[data-cy="dashboard-table"]')
+            .find('th')
+            .eq(1)
+            .should('have.text', 'Client')
+            .and('be.visible');
+
+            cy.get('[data-cy="dashboard-table"]')
+            .find('th')
+            .eq(2)
+            .should('have.text', 'Date')
+            .and('be.visible');
+
+            cy.get('[data-cy="dashboard-table"]')
+            .find('th')
+            .eq(3)
+            .should('have.text', 'Status')
+            .and('be.visible');
+
+            cy.get('[data-cy="dashboard-table"]')
+            .find('th')
+            .eq(4)
+            .should('have.text', 'Action')
+            .and('be.visible');
         });
 
-        it(``, () => {
-
+        it(`should diplay amount of event correctly`, () => {
+            cy.get('[data-cy="dashboard-table"]')
+            .get('[data-cy="dashboard-event-entry"]')
+            .should('have.length', 30)
+            .and('be.visisble');
         });
     });
 

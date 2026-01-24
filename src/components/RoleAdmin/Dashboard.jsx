@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { formatDate } from '../../utils/dateHelpers';
+import { formatDateShort } from '../../utils/dateHelpers';
 import { loadEventsFromStorage } from '../../utils/seedData';
 
 const AdminDashboard = () => {
@@ -65,11 +65,6 @@ const AdminDashboard = () => {
       window.removeEventListener('focus', loadEvents);
     };
   }, []);
-
-  // const filteredEvents = events.filter(event => {
-  //   if (filter === 'all') return true;
-  //   return event.status === filter;
-  // });
   
   const statusCounts = {
     total: events.length,
@@ -157,24 +152,24 @@ const AdminDashboard = () => {
                 <tr>
                   <th className="px-6 py-4 text-left font-sans text-sm">Event</th>
                   <th className="px-6 py-4 text-left font-sans text-sm">Client</th>
-                  <th className="px-6 py-4 text-left font-sans text-sm">Due Date</th>
+                  <th className="px-6 py-4 text-left font-sans text-sm">Date</th>
                   <th className="px-6 py-4 text-left font-sans text-sm">Status</th>
                   <th className="px-6 py-4 text-left font-sans text-sm">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {events.length === 0 ? (
-                  <tr>
+                  <tr data-cy="dashboard-event-empty">
                     <td colSpan="7" className="px-6 py-12 text-center text-gray-500 font-serif">
                       No events yet
                     </td>
                   </tr>
                 ) : (
                   events.map(event => (
-                    <tr key={event.id} className="hover:bg-gray-50 transition">
+                    <tr key={event.id} className="hover:bg-gray-50 transition" data-cy="dashboard-event-entry">
                       <td className="px-6 py-4">
                         <div className="font-semibold text-gray-900">{event.name}</div>
-                        <div className="text-sm text-gray-500">{event.type}</div>
+                        {/* <div className="text-sm text-gray-500">{event.type}</div> */}
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-700">
@@ -184,7 +179,7 @@ const AdminDashboard = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-700">
-                          {formatDate(event.date)}
+                          {formatDateShort(event.date)}
                         </div>
                       </td>
                       <td className="px-6 py-4">
