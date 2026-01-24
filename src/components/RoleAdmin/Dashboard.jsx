@@ -6,6 +6,8 @@ import { loadEventsFromStorage } from '../../utils/seedData';
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
+  // const [filter, setFilter] = useState('all');
+  const filter = '';
 
   useEffect(() => {
     const loadEvents = () => {
@@ -64,6 +66,11 @@ const AdminDashboard = () => {
     };
   }, []);
 
+  // const filteredEvents = events.filter(event => {
+  //   if (filter === 'all') return true;
+  //   return event.status === filter;
+  // });
+  
   const statusCounts = {
     total: events.length,
     inReview: events.filter(e => e.status === 'In Review' || e.cancellationRequest).length,
@@ -97,37 +104,33 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-elegant-50 to-royal-50/30 py-6 px-8">
+    <div className="min-h-screen bg-gradient-to-br from-elegant-50 to-royal-50/30 py-6 px-8" data-cy="dashboard">
       <div className="max-w-full px-4">
-        <div className="mb-8">
+        <div className="mb-8" data-cy="dashboard-header">
           <div className="flex items-center gap-3 mb-2">
-            <span className="text-3xl">👑</span>
             <h1 className="text-4xl font-display text-royal-900">Admin Dashboard</h1>
           </div>
           <p className="text-gray-600 font-serif">Manage all events and requests</p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
-          <div className="bg-white p-4 rounded-lg shadow-md">
-            <div className="text-gray-500 text-sm mb-1">Total Events</div>
-            <div className="text-2xl font-bold text-royal-700">{statusCounts.total}</div>
-          </div>
-          <div className="bg-blue-50 p-4 rounded-lg shadow-md border border-blue-200">
-            <div className="text-blue-700 text-sm mb-1 font-semibold">In Review</div>
-            <div className="text-2xl font-bold text-blue-700">{statusCounts.inReview}</div>
-          </div>
-          <div className="bg-yellow-50 p-4 rounded-lg shadow-md border border-yellow-200">
-            <div className="text-yellow-700 text-sm mb-1 font-semibold">In Progress</div>
-            <div className="text-2xl font-bold text-yellow-700">{statusCounts.inProgress}</div>
-          </div>
-          <div className="bg-green-50 p-4 rounded-lg shadow-md border border-green-200">
-            <div className="text-green-700 text-sm mb-1 font-semibold">Completed</div>
-            <div className="text-2xl font-bold text-green-700">{statusCounts.completed}</div>
-          </div>
-          <div className="bg-red-50 p-4 rounded-lg shadow-md border border-red-200">
-            <div className="text-red-700 text-sm mb-1 font-semibold">Cancelled</div>
-            <div className="text-2xl font-bold text-red-700">{statusCounts.cancelled}</div>
+        <div className="bg-white rounded-lg shadow-md p-4 mb-6" data-cy="dashboard-stat">
+          <div className="flex gap-2 flex-wrap">
+            <div className="px-4 py-2 rounded bg-gray-100 text-gray-700 flex-1 text-center min-w-[120px] whitespace-nowrap" data-cy="dashboard-stat-box">
+              All ({statusCounts.total})
+            </div>
+            <div className="px-4 py-2 rounded bg-blue-100 text-blue-700 flex-1 text-center min-w-[120px] whitespace-nowrap" data-cy="dashboard-stat-box">
+              In Review ({statusCounts.inReview})
+            </div>
+            <div className="px-4 py-2 rounded bg-yellow-100 text-yellow-700 flex-1 text-center min-w-[120px] whitespace-nowrap" data-cy="dashboard-stat-box">
+              In Progress ({statusCounts.inProgress})
+            </div>
+            <div className="px-4 py-2 rounded bg-green-100 text-green-700 flex-1 text-center min-w-[120px] whitespace-nowrap" data-cy="dashboard-stat-box">
+              Completed ({statusCounts.completed})
+            </div>
+            <div className="px-4 py-2 rounded bg-red-100 text-red-700 flex-1 text-center min-w-[120px] whitespace-nowrap" data-cy="dashboard-stat-box">
+              Cancelled ({statusCounts.cancelled})
+            </div>
           </div>
         </div>
 
@@ -147,16 +150,14 @@ const AdminDashboard = () => {
         )}
 
         {/* Events Table */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden" data-cy="dashboard-event-table">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-royal-700 text-white">
                 <tr>
                   <th className="px-6 py-4 text-left font-sans text-sm">Event</th>
                   <th className="px-6 py-4 text-left font-sans text-sm">Client</th>
-                  <th className="px-6 py-4 text-left font-sans text-sm">Date</th>
-                  <th className="px-6 py-4 text-left font-sans text-sm">Venue Type</th>
-                  <th className="px-6 py-4 text-left font-sans text-sm">Budget</th>
+                  <th className="px-6 py-4 text-left font-sans text-sm">Due Date</th>
                   <th className="px-6 py-4 text-left font-sans text-sm">Status</th>
                   <th className="px-6 py-4 text-left font-sans text-sm">Actions</th>
                 </tr>
@@ -184,17 +185,6 @@ const AdminDashboard = () => {
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-700">
                           {formatDate(event.date)}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">{getLocationIcon(event.locationType)}</span>
-                          <span className="text-sm text-gray-700">{event.locationType}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-700 font-semibold">
-                          ${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}
                         </div>
                       </td>
                       <td className="px-6 py-4">

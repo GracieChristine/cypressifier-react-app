@@ -23,7 +23,7 @@ describe(`Sign Up and Log In Pages`, () => {
             .and('be.visible');
         });
 
-        it(`should display footer`, () => {
+        it(`should display copyright at footer`, () => {
             cy.get('footer')
             .should('have.text', '© 2026 Cypressifier Event Planning. Crafted with excellence.')
             .and('be.visible');
@@ -116,13 +116,11 @@ describe(`Sign Up and Log In Pages`, () => {
         });
 
         it(`should navigate to login page`, () => {
-            it(`should navigate back to landing page`, () => {
             cy.get('[data-cy="signup-login-link"]')
             .click();
 
             cy.url()
             .should('contain', '/login');
-        });
         });
     });
 

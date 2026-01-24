@@ -22,47 +22,45 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <h1>
-              <Link to={user?.isAdmin ? "/admin/dashboard" : "/events"} className="text-xl font-bold text-purple-600" data-cy="nav-brand-name">
-                Cypressifier
-              </Link>
+            <h1 className="text-xl font-bold text-purple-600" data-cy="nav-brand-name">
+              Cypressifier
             </h1>
           </div>
           
           <div className="flex items-center space-x-4">
             {user && !user.isAdmin && (
               <>
-                <Link
-                  to="/events"
+                <p
                   className={`px-3 py-2 rounded-md text-sm font-medium ${
                     isActive('/user/events')
                       ? 'bg-purple-100 text-purple-700'
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
+                  data-cy="nav-user-role"
                 >
-                  My Events
-                </Link>
+                  Just a User
+                </p>
               </>
             )}
             
             {user && user.isAdmin && (
-              <Link
-                to="/admin/dashboard"
+              <p
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
                   isActive('/admin/dashboard')
                     ? 'bg-purple-100 text-purple-700'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
+                data-cy="nav-user-role"
               >
-                Admin Dashboard
-              </Link>
+                Just an Admin
+              </p>
             )}
             
             {user && (
               <div className="flex items-center space-x-3">
-                <span className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600" data-cy="nav-user-email">
                   {user.email}
-                </span>
+                </p>
                 <button
                   onClick={handleLogout}
                   className="bg-red-500 text-white px-4 py-2 rounded-md text-sm hover:bg-red-600" data-cy="nav-logout-btn"
