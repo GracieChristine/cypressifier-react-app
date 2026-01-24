@@ -86,11 +86,11 @@ const DevSeedPanel = ({ onSeedComplete }) => {
   if (isMinimized) {
     return (
       <div className="fixed bottom-4 right-4 bg-gray-900 text-white p-3 rounded-lg shadow-2xl border-2 border-yellow-500 z-50 cursor-pointer hover:bg-gray-800 transition-colors"
-           onClick={() => setIsMinimized(false)}>
+           onClick={() => setIsMinimized(false)} data-cy="ds-panel-window-min">
         <div className="flex items-center gap-2">
           <Sprout className="w-5 h-5 text-yellow-400" />
           <span className="font-bold text-sm">DEV</span>
-          <Plus className="w-4 h-4 text-yellow-400" />
+          <Plus className="w-4 h-4 text-yellow-400" data-cy="ds-panel-expand-btn"/>
         </div>
       </div>
     );
@@ -98,16 +98,17 @@ const DevSeedPanel = ({ onSeedComplete }) => {
 
   // Expanded view
   return (
-    <div className="fixed bottom-4 right-4 bg-gray-900 text-white p-4 rounded-lg shadow-2xl border-2 border-yellow-500 max-w-sm z-50">
+    <div className="fixed bottom-4 right-4 bg-gray-900 text-white p-4 rounded-lg shadow-2xl border-2 border-yellow-500 max-w-sm z-50" data-cy="ds-panel-window-max">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Sprout className="w-5 h-5 text-yellow-400" />
-          <span className="font-bold text-sm">🔧 DEV MODE - Frontend Only</span>
+          <span className="font-bold text-sm">DEV MODE</span>
         </div>
         <button 
           onClick={() => setIsMinimized(true)}
           className="text-gray-400 hover:text-white transition-colors"
           title="Minimize"
+          data-cy="ds-panel-window-collapse-btn"
         >
           <X className="w-4 h-4" />
         </button>
@@ -118,6 +119,7 @@ const DevSeedPanel = ({ onSeedComplete }) => {
           onClick={handleSeed}
           disabled={loading}
           className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white py-2 px-4 rounded flex items-center justify-center gap-2 text-sm transition-colors"
+          data-cy="ds-panel-add-event-btn"
         >
           {loading ? (
             <>
@@ -136,6 +138,7 @@ const DevSeedPanel = ({ onSeedComplete }) => {
           onClick={handleClear}
           disabled={loading}
           className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-600 text-white py-2 px-4 rounded flex items-center justify-center gap-2 text-sm transition-colors"
+          data-cy="ds-panel-clear-event-btn"
         >
           <Trash2 className="w-4 h-4" />
           Clear All Test Data
@@ -160,13 +163,6 @@ const DevSeedPanel = ({ onSeedComplete }) => {
           )}
         </div>
       )}
-      
-      <p className="text-xs text-gray-400 mt-3">
-        💾 Data stored in localStorage
-      </p>
-      <p className="text-xs text-yellow-400 mt-1">
-        ⚠️ Remember to upgrade to PostgreSQL backend later!
-      </p>
     </div>
   );
 };
