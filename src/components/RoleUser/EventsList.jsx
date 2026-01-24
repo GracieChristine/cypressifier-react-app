@@ -329,7 +329,7 @@ const EventsList = () => {
                 <div
                   key={event.id}
                   className="bg-white rounded-lg shadow-md hover:shadow-lg transition p-4 flex items-center justify-between gap-4"
-                  data-cy="event-card"
+                  data-cy="event-entry"
                 >
                   {/* Left: Event Info */}
                   <div className="flex items-center gap-4 flex-1 min-w-0">
