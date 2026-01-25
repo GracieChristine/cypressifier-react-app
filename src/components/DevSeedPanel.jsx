@@ -58,33 +58,30 @@ const DevSeedPanel = ({ onSeedComplete }) => {
     
     setTimeout(() => {
       try {
-        // Load all events
         const allEvents = loadEventsFromStorage();
         
         if (user.isAdmin) {
-          // Admin can clear ALL mock data
-          const userEvents = allEvents.filter(event => !event.isMockData);
-          saveEventsToStorage(userEvents);
+          // Admin: Clear ALL mock data (site-wide)
+          const nonMockEvents = allEvents.filter(event => !event.isMockData);
+          saveEventsToStorage(nonMockEvents);
           
-          const removedCount = allEvents.length - userEvents.length;
-          
+          const removedCount = allEvents.length - nonMockEvents.length;
           setResult({
             type: 'success',
-            message: `Cleared ${removedCount} mock events (all users). ${userEvents.length} user events kept.`,
+            message: `Cleared ${removedCount} mock events site-wide. ${nonMockEvents.length} real events kept.`,
             count: null
           });
         } else {
-          // Regular user can only clear THEIR mock data
-          const userEvents = allEvents.filter(event => 
+          // Regular user: Clear only THEIR mock data
+          const keepEvents = allEvents.filter(event => 
             !event.isMockData || event.userId !== user.id
           );
-          saveEventsToStorage(userEvents);
+          saveEventsToStorage(keepEvents);
           
-          const removedCount = allEvents.length - userEvents.length;
-          
+          const removedCount = allEvents.length - keepEvents.length;
           setResult({
             type: 'success',
-            message: `Cleared ${removedCount} of your mock events. ${userEvents.length} events kept.`,
+            message: `Cleared ${removedCount} of your mock events. ${keepEvents.length} total events remain.`,
             count: null
           });
         }

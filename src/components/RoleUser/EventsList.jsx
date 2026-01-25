@@ -195,7 +195,7 @@ const EventsList = () => {
 
           {isReadOnly ? (
             <button
-              onClick={() => navigate(`/events/${event.id}`)}
+              onClick={() => navigate(`/user/events/${event.id}`)}
               className="w-full bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition text-sm"
               data-cy="view-event-btn"
             >
@@ -204,7 +204,7 @@ const EventsList = () => {
           ) : (
             <div className="flex gap-2">
               <button
-                onClick={() => navigate(`/events/${event.id}/edit`)}
+                onClick={() => navigate(`/user/events/${event.id}/edit`)}
                 className="flex-1 bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition text-sm"
                 data-cy="edit-event-btn"
               >
@@ -239,7 +239,7 @@ const EventsList = () => {
             <p className="text-gray-600">Manage and track all your events</p>
           </div>
           <button
-            onClick={() => navigate('/events/new')}
+            onClick={() => navigate('/user/events/new')}
             className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition shadow-lg" data-cy="eventlist-create-event-btn"
           >
             + Create Event
@@ -314,12 +314,6 @@ const EventsList = () => {
             <div className="text-6xl mb-4">🎉</div>
             <h3 className="text-xl font-semibold mb-2">No events yet</h3>
             <p className="text-gray-600 mb-4">Create your first event to get started!</p>
-            <button
-              onClick={() => navigate('/events/new')}
-              className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition"
-            >
-              Create Event
-            </button>
           </div>
         ) : (
           <div className="space-y-3" data-cy="eventlist-events">
@@ -329,82 +323,82 @@ const EventsList = () => {
               return (
                 <div
                   key={event.id}
-                  className="bg-white rounded-lg border-t border-gray-200 shadow-md hover:shadow-lg transition p-4 flex items-center justify-between gap-4"
+                  className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition"
                   data-cy="eventlist-event-entry"
                 >
-                  {/* Left: Event Info */}
-                  <div className="flex items-center gap-4 flex-1 min-w-0">
-                    <span className="text-3xl flex-shrink-0">{getEventIcon(event.type)}</span>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-bold text-lg truncate" data-cy="event-name">
+                  {/* Single clean row */}
+                  <div className="p-4 flex items-center gap-6">
+                    {/* Left: Icon + Name */}
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-gray-900 truncate" data-cy="event-name">
                           {event.name}
                         </h3>
-                        <span className={`px-2 py-1 rounded text-xs flex-shrink-0 ${getStatusColor(event.status)}`}>
-                          {event.status}
-                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Middle: Details in clean columns */}
+                    <div className="hidden md:flex items-center gap-8 text-sm text-gray-600 min-w-0">
+                      <div className="flex items-center gap-2 min-w-[100px]">
+                        <span className="text-gray-400">📅</span>
+                        <span>{formatDateShort(event.date)}</span>
                       </div>
                       
-                      <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
-                        <div className="flex items-center gap-1">
-                          <span>📅</span>
-                          <span>{formatDateShort(event.date)}</span>
-                        </div>
-                        {/* <div className="flex items-center gap-1">
-                          <span>{getLocationIcon(event.locationType)}</span>
-                          <span>{event.locationType}</span>
-                        </div> */}
-                        <div className="flex items-center gap-1">
-                          <span>💰</span>
-                          <span>${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}</span>
-                        </div>
+                      {/* <div className="flex items-center gap-2 min-w-[120px]">
+                        <span className="text-gray-400">{getLocationIcon(event.locationType)}</span>
+                        <span className="truncate">{event.locationType}</span>
+                      </div> */}
+                      
+                      <div className="flex items-center gap-2 min-w-[100px]">
+                        <span className="text-gray-400">💰</span>
+                        <span className="font-medium">${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}</span>
                       </div>
-
-                      {/* Cancellation Request Badge */}
-                      {event.cancellationRequest && (
-                        <div className="mt-2">
-                          <span className="inline-block bg-orange-50 border border-orange-200 rounded px-2 py-1 text-xs text-orange-800 font-semibold">
-                            ⏳ Cancellation pending
-                          </span>
-                        </div>
-                      )}
                     </div>
-                  </div>
-
-                  {/* Right: Action Buttons */}
-                  <div className="flex gap-2 flex-shrink-0">
-                    {isReadOnly ? (
-                      <button
-                        onClick={() => navigate(`/events/${event.id}`)}
-                        className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition text-sm whitespace-nowrap"
-                        data-cy="view-event-btn"
-                      >
-                        👁️ View
-                      </button>
-                    ) : (
-                      <>
-                        <button
-                          onClick={() => navigate(`/events/${event.id}/edit`)}
-                          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition text-sm"
-                          data-cy="edit-event-btn"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => {
-                            setCancelModalEvent(event);
-                            setCancelReason('');
-                            setCancelError('');
-                          }}
-                          className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition text-sm disabled:bg-gray-300 disabled:cursor-not-allowed"
-                          data-cy="cancel-request-btn"
-                          disabled={event.cancellationRequest}
-                        >
-                          {event.cancellationRequest ? '⏳' : '🚫'}
-                        </button>
-                      </>
-                    )}
+                    
+                    {/* Right: Status + Actions */}
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <span className={`px-3 py-1 rounded text-xs font-medium ${getStatusColor(event.status)}`}>
+                        {event.status}
+                      </span>
+                      
+                      {event.cancellationRequest && (
+                        <span className="text-orange-600 text-xl" title="Cancellation pending">⏳</span>
+                      )}
+                      
+                      <div className="flex gap-2 w-[180px] justify-end">
+                        {isReadOnly ? (
+                          <button
+                            onClick={() => navigate(`/events/${event.id}`)}
+                            className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-medium transition"
+                            data-cy="view-event-btn"
+                          >
+                            View
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => navigate(`/events/${event.id}/edit`)}
+                              className="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-sm font-medium transition"
+                              data-cy="edit-event-btn"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => {
+                                setCancelModalEvent(event);
+                                setCancelReason('');
+                                setCancelError('');
+                              }}
+                              className="px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+                              data-cy="cancel-request-btn"
+                              disabled={event.cancellationRequest}
+                            >
+                              🚫
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               );
