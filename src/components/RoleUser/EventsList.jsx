@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { formatDate } from '../../utils/dateHelpers';
+import { formatDate, formatDateShort } from '../../utils/dateHelpers';
 import { loadEventsFromStorage, saveEventsToStorage } from '../../utils/seedData';
 
 const EventsList = () => {
@@ -230,34 +230,33 @@ const EventsList = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-8" data-cy="eventlist">
       <div className="max-w-full px-4">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-6" data-cy="eventlist-header">
           <div>
             <h1 className="text-3xl font-bold text-gray-800">My Events</h1>
             <p className="text-gray-600">Manage and track all your events</p>
           </div>
           <button
             onClick={() => navigate('/events/new')}
-            className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition shadow-lg"
-            data-cy="create-event-btn"
+            className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition shadow-lg" data-cy="eventlist-create-event-btn"
           >
             + Create Event
           </button>
         </div>
 
         {/* Budget Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6" data-cy="eventlist-stat">
           <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="text-gray-500 text-sm mb-1">Total Budget</div>
-            <div className="text-3xl font-bold text-blue-600" data-cy="stat-total-budget">
+            <div className="text-3xl font-bold text-blue-600" data-cy="eventlist-stat-box">
               ${totalBudget.toLocaleString()}
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="text-gray-500 text-sm mb-1">Total Spent</div>
-            <div className="text-3xl font-bold text-orange-600" data-cy="stat-total-spent">
+            <div className="text-3xl font-bold text-orange-600" data-cy="eventlist-stat-box">
               ${totalSpent.toLocaleString()}
             </div>
           </div>
@@ -265,12 +264,12 @@ const EventsList = () => {
 
         {/* Upcoming Events - Combined This Week & Next Week */}
         {(thisWeekEvents.length > 0 || nextWeekEvents.length > 0) && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6" data-cy="eventlist-events-upcoming">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
               Upcoming Events
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" data-cy="eventlist-event-upcoming-card">
               {thisWeekEvents.length > 0 && (
                 <>
                   {thisWeekEvents.map(event => renderEventCard(event, true))}
@@ -287,9 +286,11 @@ const EventsList = () => {
         )}
 
         {/* Filter Buttons with Counts */}
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div className="bg-white rounded-lg shadow-md p-4 mb-6" data-cy="eventlist-event-list">
+
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">All Events</h2>
-          <div className="flex gap-2 flex-wrap">
+          
+          <div className="flex gap-2 flex-wrap" data-cy="eventlist-filter">
             {['all', 'In Review', 'In Progress', 'Completed', 'Cancelled'].map(status => (
               <button
                 key={status}
@@ -298,18 +299,18 @@ const EventsList = () => {
                   filter === status 
                     ? 'bg-purple-600 text-white' 
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-                data-cy={`filter-${status.toLowerCase().replace(' ', '-')}`}
+                } flex-1 min-w-[150px]`}
+                data-cy={`eventlist-filter-box filter-${status.toLowerCase().replace(' ', '-')}`}
               >
                 {status === 'all' ? 'All' : status} ({statusCounts[status]})
               </button>
             ))}
           </div>
-        </div>
-
+          <br />
+      
         {/* All Events - Compact Row Style */}
         {filteredEvents.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center" data-cy="no-events">
+          <div className="bg-white rounded-lg shadow-md p-12 text-center" data-cy="eventlist-event-empty">
             <div className="text-6xl mb-4">🎉</div>
             <h3 className="text-xl font-semibold mb-2">No events yet</h3>
             <p className="text-gray-600 mb-4">Create your first event to get started!</p>
@@ -321,15 +322,15 @@ const EventsList = () => {
             </button>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3" data-cy="eventlist-events">
             {filteredEvents.map(event => {
               const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
               
               return (
                 <div
                   key={event.id}
-                  className="bg-white rounded-lg shadow-md hover:shadow-lg transition p-4 flex items-center justify-between gap-4"
-                  data-cy="event-entry"
+                  className="bg-white rounded-lg border-t border-gray-200 shadow-md hover:shadow-lg transition p-4 flex items-center justify-between gap-4"
+                  data-cy="eventlist-event-entry"
                 >
                   {/* Left: Event Info */}
                   <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -348,12 +349,12 @@ const EventsList = () => {
                       <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
                         <div className="flex items-center gap-1">
                           <span>📅</span>
-                          <span>{formatDate(event.date)}</span>
+                          <span>{formatDateShort(event.date)}</span>
                         </div>
-                        <div className="flex items-center gap-1">
+                        {/* <div className="flex items-center gap-1">
                           <span>{getLocationIcon(event.locationType)}</span>
                           <span>{event.locationType}</span>
-                        </div>
+                        </div> */}
                         <div className="flex items-center gap-1">
                           <span>💰</span>
                           <span>${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}</span>
@@ -410,6 +411,7 @@ const EventsList = () => {
             })}
           </div>
         )}
+        </div>
       </div>
 
       {/* Cancel Request Modal */}

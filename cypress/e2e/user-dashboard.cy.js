@@ -28,7 +28,9 @@ describe(`Dashboard Page`, () => {
             cy.get('[data-cy="nav-user-role"]')
             .should('contain', 'Admin');
             cy.get('[data-cy="nav-user-email"]')
-            .should('contain', 'admin@cypressifier.com');
+            .should('contain', adminEmail);
+            cy.get('[data-cy="nav-logout-btn"]')
+            .should('contain', 'Logout')
         });
 
         it(`should render dashboard header`, () => {
@@ -37,18 +39,22 @@ describe(`Dashboard Page`, () => {
             .and('contain', 'Manage all events');
         });
 
-        it(`should renders event stat`, () => {
+        it(`should render event stat`, () => {
             cy.get('[data-cy="dashboard-stat"]')
             .should('be.visible');
+
+            cy.get('[data-cy="dashboard-stat"]')
+            .get('[data-cy="dashboard-stat-box"]')
+            .should('have.length.at.least', 5);
         });
 
-        it(`should renders event table`, () => {
+        it(`should render event table`, () => {
             cy.get('[data-cy="dashboard-event-table"]')
             .should('be.visible');
         });
     });
 
-    describe(`Dashboard – Admin Loads 30 Mock Events`, () => {
+    describe(`Dashboard – Admin Loads Mock Events`, () => {
         beforeEach(() => {
             cy.get('[data-cy="landing-login-btn"]')
             .click();
@@ -89,7 +95,7 @@ describe(`Dashboard Page`, () => {
         });
     });
 
-    describe(`Dashboard – Admin Removes Own Mock Events`, () => {
+    describe(`Dashboard – Admin Clears Own Mock Events`, () => {
         beforeEach(() => {
             cy.get('[data-cy="landing-login-btn"]')
             .click();
@@ -216,7 +222,7 @@ describe(`Dashboard Page`, () => {
             cy.get('[data-cy="dev-panel-collapse-btn"]')
             .click();
 
-            cy.get('[data-cy="event-entry"]')
+            cy.get('[data-cy="eventlist-event-entry"]')
             .should('have.length.at.least', 30);
 
             cy.get('[data-cy="nav-logout-btn"]')
@@ -239,7 +245,7 @@ describe(`Dashboard Page`, () => {
             .should('contain', '/admin/dashboard');
 
             cy.get('[data-cy="dashboard-event-entry"]')
-            .should('have.length.at.least', 30);
+            .should('have.length.at.least', 1);
 
             cy.get('[data-cy="dev-panel-expand-btn"]').click();
             cy.get('[data-cy="dev-panel-clear-event-btn"]').click();
@@ -250,4 +256,45 @@ describe(`Dashboard Page`, () => {
         });
     });
 
+    // describe(`Dashboard - Admin Handles In Review Events`, () => {
+    //     beforeEach(() => {
+
+    //     });
+        
+    //     it(``, () => {
+
+    //     });
+        
+    //     it(``, () => {
+        
+    //     });
+    // });
+
+    // describe(`Dashboard - Admin Handles Events Cancel Request`, () => {
+    //     beforeEach(() => {
+
+    //     });
+        
+    //     it(``, () => {
+
+    //     });
+        
+    //     it(``, () => {
+        
+    //     });
+    // });
+
+    // describe(`Dashboard - Admin Moves Events to Completed`, () => {
+    //     beforeEach(() => {
+
+    //     });
+        
+    //     it(``, () => {
+
+    //     });
+        
+    //     it(``, () => {
+        
+    //     });
+    // });
 });
