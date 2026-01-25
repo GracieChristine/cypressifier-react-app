@@ -328,29 +328,30 @@ const EventsList = () => {
                 >
                   {/* Single clean row */}
                   <div className="p-4 flex items-center gap-6">
-                    {/* Left: Icon + Name */}
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className="min-w-0 flex-1">
+                    {/* Left: Name */}
+                    <div className="flex items-center gap-2 flex-1">
+                      <div className="flex-1 min-w-[200px] max-w-[225px]">
                         <h3 className="font-semibold text-gray-900 truncate" data-cy="event-name">
                           {event.name}
                         </h3>
                       </div>
                     </div>
                     
-                    {/* Middle: Details in clean columns */}
-                    <div className="hidden md:flex items-center gap-8 text-sm text-gray-600 min-w-0">
+                    {/* Middle: Details in clean columns - responsive drop-off */}
+                    <div className="flex items-center gap-8 text-sm text-gray-600 min-w-0">
+                      {/* Date - Always visible */}
                       <div className="flex items-center gap-2 min-w-[100px]">
-                        <span className="text-gray-400">📅</span>
                         <span>{formatDateShort(event.date)}</span>
                       </div>
                       
-                      {/* <div className="flex items-center gap-2 min-w-[120px]">
+                      {/* Location - Hidden on medium screens */}
+                      <div className="hidden lg:flex items-center gap-2 min-w-[120px]">
                         <span className="text-gray-400">{getLocationIcon(event.locationType)}</span>
                         <span className="truncate">{event.locationType}</span>
-                      </div> */}
+                      </div>
                       
-                      <div className="flex items-center gap-2 min-w-[100px]">
-                        <span className="text-gray-400">💰</span>
+                      {/* Budget - Hidden on smaller screens */}
+                      <div className="hidden xl:flex items-center gap-2 min-w-[100px]">
                         <span className="font-medium">${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}</span>
                       </div>
                     </div>
@@ -368,7 +369,7 @@ const EventsList = () => {
                       <div className="flex gap-2 w-[180px] justify-end">
                         {isReadOnly ? (
                           <button
-                            onClick={() => navigate(`/events/${event.id}`)}
+                            onClick={() => navigate(`/user/events/${event.id}`)}
                             className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-medium transition"
                             data-cy="view-event-btn"
                           >
@@ -377,7 +378,7 @@ const EventsList = () => {
                         ) : (
                           <>
                             <button
-                              onClick={() => navigate(`/events/${event.id}/edit`)}
+                              onClick={() => navigate(`/user/events/${event.id}/edit`)}
                               className="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-sm font-medium transition"
                               data-cy="edit-event-btn"
                             >
