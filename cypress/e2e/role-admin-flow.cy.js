@@ -450,33 +450,431 @@ describe(`Admin Flow`, () => {
         });
     });
 
-    // describe(`Admin Handle Events Cancel Request`, () => {
-    //     beforeEach(() => {
+    describe(`Admin Handle Events Cancel Request`, () => {
+        beforeEach(() => {
+            // User logs out
+            cy.get('[data-cy="nav-logout-btn"]')
+            .click();
 
-    //     });
+            // Landing page MUST render
+            cy.url()
+            .should('eq', 'http://localhost:5173/');
 
-    //     it(``, () => {
+            // Signup page MUST render
+            cy.get('[data-cy="landing-signup-btn"]')
+            .should('be.visible')
+            .click();
 
-    //     });
+            cy.url()
+            .should('contain', '/signup');
 
-    //     it(``, () => {
+            cy.get('[data-cy="signup-email"]')
+            .type(userEmail);
+            cy.get('[data-cy="signup-password"]')
+            .type(userPassword);
+            cy.get('[data-cy="signup-confirm-password"]')
+            .type(userPassword);
 
-    //     });
-    // });
+            cy.get('form')
+            .submit();
 
-    // describe(`Admin Handle Events Completion`, () => {
-    //     beforeEach(() => {
+            cy.url()
+            .should('contain', '/user/events');
 
-    //     });
+            // User create an new event
+            cy.get('[data-cy="eventlist-create-event-btn"]')
+            .click();
 
-    //     it(``, () => {
+            cy.url()
+            .should('contain', '/user/events/new');
 
-    //     });
+            cy.get('[data-cy="event-name-input"]')
+            .type('Jane Doe\'s Celebration');
+            cy.get('[data-cy="event-type-select"]')
+            .select('Party');
+            cy.get('[data-cy="event-date-input"]')
+            .type('2030-06-28');
+            cy.get('[data-cy="event-location-select"]')
+            .select('Garden Estate');
+            cy.get('[data-cy="event-guests-input"]')
+            .type('175');
+            cy.get('[data-cy="event-budget-input"]')
+            .type('75000');
+            cy.get('[data-cy="event-description-input"]')
+            .type('Everyone has the right to freedom of thought, conscience and religion; this right includes freedom to change his religion or belief, and freedom, either alone or in community with others and in public or private, to manifest his religion or belief in teaching, practice, worship and observance.');
 
-    //     it(``, () => {
+            cy.get('form')
+            .submit();
 
-    //     });
-    // });
+            cy.url()
+            .should('contain', '/user/events');
+
+            cy.get('[data-cy="cancel-request-btn"]')
+            .click();
+
+            cy.get('[data-cy="cancel-reason-input"]')
+            .type('Just need to cancel it.');
+
+            cy.get('[data-cy="confirm-cancel-request"]')
+            .click();
+
+            cy.wait(1000);
+
+            cy.get('[data-cy="eventlist-filter-box filter-all"]')
+            .should('contain', 'All (1)');
+
+            // User logs out
+            cy.get('[data-cy="nav-logout-btn"]')
+            .click();
+
+            // Landing page MUST render
+            cy.url()
+            .should('eq', 'http://localhost:5173/');
+
+            // Login page MUST render
+            cy.get('[data-cy="landing-login-btn"]')
+            .should('be.visible')
+            .click();
+
+            cy.url()
+            .should('contain', '/login');
+
+            cy.get('[data-cy="login-email"]')
+            .type(adminEmail);
+            cy.get('[data-cy="login-password"]')
+            .type(adminPassword);
+            cy.get('form')
+            .submit();
+
+            cy.url()
+            .should('contain', '/admin/dashboard');
+
+            cy.get('[data-cy="dashboard-stat-box"]')
+            .eq(0)
+            .should('contain', 'All (1)');
+
+            cy.get('[data-cy="dashboard-event-entry"]')
+            .should('contain', 'Cancel Request');
+        });
+
+        it(`should deny event cancellation`, () => {
+            cy.get('[data-cy="admin-action-btn"]')
+            .click();
+
+            cy.url()
+            .should('contain', '/admin/events')
+            .should('contain', '/edit');
+
+            cy.get('[data-cy="deny-cancellation-btn"]')
+            .click();
+
+            cy.get('[data-cy="confirm-cancel-btn"]')
+            .click();
+
+            cy.get('[data-cy="return-to-dashboard-btn"]')
+            .click();
+
+            cy.url()
+            .should('contain', '/admin/dashboard')
+
+            cy.get('[data-cy="dashboard-event-entry"]')
+            .should('contain', 'In Review')
+            .should('not.contain', 'Cancel Request');
+        });
+
+        it(`should cancel denying event cancellation`, () => {
+            cy.get('[data-cy="admin-action-btn"]')
+            .click();
+
+            cy.url()
+            .should('contain', '/admin/events')
+            .should('contain', '/edit');
+
+            cy.get('[data-cy="deny-cancellation-btn"]')
+            .click();
+
+            cy.get('[data-cy="cancel-cancel-btn"]')
+            .click();
+
+            cy.get('[data-cy="back-to-dashboard-btn"]')
+            .scrollIntoView()
+            .click();
+
+            cy.url()
+            .should('contain', '/admin/dashboard')
+
+            cy.get('[data-cy="dashboard-event-entry"]')
+            .should('contain', 'In Review')
+            .should('contain', 'Cancel Request');
+        });
+
+        it(`should approve event cancellation`, () => {
+            cy.get('[data-cy="admin-action-btn"]')
+            .click();
+
+            cy.url()
+            .should('contain', '/admin/events')
+            .should('contain', '/edit');
+
+            cy.get('[data-cy="approve-cancellation-btn"]')
+            .click();
+
+            cy.get('[data-cy="confirm-approve-btn"]')
+            .click();
+
+            cy.get('[data-cy="return-to-dashboard-btn"]')
+            .click();
+
+            cy.url()
+            .should('contain', '/admin/dashboard')
+
+            cy.get('[data-cy="dashboard-event-entry"]')
+            .should('contain', 'Cancelled')
+            .should('not.contain', 'Cancel Request');
+        });
+
+        it(`should cancel approving event cancellation`, () => {
+            cy.get('[data-cy="admin-action-btn"]')
+            .click();
+
+            cy.url()
+            .should('contain', '/admin/events')
+            .should('contain', '/edit');
+
+            cy.get('[data-cy="approve-cancellation-btn"]')
+            .click();
+
+            cy.get('[data-cy="cancel-approve-btn"]')
+            .click();
+
+            cy.get('[data-cy="back-to-dashboard-btn"]')
+            .scrollIntoView()
+            .click();
+
+            cy.url()
+            .should('contain', '/admin/dashboard')
+
+            cy.get('[data-cy="dashboard-event-entry"]')
+            .should('contain', 'In Review')
+            .should('contain', 'Cancel Request');
+        });
+    });
+
+    describe(`Admin Handle Events Completion`, () => {
+        beforeEach(() => {
+            // User logs out
+            cy.get('[data-cy="nav-logout-btn"]')
+            .click();
+
+            // Landing page MUST render
+            cy.url()
+            .should('eq', 'http://localhost:5173/');
+
+            // Signup page MUST render
+            cy.get('[data-cy="landing-signup-btn"]')
+            .should('be.visible')
+            .click();
+
+            cy.url()
+            .should('contain', '/signup');
+
+            cy.get('[data-cy="signup-email"]')
+            .type(userEmail);
+            cy.get('[data-cy="signup-password"]')
+            .type(userPassword);
+            cy.get('[data-cy="signup-confirm-password"]')
+            .type(userPassword);
+
+            cy.get('form')
+            .submit();
+
+            cy.url()
+            .should('contain', '/user/events');
+
+            // User create an new event
+            cy.get('[data-cy="eventlist-create-event-btn"]')
+            .click();
+
+            cy.url()
+            .should('contain', '/user/events/new');
+
+            cy.get('[data-cy="event-name-input"]')
+            .type('Jane Doe\'s Celebration');
+            cy.get('[data-cy="event-type-select"]')
+            .select('Party');
+            cy.get('[data-cy="event-date-input"]')
+            .type('2030-06-28');
+            cy.get('[data-cy="event-location-select"]')
+            .select('Garden Estate');
+            cy.get('[data-cy="event-guests-input"]')
+            .type('175');
+            cy.get('[data-cy="event-budget-input"]')
+            .type('75000');
+            cy.get('[data-cy="event-description-input"]')
+            .type('Everyone has the right to freedom of thought, conscience and religion; this right includes freedom to change his religion or belief, and freedom, either alone or in community with others and in public or private, to manifest his religion or belief in teaching, practice, worship and observance.');
+
+            cy.get('form')
+            .submit();
+
+            cy.wait(1000);
+
+            cy.url()
+            .should('contain', '/user/events');
+
+            cy.get('[data-cy="eventlist-filter-box filter-all"]')
+            .should('contain', 'All (1)');
+
+            // User logs out
+            cy.get('[data-cy="nav-logout-btn"]')
+            .click();
+
+            // Landing page MUST render
+            cy.url()
+            .should('eq', 'http://localhost:5173/');
+
+            // Login page MUST render
+            cy.get('[data-cy="landing-login-btn"]')
+            .should('be.visible')
+            .click();
+
+            cy.url()
+            .should('contain', '/login');
+
+            cy.get('[data-cy="login-email"]')
+            .type(adminEmail);
+            cy.get('[data-cy="login-password"]')
+            .type(adminPassword);
+            cy.get('form')
+            .submit();
+
+            cy.url()
+            .should('contain', '/admin/dashboard');
+
+            cy.get('[data-cy="dashboard-stat-box"]')
+            .eq(0)
+            .should('contain', 'All (1)');
+
+            cy.get('[data-cy="dashboard-event-entry"]')
+            .should('contain', 'In Review');
+            
+            cy.get('[data-cy="admin-action-btn"]')
+            .click();
+
+            cy.url()
+            .should('contain', '/admin/events')
+            .should('contain', '/edit');
+
+            cy.get('[data-cy="accept-comment"]')
+            .scrollIntoView()
+            .type('Everyone has the right to freedom.');
+
+            cy.get('[data-cy="accept-submission-btn"]')
+            .click();
+
+            cy.get('[data-cy="return-to-dashboard-btn"]')
+            .click();
+
+            cy.wait(1000);
+
+            cy.url()
+            .should('contain', '/admin/dashboard');
+
+            cy.get('[data-cy="dashboard-stat-box"]')
+            .eq(0)
+            .should('contain', 'All (1)');
+
+            cy.get('[data-cy="dashboard-event-entry"]')
+            .should('contain', 'In Progress');
+        });
+
+        it(`should mark event as completed`, () => {
+            cy.get('[data-cy="admin-action-btn"]')
+            .click();
+
+            cy.url()
+            .should('contain', '/admin/events')
+            .should('contain', '/edit');
+
+            cy.get('[data-cy="mark-completed-checkbox"]')
+            .scrollIntoView()
+            .click();
+
+            cy.get('[data-cy="completion-notes"]')
+            .scrollIntoView()
+            .type('Just finishing this event.');
+
+            cy.get('[data-cy="admin-save-btn"]')
+            .scrollIntoView()
+            .click();
+
+            cy.get('[data-cy="confirm-completed-btn"]')
+            .click();
+
+            cy.get('[data-cy="return-to-dashboard-btn"]')
+            .click();
+
+            cy.url()
+            .should('contain', '/admin/dashboard')
+
+            cy.get('[data-cy="dashboard-event-entry"]')
+            .should('contain', 'Completed');
+        });
+
+        it(`should cancel marking event as completed`, () => {
+            cy.get('[data-cy="admin-action-btn"]')
+            .click();
+
+            cy.url()
+            .should('contain', '/admin/events')
+            .should('contain', '/edit');
+
+            cy.get('[data-cy="mark-completed-checkbox"]')
+            .click();
+
+            cy.get('[data-cy="completion-notes"]')
+            .type('Just finishing this event.');
+
+            cy.get('[data-cy="admin-save-btn"]')
+            .click();
+
+            cy.get('[data-cy="cancel-completed-btn"]')
+            .click();
+
+            cy.get('[data-cy="back-to-dashboard-btn"]')
+            .scrollIntoView()
+            .click();
+
+            cy.url()
+            .should('contain', '/admin/dashboard')
+
+            cy.get('[data-cy="dashboard-event-entry"]')
+            .should('contain', 'In Progress');
+        });
+
+        it(`should cancel event edit`, () => {
+            cy.get('[data-cy="admin-action-btn"]')
+            .click();
+
+            cy.url()
+            .should('contain', '/admin/events')
+            .should('contain', '/edit');
+
+            cy.get('[data-cy="mark-completed-checkbox"]')
+            .click();
+
+            cy.get('[data-cy="completion-notes"]')
+            .type('Just finishing this event.');
+
+            cy.get('[data-cy="admin-cancel-btn"]')
+            .click();
+
+            cy.url()
+            .should('contain', '/admin/dashboard')
+
+            cy.get('[data-cy="dashboard-event-entry"]')
+            .should('contain', 'In Progress');
+        });
+    });
 
     describe(`Admin Log Out`, () => {
         it(`should logout and navigate back to landing page`, () => {

@@ -432,7 +432,7 @@ const AdminEventEdit = () => {
 
       {/* Approve Cancellation Confirmation Modal */}
       {showApproveCancelModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-cy="approve-cancellation-confirmation">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-xl font-bold mb-4">Approve Cancellation?</h3>
             <p className="text-gray-700 mb-6">
@@ -442,12 +442,14 @@ const AdminEventEdit = () => {
               <button
                 onClick={confirmApproveCancellation}
                 className="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700 transition"
+                data-cy="confirm-approve-btn"
               >
                 Yes, Approve
               </button>
               <button
                 onClick={() => setShowApproveCancelModal(false)}
                 className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
+                data-cy="cancel-approve-btn"
               >
                 Cancel
               </button>
@@ -458,7 +460,7 @@ const AdminEventEdit = () => {
 
       {/* Deny Cancellation Confirmation Modal */}
       {showDenyCancelModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-cy="deny-cancellation-confirmation">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-xl font-bold mb-4">Deny Cancellation Request?</h3>
             <p className="text-gray-700 mb-6">
@@ -468,12 +470,14 @@ const AdminEventEdit = () => {
               <button
                 onClick={confirmDenyCancellation}
                 className="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
+                data-cy="confirm-cancel-btn"
               >
                 Yes, Deny Request
               </button>
               <button
                 onClick={() => setShowDenyCancelModal(false)}
                 className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
+                data-cy="cancel-cancel-btn"
               >
                 Cancel
               </button>
@@ -484,7 +488,7 @@ const AdminEventEdit = () => {
 
       {/* Mark as Completed Confirmation Modal */}
       {showCompletedModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-cy="mark-completed-confirmation">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-xl font-bold mb-4">Mark Event as Completed?</h3>
             <p className="text-gray-700 mb-6">
@@ -494,12 +498,14 @@ const AdminEventEdit = () => {
               <button
                 onClick={confirmMarkCompleted}
                 className="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
+                data-cy="confirm-completed-btn"
               >
                 Yes, Mark Completed
               </button>
               <button
                 onClick={() => setShowCompletedModal(false)}
                 className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
+                data-cy="cancel-completed-btn"
               >
                 Cancel
               </button>
