@@ -1,7 +1,7 @@
 describe(`Dashboard Page`, () => {
     // Set variables
     const userEmail = 'testuser@example.com';
-    const userPassword = 'admin123';
+    const userPassword = 'user123';
     const adminEmail = 'admin@cypressifier.com';
     const adminPassword = 'admin123';
 

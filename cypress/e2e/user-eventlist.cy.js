@@ -57,7 +57,7 @@ describe(`Everlisting Page`, () => {
       });
     });
 
-    it(`should render budget info`, () => {
+    it(`should render budget stat`, () => {
       cy.get('[data-cy="eventlist-stat"]')
       .should('be.visible');
 
@@ -76,7 +76,7 @@ describe(`Everlisting Page`, () => {
       });
     });
 
-    it(`should render event filter box`, () => {
+    it(`should render event filter`, () => {
       cy.get('[data-cy="eventlist-event-list"]')
       .should('be.visible');
 
@@ -96,15 +96,27 @@ describe(`Everlisting Page`, () => {
 
   // describe(`EventListing - User Loads Mock Events`, () => {
   //   beforeEach(() => {
+  //     cy.url()
+  //     .should('contain', '/user/events');
+
+  //     cy.get('[data-cy="dev-panel-expand-btn"]')
+  //     .click();
+  //     cy.get('[data-cy="dev-panel-add-event-btn"]')
+  //     .click();
+  //     cy.get('[data-cy="dev-panel-collapse-btn"]')
+  //     .click();
+  //   });
+    
+  //   it(`should update budget stat`, () => {
 
   //   });
     
-  //   it(``, () => {
-
-  //   });
-    
-  //   it(``, () => {
+  //   it(`should update event filter`, () => {
       
+  //   });
+
+  //   it(`should render event entries`, () => {
+
   //   });
   // });
 

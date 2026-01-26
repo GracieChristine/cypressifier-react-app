@@ -160,6 +160,7 @@ const AdminEventEdit = () => {
         <button
           onClick={() => navigate('/admin/dashboard')}
           className="mb-4 text-royal-700 hover:text-royal-900 font-semibold flex items-center gap-2"
+          data-cy="back-to-dashboard-btn"
         >
           ← Back to Dashboard
         </button>
@@ -389,7 +390,7 @@ const AdminEventEdit = () => {
 
       {/* Reject Modal */}
       {showRejectModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-cy="reject-submission-confirmation">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-xl font-bold mb-4">Reject Event Request</h3>
             <div className="mb-4">
@@ -420,6 +421,7 @@ const AdminEventEdit = () => {
                   setRejectReason('');
                 }}
                 className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
+                data-cy="cancel-reject-btn"
               >
                 Cancel
               </button>
@@ -508,7 +510,7 @@ const AdminEventEdit = () => {
 
       {/* Success Modal */}
       {showSuccessModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-cy="accept-submission-confirmation">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <div className="text-center">
               <div className="text-6xl mb-4">✅</div>
@@ -517,6 +519,8 @@ const AdminEventEdit = () => {
               <button
                 onClick={closeSuccessModal}
                 className="w-full bg-royal-600 text-white py-2 rounded hover:bg-royal-700 transition"
+                data-cy="return-to-dashboard-btn"
+
               >
                 Return to Dashboard
               </button>
