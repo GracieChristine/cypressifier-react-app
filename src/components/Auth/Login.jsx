@@ -90,7 +90,7 @@ const Login = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 required
-                data-cy="login-email"
+                data-cy="email-input"
                 placeholder="john.doe@example.com"
                 data-lpignore="true"
                 autoComplete="off"
@@ -110,7 +110,7 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 required
-                data-cy="login-password"
+                data-cy="password-input"
                 placeholder="••••••••"
                 data-lpignore="true"
                 autoComplete="off"

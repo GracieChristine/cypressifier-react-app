@@ -98,7 +98,7 @@ const Signup = () => {
                 onChange={(e) => setFormData({...formData, email: e.target.value })}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 required
-                data-cy="signup-email"
+                data-cy="email-input"
                 placeholder="john.doe@example.com"
                 data-lpignore="true"
                 autoComplete="off"
@@ -118,7 +118,7 @@ const Signup = () => {
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 required
-                data-cy="signup-password"
+                data-cy="password-input"
                 placeholder="••••••••"
                 data-lpignore="true"
                 autoComplete="off"
@@ -138,7 +138,7 @@ const Signup = () => {
                 onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 required
-                data-cy="signup-confirm-password"
+                data-cy="confirm-password-input"
                 placeholder="••••••••"
                 data-lpignore="true"
                 autoComplete="off"
