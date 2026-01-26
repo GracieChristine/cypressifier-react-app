@@ -478,17 +478,16 @@ describe(`Admin Flow`, () => {
     //     });
     // });
 
-    // describe(`Admin Log Out`, () => {
-    //     beforeEach(() => {
+    describe(`Admin Log Out`, () => {
+        it(`should logout and navigate back to landing page`, () => {
+            cy.url()
+            .should('contain', '/admin/dashboard');
 
-    //     });
+            cy.get('[data-cy="nav-logout-btn"]')
+            .click();
 
-    //     it(``, () => {
-
-    //     });
-
-    //     it(``, () => {
-
-    //     });
-    // });
+            cy.url()
+            .should('contain', 'http://localhost:5173')
+        });
+    });
 });
