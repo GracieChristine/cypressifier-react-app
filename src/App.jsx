@@ -16,7 +16,7 @@ import UserEventDetail from './components/RoleUser/EventDetail';
 
 // Admin Components
 import AdminDashboard from './components/RoleAdmin/Dashboard';
-import AdminEventEdit from './components/RoleAdmin/EventEdit';
+import AdminEventView from './components/RoleAdmin/EventView';
 
 // Dev Components
 import DevSeedPanel from './components/DevSeedPanel';
@@ -136,7 +136,7 @@ function App() {
           <Route path="/admin/events/:id/edit" element={
             <AppLayout>
               <ProtectedRoute adminOnly={true}>
-                <AdminEventEdit />
+                <AdminEventView />
               </ProtectedRoute>
             </AppLayout>
           } />

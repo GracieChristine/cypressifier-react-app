@@ -50,7 +50,7 @@ const Navbar = () => {
                     ? 'bg-purple-100 text-purple-700'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
-                data-cy="nav-user-role"
+                data-cy="nav-admin-role"
               >
                 Just an Admin
               </p>
@@ -58,7 +58,7 @@ const Navbar = () => {
             
             {user && (
               <div className="flex items-center space-x-3">
-                <p className="text-sm text-gray-600" data-cy="nav-user-email">
+                <p className="text-sm text-gray-600" data-cy="nav-logged-in-email">
                   {user.email}
                 </p>
                 <button

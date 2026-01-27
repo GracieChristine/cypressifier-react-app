@@ -68,10 +68,11 @@ const AdminDashboard = () => {
   
   const statusCounts = {
     total: events.length,
-    inReview: events.filter(e => e.status === 'In Review' || e.cancellationRequest).length,
+    inReview: events.filter(e => e.status === 'In Review' || e.cancellationRequest || e.submissionRequest).length,
     inProgress: events.filter(e => e.status === 'In Progress').length,
     completed: events.filter(e => e.status === 'Completed').length,
     cancelled: events.filter(e => e.status === 'Cancelled').length,
+    submissionRequests: events.filter(e => !e.cancellationRequest && e.status === 'In Review').length,
     cancellationRequests: events.filter(e => e.cancellationRequest && e.status !== 'Cancelled').length
   };
 
@@ -108,6 +109,36 @@ const AdminDashboard = () => {
           <p className="text-gray-600 font-serif">Manage all events and requests</p>
         </div>
 
+        {/* New Event Submission Requests Alert */}
+        {statusCounts.submissionRequests > 0 && (
+          <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6 rounded" data-cy="dashboard-alert">
+            <div className="flex items-center">
+              <span className="text-2xl mr-3">⚠️</span>
+              <div>
+                <p className="font-semibold text-yellow-800">
+                  {statusCounts.submissionRequests} New Event Submission Request{statusCounts.submissionRequests > 1 ? 's' : ''} Pending
+                </p>
+                <p className="text-sm text-yellow-700">Review and accept/decline submission requests</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Cancellation Requests Alert */}
+        {statusCounts.cancellationRequests > 0 && (
+          <div className="bg-orange-50 border-l-4 border-orange-500 p-4 mb-6 rounded" data-cy="dashboard-alert">
+            <div className="flex items-center">
+              <span className="text-2xl mr-3">⚠️</span>
+              <div>
+                <p className="font-semibold text-orange-800">
+                  {statusCounts.cancellationRequests} Cancellation Request{statusCounts.cancellationRequests > 1 ? 's' : ''} Pending
+                </p>
+                <p className="text-sm text-orange-700">Review and approve/deny cancellation requests</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Stats Grid */}
         <div className="bg-white rounded-lg shadow-md p-4 mb-6" data-cy="dashboard-stat">
           <div className="flex gap-2 flex-wrap">
@@ -129,23 +160,8 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Cancellation Requests Alert */}
-        {statusCounts.cancellationRequests > 0 && (
-          <div className="bg-orange-50 border-l-4 border-orange-500 p-4 mb-6 rounded">
-            <div className="flex items-center">
-              <span className="text-2xl mr-3">⚠️</span>
-              <div>
-                <p className="font-semibold text-orange-800">
-                  {statusCounts.cancellationRequests} Cancellation Request{statusCounts.cancellationRequests > 1 ? 's' : ''} Pending
-                </p>
-                <p className="text-sm text-orange-700">Review and approve/deny cancellation requests</p>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Events Table */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden" data-cy="dashboard-event-table">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden" data-cy="dashboard-table">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-royal-700 text-white">
@@ -159,41 +175,40 @@ const AdminDashboard = () => {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {events.length === 0 ? (
-                  <tr data-cy="dashboard-event-empty">
+                  <tr data-cy="dashboard-table-no-entry">
                     <td colSpan="7" className="px-6 py-12 text-center text-gray-500 font-serif">
                       No events yet
                     </td>
                   </tr>
                 ) : (
                   events.map(event => (
-                    <tr key={event.id} className="hover:bg-gray-50 transition" data-cy="dashboard-event-entry">
+                    <tr key={event.id} className="hover:bg-gray-50 transition" data-cy="dashboard-table-entry">
                       <td className="px-6 py-4">
-                        <div className="font-semibold text-gray-900">{event.name}</div>
-                        {/* <div className="text-sm text-gray-500">{event.type}</div> */}
+                        <div className="font-semibold text-gray-900" data-cy="dashboard-table-entry name">{event.name}</div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-700">
+                        <div className="text-sm text-gray-700" data-cy="dashboard-table-entry userid">
                           {event.userId ? `User #${event.userId.toString().slice(-4)}` : 'Unknown'}
                         </div>
-                        <div className="text-xs text-gray-500">{event.userEmail || 'No email'}</div>
+                        <div className="text-xs text-gray-500" data-cy="dashboard-table-entry email">{event.userEmail || 'No email'}</div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-700">
+                        <div className="text-sm text-gray-700" data-cy="dashboard-table-entry date">
                           {formatDateShort(event.date)}
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col gap-2">
-                          <span className={`px-3 py-1 rounded text-xs font-semibold inline-block ${getStatusColor(event.status)}`}>
+                          <span className={`px-3 py-1 rounded text-xs font-semibold inline-block ${getStatusColor(event.status)}`} data-cy="dashboard-table-entry status">
                             {event.status}
                           </span>
                           {event.cancellationRequest && (
-                            <span className="px-3 py-1 rounded text-xs font-semibold bg-orange-100 text-orange-700 inline-block">
+                            <span className="px-3 py-1 rounded text-xs font-semibold bg-orange-100 text-orange-700 inline-block" data-cy="dashboard-table-entry cancel-request">
                               🚨 Cancel Request
                             </span>
                           )}
                           {event.autoCancelled && (
-                            <span className="px-2 py-1 rounded text-xs bg-gray-100 text-gray-600 inline-block">
+                            <span className="px-2 py-1 rounded text-xs bg-gray-100 text-gray-600 inline-block" data-cy="dashboard-table-entry auto-cancel">
                               Auto-cancelled
                             </span>
                           )}
@@ -209,7 +224,7 @@ const AdminDashboard = () => {
                                 ? 'bg-blue-500 hover:bg-blue-600'
                                 : 'bg-royal-600 hover:bg-royal-700'
                             }`}
-                            data-cy="admin-action-btn"
+                            data-cy="ashboard-table-entry admin-action-btn"
                           >
                             {event.status === 'In Progress' && !event.cancellationRequest ? 'Edit' : 'View'}
                           </button>
