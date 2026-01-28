@@ -109,52 +109,55 @@ const AdminDashboard = () => {
           <p className="text-gray-600 font-serif">Manage all events and requests</p>
         </div>
 
-        {/* New Event Submission Requests Alert */}
-        {statusCounts.submissionRequests > 0 && (
-          <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6 rounded" data-cy="dashboard-alert">
-            <div className="flex items-center">
-              <span className="text-2xl mr-3">⚠️</span>
-              <div>
-                <p className="font-semibold text-yellow-800">
-                  {statusCounts.submissionRequests} New Event Submission Request{statusCounts.submissionRequests > 1 ? 's' : ''} Pending
-                </p>
-                <p className="text-sm text-yellow-700">Review and accept/decline submission requests</p>
+         {/* Event Alertss */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6" data-cy="dashboard-alerts">
+          {/* New Event Submission Requests Alert */}
+          {statusCounts.submissionRequests > 0 && (
+            <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6 rounded" data-cy="dashboard-alert-box">
+              <div className="flex items-center">
+                <span className="text-2xl mr-3">⚠️</span>
+                <div>
+                  <p className="font-semibold text-yellow-800">
+                    {statusCounts.submissionRequests} New Event Submission Request{statusCounts.submissionRequests > 1 ? 's' : ''} Pending
+                  </p>
+                  <p className="text-sm text-yellow-700">Review and accept/decline submission requests</p>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Cancellation Requests Alert */}
-        {statusCounts.cancellationRequests > 0 && (
-          <div className="bg-orange-50 border-l-4 border-orange-500 p-4 mb-6 rounded" data-cy="dashboard-alert">
-            <div className="flex items-center">
-              <span className="text-2xl mr-3">⚠️</span>
-              <div>
-                <p className="font-semibold text-orange-800">
-                  {statusCounts.cancellationRequests} Cancellation Request{statusCounts.cancellationRequests > 1 ? 's' : ''} Pending
-                </p>
-                <p className="text-sm text-orange-700">Review and approve/deny cancellation requests</p>
+          {/* Cancellation Requests Alert */}
+          {statusCounts.cancellationRequests > 0 && (
+            <div className="bg-orange-50 border-l-4 border-orange-500 p-4 mb-6 rounded" data-cy="dashboard-alert-box">
+              <div className="flex items-center">
+                <span className="text-2xl mr-3">⚠️</span>
+                <div>
+                  <p className="font-semibold text-orange-800">
+                    {statusCounts.cancellationRequests} Cancellation Request{statusCounts.cancellationRequests > 1 ? 's' : ''} Pending
+                  </p>
+                  <p className="text-sm text-orange-700">Review and approve/deny cancellation requests</p>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Stats Grid */}
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6" data-cy="dashboard-stat">
+        {/* Status Grid With Counts */}
+        <div className="bg-white rounded-lg shadow-md p-4 mb-6" data-cy="dashboard-status">
           <div className="flex gap-2 flex-wrap">
-            <div className="px-4 py-2 rounded bg-gray-100 text-gray-700 flex-1 text-center min-w-[120px] whitespace-nowrap" data-cy="dashboard-stat-box">
+            <div className="px-4 py-2 rounded bg-gray-100 text-gray-700 flex-1 text-center min-w-[120px] whitespace-nowrap" data-cy="dashboard-status-box">
               All ({statusCounts.total})
             </div>
-            <div className="px-4 py-2 rounded bg-blue-100 text-blue-700 flex-1 text-center min-w-[120px] whitespace-nowrap" data-cy="dashboard-stat-box">
+            <div className="px-4 py-2 rounded bg-blue-100 text-blue-700 flex-1 text-center min-w-[120px] whitespace-nowrap" data-cy="dashboard-status-box">
               In Review ({statusCounts.inReview})
             </div>
-            <div className="px-4 py-2 rounded bg-yellow-100 text-yellow-700 flex-1 text-center min-w-[120px] whitespace-nowrap" data-cy="dashboard-stat-box">
+            <div className="px-4 py-2 rounded bg-yellow-100 text-yellow-700 flex-1 text-center min-w-[120px] whitespace-nowrap" data-cy="dashboard-status-box">
               In Progress ({statusCounts.inProgress})
             </div>
-            <div className="px-4 py-2 rounded bg-green-100 text-green-700 flex-1 text-center min-w-[120px] whitespace-nowrap" data-cy="dashboard-stat-box">
+            <div className="px-4 py-2 rounded bg-green-100 text-green-700 flex-1 text-center min-w-[120px] whitespace-nowrap" data-cy="dashboard-status-box">
               Completed ({statusCounts.completed})
             </div>
-            <div className="px-4 py-2 rounded bg-red-100 text-red-700 flex-1 text-center min-w-[120px] whitespace-nowrap" data-cy="dashboard-stat-box">
+            <div className="px-4 py-2 rounded bg-red-100 text-red-700 flex-1 text-center min-w-[120px] whitespace-nowrap" data-cy="dashboard-status-box">
               Cancelled ({statusCounts.cancelled})
             </div>
           </div>

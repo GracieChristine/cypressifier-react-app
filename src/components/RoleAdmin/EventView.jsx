@@ -205,12 +205,14 @@ const AdminEventView = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-elegant-50 to-royal-50/30 py-6 px-8" data-cy="event-view">
       <div className="max-w-4xl mx-auto">
+
+        {/* Return to Dashboard */}
         <button
           onClick={() => navigate('/admin/dashboard')}
           className="mb-4 text-royal-700 hover:text-royal-900 font-semibold flex items-center gap-2"
           data-cy="event-view-to-dashboard-btn"
         >
-          ← Back to Dashboard
+          Back to Dashboard
         </button>
 
         {/* Event View Select Entry */}
@@ -518,7 +520,7 @@ const AdminEventView = () => {
 
       {/* Modal - Decline New Event Request */}
       {showRejectModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-cy="decline-new-modal">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-cy="decline-new-event-modal">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-xl font-bold mb-4">Decline Event Request</h3>
             <div className="flex gap-3">
@@ -526,7 +528,7 @@ const AdminEventView = () => {
                 onClick={handleRejectSubmission}
                 // disabled={!rejectReason.trim()}
                 className="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
-                data-cy="decline-new-confirm-btn"
+                data-cy="decline-new-event-modal confirm-btn"
               >
                 Confirm Decline
               </button>
@@ -536,7 +538,7 @@ const AdminEventView = () => {
                   setRejectReason('');
                 }}
                 className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
-                data-cy="decline-new-cancel-btn"
+                data-cy="decline-new-event-modal cancel-btn"
               >
                 Cancel
               </button>
@@ -545,9 +547,9 @@ const AdminEventView = () => {
         </div>
       )}
 
-      {/* Modal - Approve Cancellation Confirmation */}
+      {/* Modal - Accept Cancellation Confirmation */}
       {showApproveCancelModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-cy="approve-cancel-modal">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-cy="accept-cancel-event-modal">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-xl font-bold mb-4">Approve Cancellation?</h3>
             <p className="text-gray-700 mb-6">
@@ -557,14 +559,14 @@ const AdminEventView = () => {
               <button
                 onClick={confirmApproveCancellation}
                 className="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700 transition"
-                data-cy="approve-cancel-confirm-btn"
+                data-cy="accept-cancel-event-modal confirm-btn"
               >
-                Confirm Approval
+                Accept Cancellation
               </button>
               <button
                 onClick={() => setShowApproveCancelModal(false)}
                 className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
-                data-cy="approve-cancel-cancel-btn"
+                data-cy="accept-cancel-event-modal cancel-btn"
               >
                 Cancel
               </button>
@@ -573,11 +575,11 @@ const AdminEventView = () => {
         </div>
       )}
 
-      {/* Modal - Deny Cancellation Confirmation */}
+      {/* Modal - Decline Cancellation Confirmation */}
       {showDenyCancelModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-cy="deny-cancel-modal">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-cy="decline-cancel-event-modal">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold mb-4">Deny Cancellation Request?</h3>
+            <h3 className="text-xl font-bold mb-4">Decline Cancellation Request?</h3>
             <p className="text-gray-700 mb-6">
               Are you sure you want to deny this cancellation request? The event will remain <strong>{selectedEvent.status}</strong>.
             </p>
@@ -585,14 +587,14 @@ const AdminEventView = () => {
               <button
                 onClick={confirmDenyCancellation}
                 className="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
-                data-cy="deny-cancel-confirm-btn"
+                data-cy="decline-cancel-event-modal confirm-btn"
               >
                 Confirm Denial
               </button>
               <button
                 onClick={() => setShowDenyCancelModal(false)}
                 className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
-                data-cy="deny-cancel-cancel-btn"
+                data-cy="decline-cancel-event-modal cancel-btn"
               >
                 Cancel
               </button>
@@ -613,14 +615,14 @@ const AdminEventView = () => {
               <button
                 onClick={confirmMarkCompleted}
                 className="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
-                data-cy="complete-event-confirm-btn"
+                data-cy="complete-event-modal confirm-btn"
               >
                 Confirm Completion
               </button>
               <button
                 onClick={() => setShowCompletedModal(false)}
                 className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
-                data-cy="complete-event-cancel-btn"
+                data-cy="complete-event-modal cancel-btn"
               >
                 Cancel
               </button>

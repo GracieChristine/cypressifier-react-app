@@ -144,20 +144,21 @@ const EventsList = () => {
     const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
     
     return (
+      // Individual Upcoming Event Card
       <div
         key={event.id}
         className={`bg-white rounded-lg shadow-md hover:shadow-xl transition overflow-hidden h-full flex flex-col ${
           isUpcoming ? 'border-2 border-purple-300' : ''
         }`}
-        data-cy="event-card"
+        data-cy="eventlist-upcoming-card"
       >
+        {/* Event Card - Details */}
         <div className="p-6 flex flex-col flex-1">
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-center gap-2">
-              <span className="text-3xl">{getEventIcon(event.type)}</span>
               <div>
-                <h3 className="font-bold text-lg" data-cy="event-name">{event.name}</h3>
-                <span className={`px-2 py-1 rounded text-xs ${getStatusColor(event.status)}`}>
+                <h3 className="font-bold text-lg" data-cy="eventlist-upcoming-card name">{event.name}</h3>
+                <span className={`px-2 py-1 rounded text-xs ${getStatusColor(event.status)}`} data-cy="eventlist-upcoming-card status">
                   {event.status}
                 </span>
               </div>
@@ -165,26 +166,27 @@ const EventsList = () => {
           </div>
           
           <div className="space-y-2 text-sm text-gray-600 mb-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2" data-cy="eventlist-upcoming-card date">
               <span>📅</span>
               <span>{formatDate(event.date)}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span>{getLocationIcon(event.locationType)}</span>
-              <span className="truncate">{event.locationType}</span>
-            </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2" data-cy="eventlist-upcoming-card budget">
               <span>💰</span>
               <span>${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}</span>
+            </div>
+            <div className="flex items-center gap-2" data-cy="eventlist-upcoming-card location">
+              <span>{getLocationIcon(event.locationType)}</span>
+              <span className="truncate">{event.locationType}</span>
             </div>
           </div>
 
           {event.description && (
-            <p className="text-sm text-gray-500 mb-4 line-clamp-2">{event.description}</p>
+            <p className="text-sm text-gray-500 mb-4 line-clamp-2" data-cy="eventlist-upcoming-card description">{event.description}</p>
           )}
           
           <div className="flex-grow"></div>
 
+          {/* Event Card - Cancellation Request */}
           {event.cancellationRequest && (
             <div className="bg-orange-50 border border-orange-200 rounded p-2 mb-4">
               <p className="text-xs text-orange-800 font-semibold">
@@ -193,35 +195,38 @@ const EventsList = () => {
             </div>
           )}
 
+          {/* Event Card - Action Buttons */}
           {isReadOnly ? (
             <button
               onClick={() => navigate(`/user/events/${event.id}`)}
-              className="w-full bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition text-sm"
+              className="w-full py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded transition text-sm"
               data-cy="view-event-btn"
             >
-              👁️ View Details
+              View Detail
             </button>
           ) : (
             <div className="flex gap-2">
               <button
                 onClick={() => navigate(`/user/events/${event.id}/edit`)}
-                className="flex-1 bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition text-sm"
+                className="flex-1 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded transition text-sm disabled:bg-gray-200 disabled:text-gray-700 disabled:cursor-not-allowed"
+                disabled={event.cancellationRequest}
                 data-cy="edit-event-btn"
               >
-                Edit
+                Edit Detail
               </button>
-              <button
-                onClick={() => {
-                  setCancelModalEvent(event);
-                  setCancelReason('');
-                  setCancelError('');
-                }}
-                className="px-4 bg-orange-500 text-white py-2 rounded hover:bg-orange-600 transition text-sm disabled:bg-gray-300 disabled:cursor-not-allowed"
-                data-cy="cancel-request-btn"
-                disabled={event.cancellationRequest}
-              >
-                {event.cancellationRequest ? '⏳' : '🚫'}
-              </button>
+              {!event.cancellationRequest && (
+                <button
+                  onClick={() => {
+                    setCancelModalEvent(event);
+                    setCancelReason('');
+                    setCancelError('');
+                  }}
+                  className="px-4 py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded transition text-sm"
+                  data-cy="cancel-request-btn"
+                >
+                  Cancel Event
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -238,6 +243,8 @@ const EventsList = () => {
             <h1 className="text-3xl font-bold text-gray-800">My Events</h1>
             <p className="text-gray-600">Manage and track all your events</p>
           </div>
+
+          {/* Create Event Button */}
           <button
             onClick={() => navigate('/user/events/new')}
             className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition shadow-lg" data-cy="eventlist-create-event-btn"
@@ -247,16 +254,19 @@ const EventsList = () => {
         </div>
 
         {/* Budget Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6" data-cy="eventlist-stat">
-          <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6" data-cy="eventlist-budget">
+          {/* Total Budget To Use */}
+          <div className="bg-white p-6 rounded-lg shadow-md" data-cy="eventlist-budget-box">
             <div className="text-gray-500 text-sm mb-1">Total Budget</div>
-            <div className="text-3xl font-bold text-blue-600" data-cy="eventlist-stat-box">
+            <div className="text-3xl font-bold text-blue-600">
               ${totalBudget.toLocaleString()}
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
+
+          {/* Total Budget Spent Already */}
+          <div className="bg-white p-6 rounded-lg shadow-md" data-cy="eventlist-budget-box">
             <div className="text-gray-500 text-sm mb-1">Total Spent</div>
-            <div className="text-3xl font-bold text-orange-600" data-cy="eventlist-stat-box">
+            <div className="text-3xl font-bold text-orange-600">
               ${totalSpent.toLocaleString()}
             </div>
           </div>
@@ -264,12 +274,12 @@ const EventsList = () => {
 
         {/* Upcoming Events - Combined This Week & Next Week */}
         {(thisWeekEvents.length > 0 || nextWeekEvents.length > 0) && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6" data-cy="eventlist-events-upcoming">
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6" data-cy="eventlist-upcomings">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
               Upcoming Events
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" data-cy="eventlist-event-upcoming-card">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {thisWeekEvents.length > 0 && (
                 <>
                   {thisWeekEvents.map(event => renderEventCard(event, true))}
@@ -285,11 +295,12 @@ const EventsList = () => {
           </div>
         )}
 
-        {/* Filter Buttons with Counts */}
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6" data-cy="eventlist-event-list">
+        {/* All Events + Filter Buttons */}
+        <div className="bg-white rounded-lg shadow-md p-4 mb-6" data-cy="eventlist-filter-event">
 
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">All Events</h2>
           
+          {/* Filter Buttons With Counts */}
           <div className="flex gap-2 flex-wrap" data-cy="eventlist-filter">
             {['all', 'In Review', 'In Progress', 'Completed', 'Cancelled'].map(status => (
               <button
@@ -307,71 +318,84 @@ const EventsList = () => {
             ))}
           </div>
           <br />
-      
-        {/* All Events - Compact Row Style */}
-        {filteredEvents.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center" data-cy="eventlist-event-empty">
-            <div className="text-6xl mb-4">🎉</div>
-            <h3 className="text-xl font-semibold mb-2">No events yet</h3>
-            <p className="text-gray-600 mb-4">Create your first event to get started!</p>
-          </div>
-        ) : (
-          <div className="space-y-3" data-cy="eventlist-events">
-            {filteredEvents.map(event => {
-              const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
-              
-              return (
-                <div
-                  key={event.id}
-                  className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition"
-                  data-cy="eventlist-event-entry"
-                >
-                  {/* Single clean row */}
-                  <div className="p-4 flex items-center gap-6">
-                    {/* Left: Name */}
-                    <div className="flex items-center gap-2 flex-1">
-                      <div className="flex-1 min-w-[200px] max-w-[225px]">
-                        <h3 className="font-semibold text-gray-900 truncate" data-cy="event-name">
+
+          {/* All Events Listing - Improved Grid Layout */}
+          {filteredEvents.length === 0 ? (
+            <div className="bg-white rounded-lg shadow-md p-12 text-center" data-cy="eventlist-list-no-entry">
+              <div className="text-6xl mb-4">🎉</div>
+              <h3 className="text-xl font-semibold mb-2">No events yet</h3>
+              <p className="text-gray-600 mb-4">Create your first event to get started!</p>
+            </div>
+          ) : (
+            <div className="space-y-3" data-cy="eventlist-list">
+              {filteredEvents.map(event => {
+                const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
+                
+                return (
+                  <div
+                    key={event.id}
+                    className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition"
+                    data-cy="eventlist-list-entry"
+                  >
+                    {/* Grid-based layout for consistent spacing */}
+                    <div className="p-4 grid grid-cols-12 gap-4 items-center">
+                      
+                      {/* Event Name - No truncate, full display */}
+                      <div className="col-span-12 sm:col-span-3" data-cy="eventlist-list-entry name">
+                        <h3 className="font-semibold text-gray-900">
                           {event.name}
                         </h3>
                       </div>
-                    </div>
-                    
-                    {/* Middle: Details in clean columns - responsive drop-off */}
-                    <div className="flex items-center gap-8 text-sm text-gray-600 min-w-0">
-                      {/* Date - Always visible */}
-                      <div className="flex items-center gap-2 min-w-[100px]">
-                        <span>{formatDateShort(event.date)}</span>
+                      
+                      {/* Date - Fixed width */}
+                      <div className="col-span-6 sm:col-span-2" data-cy="eventlist-list-entry date">
+                        <div className="text-sm text-gray-600">
+                          {formatDateShort(event.date)}
+                        </div>
                       </div>
                       
-                      {/* Location - Hidden on medium screens */}
-                      <div className="hidden lg:flex items-center gap-2 min-w-[120px]">
-                        <span className="text-gray-400">{getLocationIcon(event.locationType)}</span>
-                        <span className="truncate">{event.locationType}</span>
+                      {/* Budget - Hidden on medium screens, disappears last */}
+                      <div className="hidden lg:block lg:col-span-1" data-cy="eventlist-list-entry budget">
+                        <div className="text-sm text-gray-600 font-medium">
+                          ${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}
+                        </div>
                       </div>
                       
-                      {/* Budget - Hidden on smaller screens */}
-                      <div className="hidden xl:flex items-center gap-2 min-w-[100px]">
-                        <span className="font-medium">${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}</span>
+                      {/* Location - Hidden on small screens, disappears before budget */}
+                      <div className="hidden md:block md:col-span-2 lg:col-span-2" data-cy="eventlist-list-entry location">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <span className="text-gray-400">{getLocationIcon(event.locationType)}</span>
+                          <span className="truncate">{event.locationType}</span>
+                        </div>
                       </div>
-                    </div>
-                    
-                    {/* Right: Status + Actions */}
-                    <div className="flex items-center gap-3 flex-shrink-0">
-                      <span className={`px-3 py-1 rounded text-xs font-medium ${getStatusColor(event.status)}`}>
-                        {event.status}
-                      </span>
                       
-                      {event.cancellationRequest && (
-                        <span className="text-orange-600 text-xl" title="Cancellation pending">⏳</span>
-                      )}
-                      
-                      <div className="flex gap-2 w-[180px] justify-end">
+                      {/* Status & Alerts - Moved right with flex-end */}
+                      <div className="col-span-6 sm:col-span-3 md:col-span-2 lg:col-span-2 flex flex-col gap-1.5">
+                        <span 
+                          className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getStatusColor(event.status)}`} 
+                          data-cy="eventlist-list-entry status"
+                        >
+                          {event.status}
+                        </span>
+
+                        {event.cancellationRequest && (
+                          <span 
+                            className="px-3 py-1 rounded text-xs font-medium bg-orange-100 text-orange-700 whitespace-nowrap text-center" 
+                            data-cy="eventlist-list-entry pending" 
+                            title="Cancellation pending"
+                          >
+                            Pending
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Action Buttons - Separated section */}
+                      <div className="col-span-6 sm:col-span-4 md:col-span-3 lg:col-span-2 flex justify-end gap-2">
                         {isReadOnly ? (
                           <button
                             onClick={() => navigate(`/user/events/${event.id}`)}
-                            className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-medium transition"
-                            data-cy="view-event-btn"
+                            className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-medium transition whitespace-nowrap"
+                            data-cy="eventlist-list-entry user-action-btn"
                           >
                             View
                           </button>
@@ -379,39 +403,40 @@ const EventsList = () => {
                           <>
                             <button
                               onClick={() => navigate(`/user/events/${event.id}/edit`)}
-                              className="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-sm font-medium transition"
-                              data-cy="edit-event-btn"
+                              className="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-sm font-medium transition disabled:bg-gray-200 disabled:text-gray-700 disabled:cursor-not-allowed whitespace-nowrap"
+                              disabled={event.cancellationRequest}
+                              data-cy="eventlist-list-entry user-action-btn"
                             >
                               Edit
                             </button>
-                            <button
-                              onClick={() => {
-                                setCancelModalEvent(event);
-                                setCancelReason('');
-                                setCancelError('');
-                              }}
-                              className="px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
-                              data-cy="cancel-request-btn"
-                              disabled={event.cancellationRequest}
-                            >
-                              🚫
-                            </button>
+                            {!event.cancellationRequest && (
+                              <button
+                                onClick={() => {
+                                  setCancelModalEvent(event);
+                                  setCancelReason('');
+                                  setCancelError('');
+                                }}
+                                className="px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded text-sm font-medium transition whitespace-nowrap"
+                                data-cy="eventlist-list-entry user-action-btn"
+                              >
+                                Cancel
+                              </button>
+                            )}
                           </>
                         )}
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Cancel Request Modal */}
+      {/* Modal - Cancellation Request */}
       {cancelModalEvent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-cy="cancel-confirmation">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-cy="cancel-event-modal">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-xl font-bold mb-4">Request Cancellation</h3>
             <p className="text-gray-600 mb-4">
@@ -432,17 +457,17 @@ const EventsList = () => {
                 }`}
                 rows="4"
                 placeholder="Please explain why you need to cancel this event..."
-                data-cy="cancel-reason-input"
+                data-cy="cancel-event-modal note"
               />
               {cancelError && (
-                <p className="text-red-500 text-sm mt-1" data-cy="cancel-reason-error">{cancelError}</p>
+                <p className="text-red-500 text-sm mt-1">{cancelError}</p>
               )}
             </div>
             <div className="flex gap-3">
               <button
                 onClick={handleCancelRequest}
                 className="flex-1 bg-orange-500 text-white py-2 rounded hover:bg-orange-600 transition"
-                data-cy="confirm-cancel-request"
+                data-cy="cancel-event-modal confirm-btn"
               >
                 Submit Request
               </button>
@@ -453,7 +478,7 @@ const EventsList = () => {
                   setCancelError('');
                 }}
                 className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
-                data-cy="cancel-modal-close"
+                data-cy="cancel-event-modal cancel-btn"
               >
                 Close
               </button>
