@@ -166,22 +166,16 @@ const EventForm = () => {
   const currentBudgetValue = parseInt(formData.budget) || 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-8" data-cy="eventform">
       <div className="max-w-3xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg p-8">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-center mb-6" data-cy="eventform-header">
             <p className="text-3xl font-bold text-gray-800">
               {isEditing ? 'Edit Event' : 'Create New Event'}
             </p>
-            <button
-              onClick={() => navigate('/events')}
-              className="text-gray-600 hover:text-gray-800"
-            >
-              ← Back to Events
-            </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6" data-cy="eventform new-event-form">
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
                 Event Name *
@@ -194,32 +188,12 @@ const EventForm = () => {
                 className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                   errors.name ? 'border-red-500' : ''
                 }`}
-                placeholder="e.g., Annual Company Gala"
-                data-cy="event-name-input"
+                placeholder="John Doe's Celebration Party"
+                data-cy="new-event-name"
               />
               {errors.name && (
-                <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                <p className="text-red-500 text-sm mt-1" error-name>{errors.name}</p>
               )}
-            </div>
-
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                Event Type *
-              </label>
-              <select
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                data-cy="event-type-select"
-              >
-                <option value="Wedding">💒 Wedding</option>
-                <option value="Birthday">🎂 Birthday</option>
-                <option value="Corporate">💼 Corporate</option>
-                <option value="Conference">🎤 Conference</option>
-                <option value="Party">🎊 Party</option>
-                <option value="Other">🎉 Other</option>
-              </select>
             </div>
 
             <div>
@@ -234,11 +208,55 @@ const EventForm = () => {
                 className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                   errors.date ? 'border-red-500' : ''
                 }`}
-                data-cy="event-date-input"
+                data-cy="new-event-date"
               />
               {errors.date && (
-                <p className="text-red-500 text-sm mt-1">{errors.date}</p>
+                <p className="text-red-500 text-sm mt-1" data-cy="error-date">{errors.date}</p>
               )}
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Budget ($) *
+              </label>
+              <input
+                type="number"
+                name="budget"
+                value={formData.budget.toLocaleString()}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  errors.budget ? 'border-red-500' : ''
+                }`}
+                placeholder={currentMinBudget.toLocaleString()}
+                min={currentMinBudget.toLocaleString()}
+                data-cy="new-event-budget"
+              />
+              <p className="text-sm text-gray-600 mt-1">
+                Minimum budget for {formData.locationType}: ${currentMinBudget.toLocaleString()}
+              </p>
+              {errors.budget && (
+                <p className="text-red-500 text-sm mt-1" data-cy="error-budget">{errors.budget}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Event Type *
+              </label>
+              <select
+                name="type"
+                value={formData.type}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                data-cy="new-event-type"
+              >
+                <option value="Wedding">💒 Wedding</option>
+                <option value="Birthday">🎂 Birthday</option>
+                <option value="Corporate">💼 Corporate</option>
+                <option value="Conference">🎤 Conference</option>
+                <option value="Party">🎊 Party</option>
+                <option value="Other">🎉 Other</option>
+              </select>
             </div>
 
             <div>
@@ -250,7 +268,7 @@ const EventForm = () => {
                 value={formData.locationType}
                 onChange={handleLocationChange}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                data-cy="event-location-select"
+                data-cy="new-event-location"
               >
                 {Object.entries(LOCATION_TYPES).map(([name, data]) => (
                   <option key={name} value={name}>
@@ -277,37 +295,13 @@ const EventForm = () => {
                 }`}
                 placeholder="150"
                 min="1"
-                data-cy="event-guests-input"
+                data-cy="new-event-guest"
               />
               {errors.guestCount && (
-                <p className="text-red-500 text-sm mt-1">{errors.guestCount}</p>
+                <p className="text-red-500 text-sm mt-1" data-cy="error-guest">{errors.guestCount}</p>
               )}
             </div>
-
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                Budget ($) *
-              </label>
-              <input
-                type="number"
-                name="budget"
-                value={formData.budget.toLocaleString()}
-                onChange={handleChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                  errors.budget ? 'border-red-500' : ''
-                }`}
-                placeholder={currentMinBudget.toLocaleString()}
-                min={currentMinBudget.toLocaleString()}
-                data-cy="event-budget-input"
-              />
-              <p className="text-sm text-gray-600 mt-1">
-                Minimum budget for {formData.locationType}: ${currentMinBudget.toLocaleString()}
-              </p>
-              {errors.budget && (
-                <p className="text-red-500 text-sm mt-1">{errors.budget}</p>
-              )}
-            </div>
-
+            
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
                 Description
@@ -319,15 +313,16 @@ const EventForm = () => {
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 rows="4"
                 placeholder="Brief description of your event..."
-                data-cy="event-description-input"
+                data-cy="new-event-description"
               />
             </div>
 
+            {/* Form Buttons */}
             <div className="flex gap-4">
               <button
                 type="submit"
                 className="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-semibold"
-                data-cy="event-submit-btn"
+                data-cy="new-event-create-btn"
               >
                 {isEditing ? 'Update Event' : 'Create Event'}
               </button>
@@ -335,7 +330,7 @@ const EventForm = () => {
                 type="button"
                 onClick={() => navigate('/events')}
                 className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition font-semibold"
-                data-cy="event-cancel-btn"
+                data-cy="new-event-cancel-btn"
               >
                 Cancel
               </button>
