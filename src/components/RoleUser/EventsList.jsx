@@ -208,7 +208,7 @@ const EventsList = () => {
             <div className="flex gap-2">
               <button
                 onClick={() => navigate(`/user/events/${event.id}/edit`)}
-                className="flex-1 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded transition text-sm disabled:bg-gray-200 disabled:text-gray-700 disabled:cursor-not-allowed"
+                className="flex-1 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded transition text-sm disabled:bg-gray-100 disabled:text-gray-700 disabled:cursor-not-allowed"
                 disabled={event.cancellationRequest}
                 data-cy="edit-event-btn"
               >
@@ -403,7 +403,7 @@ const EventsList = () => {
                           <>
                             <button
                               onClick={() => navigate(`/user/events/${event.id}/edit`)}
-                              className="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-sm font-medium transition disabled:bg-gray-200 disabled:text-gray-700 disabled:cursor-not-allowed whitespace-nowrap"
+                              className="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-sm font-medium transition disabled:bg-gray-100 disabled:text-gray-700 disabled:cursor-not-allowed whitespace-nowrap"
                               disabled={event.cancellationRequest}
                               data-cy="eventlist-list-entry user-action-btn"
                             >

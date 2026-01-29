@@ -76,27 +76,62 @@ const EventDetail = () => {
   const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-8" data-cy="event-view">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+
+        {/* Return to /user/eventlist */}
+        <button
+          onClick={() => navigate('/events')}
+          className="mb-4 text-gray-700 hover:text-gray-900 font-semibold flex items-center gap-2"
+          data-cy="event-view-to-eventlist-btn"
+        >
+          <span className="text-lg">← ⇦</span>Back to Event Listing
+        </button>
+
+        {/* Action Buttons - New review/delete */}
+            {/* <div className="flex gap-4 pt-4 border-t">
+              <button
+                onClick={() => navigate('/events')}
+                className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition font-semibold" data-cy="event-view-to-eventlist-btn"
+              >
+                ← Back to Events
+              </button>
+              {!isReadOnly && (
+                <button
+                  onClick={() => navigate(`/events/${event.id}/edit`)}
+                  className="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-semibold"
+                  data-cy="event-view-to-eventform-btn""
+                >
+                  Edit Event
+                </button>
+              )}
+            </div> */}
+
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden" data-cy="event-view-selected-entry">
+
           {/* Header */}
           <div className="bg-gradient-to-r from-purple-600 to-pink-500 p-6 text-white">
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex justify-between items-start ">
               <div className="flex items-center gap-3">
-                <span className="text-5xl">{getEventIcon(event.type)}</span>
                 <div>
-                  <h1 className="text-3xl font-bold" data-cy="event-detail-name">{event.name}</h1>
-                  <p className="text-purple-100">{event.type}</p>
+                  <h1 className="text-3xl font-bold" data-cy="event-view-selected-entry name">{event.name}</h1>
+                  <p className="text-xl text-purple-100 mt-4" data-cy="event-view-selected-entry type">{event.type}</p>
                 </div>
               </div>
-              <span className={`px-4 py-2 rounded-lg text-sm font-semibold ${getStatusColor(event.status)} bg-opacity-90`}>
-                {event.status}
-              </span>
+              <div className="flex items-center gap-3">
+                <div>
+                  <span className={`px-4 py-10 rounded-lg text-sm font-semibold ${getStatusColor(event.status)} bg-opacity-90`} data-cy="event-view-selected-entry status">
+                    {event.status}
+                  </span>
+                </div>
+              </div>
+              
             </div>
           </div>
 
-          {/* Content */}
+          {/* Detail */}
           <div className="p-6 space-y-6">
+
             {/* Cancellation Request Alert */}
             {event.cancellationRequest && (
               <div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded">
@@ -118,7 +153,7 @@ const EventDetail = () => {
               <div className="space-y-4">
                 <div>
                   <label className="block text-gray-500 text-sm font-semibold mb-1">Date</label>
-                  <div className="flex items-center gap-2 text-lg">
+                  <div className="flex items-center gap-2 text-lg" data-cy="event-view-selected-entry date">
                     <span>📅</span>
                     <span className="font-semibold" data-cy="event-detail-date">{formatDate(event.date)}</span>
                   </div>
@@ -128,7 +163,7 @@ const EventDetail = () => {
                   <label className="block text-gray-500 text-sm font-semibold mb-1">Location Type</label>
                   <div className="flex items-center gap-2 text-lg">
                     <span>{getLocationIcon(event.locationType)}</span>
-                    <span className="font-semibold">{event.locationType}</span>
+                    <span className="font-semibold" data-cy="event-view-selected-entry location">{event.locationType}</span>
                   </div>
                 </div>
 
@@ -136,7 +171,7 @@ const EventDetail = () => {
                   <label className="block text-gray-500 text-sm font-semibold mb-1">Guest Count</label>
                   <div className="flex items-center gap-2 text-lg">
                     <span>👥</span>
-                    <span className="font-semibold">{event.guestCount} guests</span>
+                    <span className="font-semibold" data-cy="event-view-selected-entry guest">{event.guestCount} guests</span>
                   </div>
                 </div>
               </div>
@@ -146,7 +181,7 @@ const EventDetail = () => {
                   <label className="block text-gray-500 text-sm font-semibold mb-1">Total Budget</label>
                   <div className="flex items-center gap-2 text-lg">
                     <span>💰</span>
-                    <span className="font-semibold text-blue-600">
+                    <span className="font-semibold text-blue-600" data-cy="event-view-selected-entry budget-total">
                       ${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}
                     </span>
                   </div>
@@ -156,7 +191,7 @@ const EventDetail = () => {
                   <label className="block text-gray-500 text-sm font-semibold mb-1">Budget Spent</label>
                   <div className="flex items-center gap-2 text-lg">
                     <span>💸</span>
-                    <span className="font-semibold text-orange-600">
+                    <span className="font-semibold text-orange-600" data-cy="event-view-selected-entry budget-spent">
                       ${parseInt(event.budgetSpent || 0).toLocaleString()}
                     </span>
                   </div>
@@ -166,7 +201,7 @@ const EventDetail = () => {
                   <label className="block text-gray-500 text-sm font-semibold mb-1">Remaining Budget</label>
                   <div className="flex items-center gap-2 text-lg">
                     <span>💵</span>
-                    <span className="font-semibold text-green-600">
+                    <span className="font-semibold text-green-600" data-cy="event-view-selected-entry budget-remain">
                       ${(parseInt(event.budget || event.setBudget || event.budgetTotal || 0) - parseInt(event.budgetSpent || 0)).toLocaleString()}
                     </span>
                   </div>
@@ -178,28 +213,9 @@ const EventDetail = () => {
             {event.description && (
               <div>
                 <label className="block text-gray-500 text-sm font-semibold mb-2">Description</label>
-                <p className="text-gray-700 bg-gray-50 p-4 rounded-lg">{event.description}</p>
+                <p className="text-gray-700 bg-gray-50 p-4 rounded-lg" data-cy="event-view-selected-entry description">{event.description}</p>
               </div>
             )}
-
-            {/* Action Buttons */}
-            <div className="flex gap-4 pt-4 border-t">
-              <button
-                onClick={() => navigate('/events')}
-                className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition font-semibold"
-              >
-                ← Back to Events
-              </button>
-              {!isReadOnly && (
-                <button
-                  onClick={() => navigate(`/events/${event.id}/edit`)}
-                  className="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-semibold"
-                  data-cy="edit-event-detail-btn"
-                >
-                  Edit Event
-                </button>
-              )}
-            </div>
           </div>
         </div>
       </div>
