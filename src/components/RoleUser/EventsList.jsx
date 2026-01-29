@@ -146,91 +146,88 @@ const EventsList = () => {
     return (
       // Individual Upcoming Event Card
       <div
-        key={event.id}
-        className={`bg-white rounded-lg shadow-md hover:shadow-xl transition overflow-hidden h-full flex flex-col ${
-          isUpcoming ? 'border-2 border-purple-300' : ''
-        }`}
-        data-cy="eventlist-upcoming-card"
-      >
-        {/* Event Card - Details */}
-        <div className="p-6 flex flex-col flex-1">
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div>
-                <h3 className="font-bold text-lg" data-cy="eventlist-upcoming-card name">{event.name}</h3>
-                <span className={`px-2 py-1 rounded text-xs ${getStatusColor(event.status)}`} data-cy="eventlist-upcoming-card status">
-                  {event.status}
-                </span>
-              </div>
+      key={event.id}
+      className={`bg-white rounded-lg shadow-md hover:shadow-xl transition overflow-hidden h-full flex flex-col ${
+        isUpcoming ? 'border-2 border-purple-300' : ''
+      }`}
+      data-cy="eventlist-upcoming-card"
+    >
+      {/* Event Card - Details */}
+      <div className="p-6 flex flex-col flex-1">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div>
+              <h3 className="font-bold text-lg" data-cy="eventlist-upcoming-card name">{event.name}</h3>
+              <span className={`px-2 py-1 rounded text-xs ${getStatusColor(event.status)}`} data-cy="eventlist-upcoming-card status">
+                {event.status}
+              </span>
             </div>
           </div>
-          
-          <div className="space-y-2 text-sm text-gray-600 mb-4">
-            <div className="flex items-center gap-2" data-cy="eventlist-upcoming-card date">
-              <span>📅</span>
-              <span>{formatDate(event.date)}</span>
-            </div>
-            <div className="flex items-center gap-2" data-cy="eventlist-upcoming-card budget">
-              <span>💰</span>
-              <span>${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}</span>
-            </div>
-            <div className="flex items-center gap-2" data-cy="eventlist-upcoming-card location">
-              <span>{getLocationIcon(event.locationType)}</span>
-              <span className="truncate">{event.locationType}</span>
-            </div>
-          </div>
-
-          {event.description && (
-            <p className="text-sm text-gray-500 mb-4 line-clamp-2" data-cy="eventlist-upcoming-card description">{event.description}</p>
-          )}
-          
-          <div className="flex-grow"></div>
-
-          {/* Event Card - Cancellation Request */}
-          {event.cancellationRequest && (
-            <div className="bg-orange-50 border border-orange-200 rounded p-2 mb-4">
-              <p className="text-xs text-orange-800 font-semibold">
-                ⏳ Cancellation request pending review
-              </p>
-            </div>
-          )}
-
-          {/* Event Card - Action Buttons */}
-          {isReadOnly ? (
-            <button
-              onClick={() => navigate(`/user/events/${event.id}`)}
-              className="w-full py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded transition text-sm"
-              data-cy="view-event-btn"
-            >
-              View Detail
-            </button>
-          ) : (
-            <div className="flex gap-2">
-              <button
-                onClick={() => navigate(`/user/events/${event.id}/edit`)}
-                className="flex-1 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded transition text-sm disabled:bg-gray-100 disabled:text-gray-700 disabled:cursor-not-allowed"
-                disabled={event.cancellationRequest}
-                data-cy="edit-event-btn"
-              >
-                Edit Detail
-              </button>
-              {!event.cancellationRequest && (
-                <button
-                  onClick={() => {
-                    setCancelModalEvent(event);
-                    setCancelReason('');
-                    setCancelError('');
-                  }}
-                  className="px-4 py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded transition text-sm"
-                  data-cy="cancel-request-btn"
-                >
-                  Cancel Event
-                </button>
-              )}
-            </div>
-          )}
         </div>
+        
+        <div className="space-y-2 text-sm text-gray-600 mb-4">
+          <div className="flex items-center gap-2" data-cy="eventlist-upcoming-card date">
+            <span>📅</span>
+            <span>{formatDate(event.date)}</span>
+          </div>
+          <div className="flex items-center gap-2" data-cy="eventlist-upcoming-card budget">
+            <span>💰</span>
+            <span>${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}</span>
+          </div>
+          <div className="flex items-center gap-2" data-cy="eventlist-upcoming-card location">
+            <span>{getLocationIcon(event.locationType)}</span>
+            <span className="truncate">{event.locationType}</span>
+          </div>
+        </div>
+
+        {event.description && (
+          <p className="text-sm text-gray-500 mb-4 line-clamp-2" data-cy="eventlist-upcoming-card description">{event.description}</p>
+        )}
+        
+        <div className="flex-grow"></div>
+
+        {/* Event Card - Cancellation Request */}
+        {event.cancellationRequest && (
+          <div className="bg-orange-50 border border-orange-200 rounded p-2 mb-4">
+            <p className="text-xs text-orange-800 font-semibold">
+              ⏳ Cancellation request pending review
+            </p>
+          </div>
+        )}
+
+        {/* Event Card - Action Buttons */}
+        {isReadOnly || event.cancellationRequest ? (
+          <button
+            onClick={() => navigate(`/user/events/${event.id}`)}
+            className="w-full py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded transition text-sm"
+            data-cy="view-event-btn"
+          >
+            View Detail
+          </button>
+        ) : (
+          <div className="flex gap-2">
+            <button
+              onClick={() => navigate(`/user/events/${event.id}/edit`)}
+              className="flex-1 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded transition text-sm"
+              data-cy="edit-event-btn"
+            >
+              Edit Detail
+            </button>
+            <button
+              onClick={() => {
+                setCancelModalEvent(event);
+                setCancelReason('');
+                setCancelError('');
+              }}
+              className="px-4 py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded transition text-sm"
+              data-cy="cancel-request-btn"
+            >
+              Cancel Event
+            </button>
+          </div>
+        )}
       </div>
+    </div>
     );
   };
 
@@ -391,7 +388,7 @@ const EventsList = () => {
 
                       {/* Action Buttons - Separated section */}
                       <div className="col-span-6 sm:col-span-4 md:col-span-3 lg:col-span-2 flex justify-end gap-2">
-                        {isReadOnly ? (
+                        {isReadOnly || event.cancellationRequest ? (
                           <button
                             onClick={() => navigate(`/user/events/${event.id}`)}
                             className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-medium transition whitespace-nowrap"
@@ -403,25 +400,22 @@ const EventsList = () => {
                           <>
                             <button
                               onClick={() => navigate(`/user/events/${event.id}/edit`)}
-                              className="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-sm font-medium transition disabled:bg-gray-100 disabled:text-gray-700 disabled:cursor-not-allowed whitespace-nowrap"
-                              disabled={event.cancellationRequest}
+                              className="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-sm font-medium transition whitespace-nowrap"
                               data-cy="eventlist-list-entry user-action-btn"
                             >
                               Edit
                             </button>
-                            {!event.cancellationRequest && (
-                              <button
-                                onClick={() => {
-                                  setCancelModalEvent(event);
-                                  setCancelReason('');
-                                  setCancelError('');
-                                }}
-                                className="px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded text-sm font-medium transition whitespace-nowrap"
-                                data-cy="eventlist-list-entry user-action-btn"
-                              >
-                                Cancel
-                              </button>
-                            )}
+                            <button
+                              onClick={() => {
+                                setCancelModalEvent(event);
+                                setCancelReason('');
+                                setCancelError('');
+                              }}
+                              className="px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded text-sm font-medium transition whitespace-nowrap"
+                              data-cy="eventlist-list-entry user-action-btn"
+                            >
+                              Cancel
+                            </button>
                           </>
                         )}
                       </div>
