@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { formatDate } from '../../utils/dateHelpers';
-import { loadEventsFromStorage } from '../../utils/seedData';
+import { loadEventsFromStorage, saveEventsToStorage } from '../../utils/seedData';
 
-const EventDetail = () => {
+const EventView = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams();
   
   const [event, setEvent] = useState(null);
+  const [cancelReason, setCancelReason] = useState('');
+  const [cancelError, setCancelError] = useState('');
 
   useEffect(() => {
     const events = loadEventsFromStorage();
@@ -74,6 +76,31 @@ const EventDetail = () => {
   };
 
   const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
+  const canCancel = !isReadOnly && !event.cancellationRequest;
+
+  const handleCancelRequest = () => {
+    if (!cancelReason.trim()) {
+      setCancelError('Please provide a reason for cancellation');
+      return;
+    }
+
+    const allEvents = loadEventsFromStorage();
+    
+    const updated = allEvents.map(e => 
+      e.id === event.id 
+        ? { 
+            ...e, 
+            cancellationRequest: true, 
+            cancellationReason: cancelReason,
+            cancellationRequestDate: new Date().toISOString(),
+            userId: user.id
+          }
+        : e
+    );
+    
+    saveEventsToStorage(updated);
+    navigate('/events');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-8" data-cy="event-view">
@@ -85,29 +112,10 @@ const EventDetail = () => {
           className="mb-4 text-gray-700 hover:text-gray-900 font-semibold flex items-center gap-2"
           data-cy="event-view-to-eventlist-btn"
         >
-          <span className="text-lg">← ⇦</span>Back to Event Listing
+          <span className="text-lg">←</span>Back to Event Listing
         </button>
 
-        {/* Action Buttons - New review/delete */}
-            {/* <div className="flex gap-4 pt-4 border-t">
-              <button
-                onClick={() => navigate('/events')}
-                className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition font-semibold" data-cy="event-view-to-eventlist-btn"
-              >
-                ← Back to Events
-              </button>
-              {!isReadOnly && (
-                <button
-                  onClick={() => navigate(`/events/${event.id}/edit`)}
-                  className="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-semibold"
-                  data-cy="event-view-to-eventform-btn""
-                >
-                  Edit Event
-                </button>
-              )}
-            </div> */}
-
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden" data-cy="event-view-selected-entry">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-6" data-cy="event-view-selected-entry">
 
           {/* Header */}
           <div className="bg-gradient-to-r from-purple-600 to-pink-500 p-6 text-white">
@@ -218,9 +226,63 @@ const EventDetail = () => {
             )}
           </div>
         </div>
+
+        {/* Cancellation Request Section */}
+        {canCancel && (
+          <div className="bg-white rounded-lg shadow-lg p-8" data-cy="event-view-cancel-section">
+            <h2 className="text-3xl font-display mb-2">Request Cancellation</h2>
+            <p className="text-gray-600 mb-6 font-serif">
+              Submit a cancellation request for this event
+            </p>
+
+            <div className="space-y-6">
+              <div className="bg-gray-50 border rounded-lg p-6">
+                <div className="mb-4">
+                  <label className="block text-gray-700 mb-2 font-semibold">
+                    Reason for Cancellation <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    value={cancelReason}
+                    onChange={(e) => {
+                      setCancelReason(e.target.value);
+                      if (cancelError) setCancelError('');
+                    }}
+                    className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                      cancelError ? 'border-red-500' : ''
+                    }`}
+                    rows="4"
+                    placeholder="Please explain why you need to cancel this event... (required)"
+                    data-cy="cancel-reason-input"
+                  />
+                  {cancelError && (
+                    <p className="text-red-500 text-sm mt-1">{cancelError}</p>
+                  )}
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleCancelRequest}
+                    disabled={!cancelReason.trim()}
+                    className="flex-1 bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    data-cy="request-cancel-btn"
+                  >
+                    Submit Cancellation Request
+                  </button>
+                  <button
+                    onClick={() => navigate('/events')}
+                    className="px-6 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition"
+                    data-cy="cancel-cancel-btn"
+                  >
+                    Back to Events
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default EventDetail;
+export default EventView;
