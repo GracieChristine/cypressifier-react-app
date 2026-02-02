@@ -106,15 +106,6 @@ const EventView = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-8" data-cy="eventview">
       <div className="max-w-4xl mx-auto">
 
-        {/* Return to /user/eventlist */}
-        <button
-          onClick={() => navigate('/events')}
-          className="mb-4 text-gray-700 hover:text-gray-900 font-semibold flex items-center gap-2"
-          data-cy="eventview-to-eventlist-btn"
-        >
-          <span className="text-lg">←</span>Back to Event Listing
-        </button>
-
         <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-6" data-cy="eventview-detail">
 
           <div className="bg-gradient-to-r from-purple-600 to-pink-500 p-6 text-white">
@@ -223,22 +214,35 @@ const EventView = () => {
                 <p className="text-gray-700 bg-gray-50 p-4 rounded-lg">{event.description}</p>
               </div>
             )}
+
+            {/* Return to Event */}
+            {!canCancel && (
+              <div className="flex gap-3">
+                <button
+                  onClick={() => navigate('/events')}
+                  className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                  data-cy="return-eventlist-btn"
+                >
+                  Close and Return to Event List
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Cancellation Request Section */}
         {canCancel && (
           <div className="bg-white rounded-lg shadow-lg p-8" data-cy="cancel-event-section">
-            <h2 className="text-3xl font-display mb-2">Request Cancellation</h2>
-            <p className="text-gray-600 mb-6 font-serif">
+            <h2 className="text-3xl font-display mb-2">Submit Cancellation Request</h2>
+            {/* <p className="text-gray-600 mb-6 font-serif">
               Submit a cancellation request for this event
-            </p>
+            </p> */}
 
             <div className="space-y-6">
               <div className="bg-gray-50 border rounded-lg p-6">
                 <div className="mb-4">
                   <label className="block text-gray-700 mb-2 font-semibold">
-                    Reason for Cancellation <span className="text-red-500">*</span>
+                    Reason from Client <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     value={cancelReason}
@@ -250,8 +254,8 @@ const EventView = () => {
                       cancelError ? 'border-red-500' : ''
                     }`}
                     rows="4"
-                    placeholder="Please explain why you need to cancel this event... (required)"
-                    data-cy="cancel-event-note"
+                    placeholder="Add your reason to this event's cancellation request..."
+                    data-cy="cancel-event-comment-input"
                   />
                   {cancelError && (
                     <p className="text-red-500 text-sm mt-1">{cancelError}</p>
@@ -262,17 +266,17 @@ const EventView = () => {
                   <button
                     onClick={handleCancelRequest}
                     disabled={!cancelReason.trim()}
-                    className="flex-1 bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    className="flex-1 px-6 bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
                     data-cy="cancel-event-submit-btn"
                   >
-                    Submit Cancellation Request
+                    Submit Request
                   </button>
                   <button
                     onClick={() => navigate('/events')}
-                    className="px-6 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition"
+                    className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
                     data-cy="cancel-event-cancel-btn"
                   >
-                    Back to Events
+                    Cancel and Close
                   </button>
                 </div>
               </div>

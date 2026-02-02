@@ -10,14 +10,7 @@ const AdminEventView = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [markAsCompleted, setMarkAsCompleted] = useState(false);
   const [completionNotes, setCompletionNotes] = useState('');
-  const [acceptComment, setAcceptComment] = useState('');
-  const [showRejectModal, setShowRejectModal] = useState(false);
-  const [rejectReason, setRejectReason] = useState('');
-  
-  // Confirmation modals only
-  const [showApproveCancelModal, setShowApproveCancelModal] = useState(false);
-  const [showDenyCancelModal, setShowDenyCancelModal] = useState(false);
-  const [showCompletedModal, setShowCompletedModal] = useState(false);
+  const [adminComment, setAdminComment] = useState('');
 
   // Current logged-in admin (in production, this would come from auth context)
   const currentAdmin = 'Admin';
@@ -49,6 +42,10 @@ const AdminEventView = () => {
   const isCancellationRequest = selectedEvent.cancellationRequest && selectedEvent.status !== 'Cancelled';
   const isInProgress = selectedEvent.status === 'In Progress' && !selectedEvent.cancellationRequest;
   const isReadOnly = selectedEvent.status === 'Completed' || selectedEvent.status === 'Cancelled';
+  
+  // Additional checks for combined states
+  const isInReviewWithCancellation = selectedEvent.status === 'In Review' && selectedEvent.cancellationRequest;
+  const isInProgressWithCancellation = selectedEvent.status === 'In Progress' && selectedEvent.cancellationRequest;
 
   const updateEvent = (updatedEvent) => {
     const events = loadEventsFromStorage();
@@ -58,7 +55,7 @@ const AdminEventView = () => {
   };
 
   const handleAcceptSubmission = () => {
-    if (!acceptComment.trim()) {
+    if (!adminComment.trim()) {
       return;
     }
 
@@ -67,7 +64,7 @@ const AdminEventView = () => {
       timestamp: new Date().toISOString(),
       actor: currentAdmin,
       action: 'Event Accepted',
-      note: acceptComment
+      note: adminComment
     });
 
     const updatedEvent = {
@@ -83,12 +80,16 @@ const AdminEventView = () => {
   };
 
   const handleRejectSubmission = () => {
+    if (!adminComment.trim()) {
+      return;
+    }
+
     const activityLog = selectedEvent.activityLog || [];
     activityLog.push({
       timestamp: new Date().toISOString(),
       actor: currentAdmin,
       action: 'Event Rejected',
-      note: rejectReason
+      note: adminComment
     });
 
     const updatedEvent = {
@@ -100,12 +101,11 @@ const AdminEventView = () => {
     };
     
     updateEvent(updatedEvent);
-    setShowRejectModal(false);
     navigate('/admin/dashboard');
   };
 
-  const confirmApproveCancellation = () => {
-    if (!acceptComment.trim()) {
+  const handleApproveCancellation = () => {
+    if (!adminComment.trim()) {
       return;
     }
 
@@ -114,7 +114,7 @@ const AdminEventView = () => {
       timestamp: new Date().toISOString(),
       actor: currentAdmin,
       action: 'Cancellation Approved',
-      note: acceptComment
+      note: adminComment
     });
 
     const updatedEvent = {
@@ -128,12 +128,11 @@ const AdminEventView = () => {
     };
     
     updateEvent(updatedEvent);
-    setShowApproveCancelModal(false);
     navigate('/admin/dashboard');
   };
 
-  const confirmDenyCancellation = () => {
-    if (!acceptComment.trim()) {
+  const handleDenyCancellation = () => {
+    if (!adminComment.trim()) {
       return;
     }
 
@@ -142,7 +141,7 @@ const AdminEventView = () => {
       timestamp: new Date().toISOString(),
       actor: currentAdmin,
       action: 'Cancellation Denied',
-      note: acceptComment
+      note: adminComment
     });
 
     const updatedEvent = {
@@ -155,19 +154,18 @@ const AdminEventView = () => {
     };
     
     updateEvent(updatedEvent);
-    setShowDenyCancelModal(false);
     navigate('/admin/dashboard');
   };
 
   const handleSaveProgress = () => {
     if (markAsCompleted) {
-      setShowCompletedModal(true);
+      handleMarkCompleted();
     } else {
       navigate('/admin/dashboard');
     }
   };
 
-  const confirmMarkCompleted = () => {
+  const handleMarkCompleted = () => {
     const activityLog = selectedEvent.activityLog || [];
     activityLog.push({
       timestamp: new Date().toISOString(),
@@ -185,7 +183,6 @@ const AdminEventView = () => {
     };
     
     updateEvent(updatedEvent);
-    setShowCompletedModal(false);
     navigate('/admin/dashboard');
   };
 
@@ -206,22 +203,15 @@ const AdminEventView = () => {
     <div className="min-h-screen bg-gradient-to-br from-elegant-50 to-royal-50/30 py-6 px-8" data-cy="eventview">
       <div className="max-w-4xl mx-auto">
 
-        {/* Return to Dashboard */}
-        <button
-          onClick={() => navigate('/admin/dashboard')}
-          className="mb-4 text-royal-700 hover:text-royal-900 font-semibold flex items-center gap-2"
-          data-cy="eventview-dashboard-btn"
-        >
-          Back to Dashboard
-        </button>
-
         {/* Event View Details */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="eventview-details">
           <h2 className="text-3xl font-display mb-2">{selectedEvent.name}</h2>
           <p className="text-gray-600 mb-6 font-serif">
             {isNewSubmission && 'New Event Submission - Review Required'}
-            {isCancellationRequest && 'Cancellation Request - Review Required'}
+            {isInReviewWithCancellation && 'New Event Submission with Cancellation Request - Review Required'}
+            {isCancellationRequest && !isInReviewWithCancellation && 'Cancellation Request - Review Required'}
             {isInProgress && 'Event In Progress - Admin Management'}
+            {isInProgressWithCancellation && 'Event In Progress with Cancellation Request - Review Required'}
             {isReadOnly && `Event ${selectedEvent.status}`}
           </p>
 
@@ -292,189 +282,236 @@ const AdminEventView = () => {
                 </div>
               )}
             </div>
+
+            {/* Return to Dashboard */}
+            {isReadOnly && (
+              <div className="flex gap-3">
+                <button
+                  onClick={() => navigate('/events')}
+                  className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                  data-cy="return-dashboard-btn"
+                >
+                  Close and Return to Dashboard
+                </button>
+              </div>
+            )}
+
           </div>
         </div>
 
         {/* Event View Select Entry Action */}
         {!isReadOnly && (
-          <div className="bg-white rounded-lg shadow-lg p-8" data-cy="event-view-action">
+          <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="eventview-action">
             <h2 className="text-3xl font-display mb-2">Admin Actions</h2>
             <p className="text-gray-600 mb-6 font-serif">
-              {isNewSubmission && 'Review and respond to new event submission'}
-              {isCancellationRequest && 'Review and respond to cancellation request'}
-              {isInProgress && 'Manage event and update status'}
+              {(isNewSubmission || isInReviewWithCancellation) && 'Review and respond to new event submission'}
+              {isCancellationRequest && !isInReviewWithCancellation && !isInProgressWithCancellation && 'Review and respond to cancellation request'}
+              {(isInProgress || isInProgressWithCancellation) && 'Manage event and update status'}
             </p>
 
             <div className="space-y-6">
-              <div className="bg-gray-50 border rounded-lg p-6">
-                
-                {/* New Event - Accept/Decline */}
-                {isNewSubmission && (
-                  <div data-cy="event-view-action-review-new">
+              
+              {/* New Event Request Review */}
+              {(isNewSubmission || isInReviewWithCancellation) && (
+                <div className="bg-gray-50 border rounded-lg p-6">
+                  <div data-cy="eventview-action-review-new">
                     <p className="text-lg font-semibold mb-4">Review New Event Submission</p>
                     
                     <div className="mb-4">
-                      <label className="block text-gray-700 mb-2 font-semibold">
-                        Comment for Client <span className="text-red-500">*</span>
+                      <label className="block text-sm text-gray-700  font-semibold mb-2">
+                        Response to Client <span className="text-red-500">*</span>
                       </label>
                       <textarea
-                        value={acceptComment}
-                        onChange={(e) => setAcceptComment(e.target.value)}
+                        value={adminComment}
+                        onChange={(e) => setAdminComment(e.target.value)}
                         required
                         className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-royal-500"
                         rows="4"
-                        placeholder="Add your comments or questions for the client... (required)"
+                        placeholder="Add your response to the decision..."
                         data-cy="review-new-comment-input"
                       />
                     </div>
 
                     <div className="flex gap-3">
-                      <button
-                        onClick={handleAcceptSubmission}
-                        disabled={!acceptComment.trim()}
-                        className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
-                        data-cy="accept-new-event-btn"
-                      >
-                        Accept Request
-                      </button>
-                      <button
-                        onClick={() => setShowRejectModal(true)}
-                        className="flex-1 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition font-semibold"
-                        data-cy="decline-new-event-btn"
-                      >
-                        Decline Request
-                      </button>
-                    </div>
-                  </div>
-                )}
 
-                {/* Existing Event - Cancellation Request - Approve/Deny */}
-                {isCancellationRequest && (
-                  <div data-cy="event-view-action-review-cancel">
+                      {!adminComment.trim() ? (
+                        <button
+                          onClick={() => navigate('/events')}
+                          className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                          data-cy="return-dashboard-btn"
+                        >
+                          Close and Return to Dashboard
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            onClick={handleAcceptSubmission}
+                            disabled={!adminComment.trim()}
+                            className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                            data-cy="accept-new-event-btn"
+                          >
+                            Accept Request
+                          </button>
+                          <button
+                            onClick={handleRejectSubmission}
+                            disabled={!adminComment.trim()}
+                            className="flex-1 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                            data-cy="decline-new-event-btn"
+                          >
+                            Decline Request
+                          </button>
+                        </>
+                      )}
+                      
+                    </div>
+
+                  </div>
+                </div>
+              )}
+
+              {/* WIP - Existing Event - Planning Features (shown for In Progress, even with cancellation) */}
+              {(isInProgress || isInProgressWithCancellation) && (
+                <div className="bg-gray-50 border rounded-lg p-6">
+                  <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-6" data-cy="eventview-action-plan">
+                    <div className="text-4xl mb-3 text-center">📋</div>
+                    <h3 className="text-lg font-semibold mb-2 text-center">Planning Features</h3>
+                    <p className="text-gray-600 text-center text-sm">
+                      To-do lists, vendor management, and detailed planning tools will be added here.
+                    </p>
+                  </div>
+
+                  {/* Existing Event Markt As Complete */}
+                  <div className="border-t pt-6" data-cy="eventview-action-complete">
+                    <div className="flex items-start gap-3 mb-4">
+                      <input
+                        type="checkbox"
+                        id="mark-completed"
+                        checked={markAsCompleted}
+                        onChange={(e) => setMarkAsCompleted(e.target.checked)}
+                        className="mt-3 w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500"
+                        data-cy="complete-event-checkbox"
+                      />
+                      <label htmlFor="mark-completed" className="cursor-pointer">
+                        <div className="font-semibold text-gray-800">All Task Completed</div>
+                        <div className="text-sm text-gray-600">
+                          Check this box whne all tasks have been successfully completed
+                        </div>
+                      </label>
+                    </div>
+
+                    {markAsCompleted && (
+                      <div className="mb-4">
+                        <label className="block text-sm text-gray-700 mb-2 font-semibold">
+                          Comment to Client <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                          value={completionNotes}
+                          onChange={(e) => setCompletionNotes(e.target.value)}
+                          required
+                          className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                          rows="3"
+                          placeholder="Add any final notes about how the event went..."
+                          data-cy="complete-event-note-input"
+                        />
+                      </div>
+                    )}
+
+                    {markAsCompleted && (
+                      <div className="flex gap-3">
+                        <button
+                          onClick={handleSaveProgress}
+                          disabled={markAsCompleted && !completionNotes.trim()}
+                          className={`flex-1 px-6 text-white py-3 rounded-lg transition font-semibold ${
+                            markAsCompleted 
+                              ? 'bg-green-600 hover:bg-green-700' 
+                              : 'bg-royal-600 hover:bg-royal-700'
+                          } disabled:bg-gray-400 disabled:cursor-not-allowed`}
+                          data-cy="save-event-update-btn"
+                        >
+                          {markAsCompleted ? 'Event is Completed' : 'Return to Dashboard'}
+                        </button>
+                        <button
+                          onClick={() => navigate('/admin/dashboard')}
+                          disabled={markAsCompleted && !completionNotes.trim()}
+                          className="flex-1 px-6 bg-gray-300 text-white py-3 rounded-lg hover:bg-gray-400 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                          data-cy="cancel-event-update-btn"
+                        >
+                          Cancel
+                        </button>
+                        {}
+                      </div>
+                    )}
+
+                    {!markAsCompleted && (
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => navigate('/events')}
+                          className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                          data-cy="return-dashboard-btn"
+                        >
+                          Close and Return to Dashboard
+                        </button>
+                      </div>
+                    )}
+
+                  </div>
+                </div>
+              )}
+
+              {/* Event Cancellation Request Review */}
+              {(isCancellationRequest || isInReviewWithCancellation || isInProgressWithCancellation) && (
+                <div className="bg-gray-50 border rounded-lg p-6">
+                  <div data-cy="eventview-action-review-cancel">
                     <p className="text-lg font-semibold mb-4">Review Cancellation Request</p>
                     
                     {selectedEvent.cancellationReason && (
                       <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
-                        <p className="text-sm font-semibold text-gray-700 mb-1">Client's Cancellation Reason:</p>
+                        <p className="text-sm font-semibold text-gray-700 mb-1">Client's Reason:</p>
                         <p className="text-sm text-gray-800">{selectedEvent.cancellationReason}</p>
                       </div>
                     )}
 
                     <div className="mb-4">
-                      <label className="block text-gray-700 mb-2 font-semibold">
+                      <label className="block text-gray-700 text-sm font-semibold mb-2">
                         Response to Client <span className="text-red-500">*</span>
                       </label>
                       <textarea
-                        value={acceptComment}
-                        onChange={(e) => setAcceptComment(e.target.value)}
+                        value={adminComment}
+                        onChange={(e) => setAdminComment(e.target.value)}
                         required
                         className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-royal-500"
                         rows="4"
-                        placeholder="Add your response to the client's cancellation request... (required)"
+                        placeholder="Add your response to the client's cancellation request..."
                         data-cy="review-cancel-comment-input"
                       />
                     </div>
 
                     <div className="flex gap-3">
                       <button
-                        onClick={() => setShowApproveCancelModal(true)}
-                        disabled={!acceptComment.trim()}
+                        onClick={handleApproveCancellation}
+                        disabled={!adminComment.trim()}
                         className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
                         data-cy="accept-cancel-event-btn"
                       >
-                        Approve Cancellation
+                        Accept Request
                       </button>
                       <button
-                        onClick={() => setShowDenyCancelModal(true)}
-                        disabled={!acceptComment.trim()}
+                        onClick={handleDenyCancellation}
+                        disabled={!adminComment.trim()}
                         className="flex-1 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
                         data-cy="decline-cancel-event-btn"
                       >
-                        Deny Cancellation
+                        Decline Request
                       </button>
                     </div>
                   </div>
-                )}
-
-                {/* WIP - Existing Event - Planning Features */}
-                {isInProgress && (
-                  <>
-                    <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-6" data-cy="event-view-action-plan">
-                      <div className="text-4xl mb-3 text-center">📋</div>
-                      <h3 className="text-lg font-semibold mb-2 text-center">Planning Features</h3>
-                      <p className="text-gray-600 text-center text-sm">
-                        To-do lists, vendor management, and detailed planning tools will be added here.
-                      </p>
-                    </div>
-                  </>
-                )}
-
-                {/* Existing Event - Complete */}
-                {isInProgress && (
-                  <>
-                    <div className="border-t pt-6" data-cy="event-view-action-complete">
-                      <div className="flex items-start gap-3 mb-4">
-                        <input
-                          type="checkbox"
-                          id="mark-completed"
-                          checked={markAsCompleted}
-                          onChange={(e) => setMarkAsCompleted(e.target.checked)}
-                          className="mt-1 w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500"
-                          data-cy="complete-event-checkbox"
-                        />
-                        <label htmlFor="mark-completed" className="cursor-pointer">
-                          <div className="font-semibold text-gray-800">Mark this event as Completed</div>
-                          <div className="text-sm text-gray-600">
-                            Check this box when the event has been successfully completed
-                          </div>
-                        </label>
-                      </div>
-
-                      {markAsCompleted && (
-                        <div className="mb-4">
-                          <label className="block text-gray-700 mb-2 font-semibold">
-                            Completion Notes (Optional)
-                          </label>
-                          <textarea
-                            value={completionNotes}
-                            onChange={(e) => setCompletionNotes(e.target.value)}
-                            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
-                            rows="3"
-                            placeholder="Add any final notes about how the event went..."
-                            data-cy="complete-event-note-input"
-                          />
-                        </div>
-                      )}
-
-                      <div className="flex gap-3">
-                        <button
-                          onClick={handleSaveProgress}
-                          className={`flex-1 text-white py-3 rounded-lg transition font-semibold ${
-                            markAsCompleted 
-                              ? 'bg-green-600 hover:bg-green-700' 
-                              : 'bg-royal-600 hover:bg-royal-700'
-                          }`}
-                          data-cy="save-event-update-btn"
-                        >
-                          {markAsCompleted ? 'Mark as Complete' : 'Return to Dashboard'}
-                        </button>
-                        <button
-                          onClick={() => navigate('/admin/dashboard')}
-                          className="px-6 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition"
-                          data-cy="cancel-event-update-btn"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {/* Eview View Activity Log - Always Visible */}
+        {/* Event View Activity Log - Always Visible */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="eventview-log">
           <h2 className="text-3xl font-display mb-2">Activity Log</h2>
           <p className="text-gray-600 mb-6 font-serif">
@@ -518,119 +555,6 @@ const AdminEventView = () => {
           </div>
         </div>
       </div>
-
-      {/* Modal - Decline New Event Request */}
-      {showRejectModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-cy="decline-new-event-modal">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold mb-4">Decline Event Request</h3>
-            <div className="flex gap-3">
-              <button
-                onClick={handleRejectSubmission}
-                // disabled={!rejectReason.trim()}
-                className="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
-                data-cy="decline-new-event-confirm-btn"
-              >
-                Confirm Decline
-              </button>
-              <button
-                onClick={() => {
-                  setShowRejectModal(false);
-                  setRejectReason('');
-                }}
-                className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
-                data-cy="decline-new-event-cancel-btn"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal - Accept Cancellation Confirmation */}
-      {showApproveCancelModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-cy="accept-cancel-event-modal">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold mb-4">Approve Cancellation?</h3>
-            <p className="text-gray-700 mb-6">
-              Are you sure you want to approve this cancellation request? The event status will be changed to <strong>Cancelled</strong>.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={confirmApproveCancellation}
-                className="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700 transition"
-                data-cy="accept-cancel-event-confirm-btn"
-              >
-                Accept Cancellation
-              </button>
-              <button
-                onClick={() => setShowApproveCancelModal(false)}
-                className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
-                data-cy="accept-cancel-event-cancel-btn"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal - Decline Cancellation Confirmation */}
-      {showDenyCancelModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-cy="decline-cancel-event-modal">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold mb-4">Decline Cancellation Request?</h3>
-            <p className="text-gray-700 mb-6">
-              Are you sure you want to deny this cancellation request? The event will remain <strong>{selectedEvent.status}</strong>.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={confirmDenyCancellation}
-                className="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
-                data-cy="decline-cancel-event-confirm-btn"
-              >
-                Confirm Denial
-              </button>
-              <button
-                onClick={() => setShowDenyCancelModal(false)}
-                className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
-                data-cy="decline-cancel-eventcancel-btn"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal - Mark Event as Completed Confirmation */}
-      {showCompletedModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-cy="complete-exist-event-modal">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold mb-4">Mark Event as Completed?</h3>
-            <p className="text-gray-700 mb-6">
-              Are you sure you want to mark this event as <strong>Completed</strong>? This action confirms the event has been successfully finished.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={confirmMarkCompleted}
-                className="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
-                data-cy="complete-exist-event-confirm-btn"
-              >
-                Confirm Completion
-              </button>
-              <button
-                onClick={() => setShowCompletedModal(false)}
-                className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
-                data-cy="complete-exist-event-cancel-btn"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
