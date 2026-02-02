@@ -18,11 +18,11 @@ const Navbar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="bg-white shadow-md">
+    <nav className="bg-white shadow-md" data-cy="nav">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <h1 className="text-xl font-bold text-purple-600" data-cy="nav-brand-name">
+            <h1 className="text-xl font-bold text-purple-600 " data-cy="nav-brand-name">
               Cypressifier
             </h1>
           </div>
@@ -36,7 +36,7 @@ const Navbar = () => {
                       ? 'bg-purple-100 text-purple-700'
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
-                  data-cy="nav-user-role"
+                  data-cy="nav-role"
                 >
                   Just a User
                 </p>
@@ -50,7 +50,7 @@ const Navbar = () => {
                     ? 'bg-purple-100 text-purple-700'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
-                data-cy="nav-admin-role"
+                data-cy="nav-role"
               >
                 Just an Admin
               </p>
@@ -58,12 +58,12 @@ const Navbar = () => {
             
             {user && (
               <div className="flex items-center space-x-3">
-                <p className="text-sm text-gray-600" data-cy="nav-logged-in-email">
+                <p className="text-sm text-gray-600" data-cy="nav-login-email">
                   {user.email}
                 </p>
                 <button
                   onClick={handleLogout}
-                  className="bg-red-500 text-white px-4 py-2 rounded-md text-sm hover:bg-red-600" data-cy="logout-btn"
+                  className="bg-red-500 text-white px-4 py-2 rounded-md text-sm hover:bg-red-600" data-cy="nav-logout-btn"
                 >
                   Logout
                 </button>

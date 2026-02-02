@@ -102,6 +102,8 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-elegant-50 to-royal-50/30 py-6 px-8" data-cy="dashboard">
       <div className="max-w-full px-4">
+
+        {/* Header */}
         <div className="mb-8" data-cy="dashboard-header">
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-4xl font-display text-royal-900">Admin Dashboard</h1>
@@ -111,6 +113,7 @@ const AdminDashboard = () => {
 
          {/* Event Alertss */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6" data-cy="dashboard-alerts">
+
           {/* New Event Submission Requests Alert */}
           {statusCounts.submissionRequests > 0 && (
             <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6 rounded" data-cy="dashboard-alert-box">
@@ -187,31 +190,31 @@ const AdminDashboard = () => {
                   events.map(event => (
                     <tr key={event.id} className="hover:bg-gray-50 transition" data-cy="dashboard-table-entry">
                       <td className="px-6 py-4">
-                        <div className="font-semibold text-gray-900" data-cy="dashboard-table-entry name">{event.name}</div>
+                        <div className="font-semibold text-gray-900">{event.name}</div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-700" data-cy="dashboard-table-entry userid">
+                        <div className="text-sm text-gray-700">
                           {event.userId ? `User #${event.userId.toString().slice(-4)}` : 'Unknown'}
                         </div>
-                        <div className="text-xs text-gray-500" data-cy="dashboard-table-entry email">{event.userEmail || 'No email'}</div>
+                        <div className="text-xs text-gray-500">{event.userEmail || 'No email'}</div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-700" data-cy="dashboard-table-entry date">
+                        <div className="text-sm text-gray-700">
                           {formatDateShort(event.date)}
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col gap-2">
-                          <span className={`px-3 py-1 rounded text-xs font-semibold inline-block ${getStatusColor(event.status)}`} data-cy="dashboard-table-entry status">
+                          <span className={`px-3 py-1 rounded text-xs font-semibold inline-block ${getStatusColor(event.status)}`}>
                             {event.status}
                           </span>
                           {event.cancellationRequest && (
-                            <span className="px-3 py-1 rounded text-xs font-semibold bg-orange-100 text-orange-700 inline-block" data-cy="dashboard-table-entry cancel-request">
+                            <span className="px-3 py-1 rounded text-xs font-semibold bg-orange-100 text-orange-700 inline-block">
                               🚨 Cancel Request
                             </span>
                           )}
                           {event.autoCancelled && (
-                            <span className="px-2 py-1 rounded text-xs bg-gray-100 text-gray-600 inline-block" data-cy="dashboard-table-entry auto-cancel">
+                            <span className="px-2 py-1 rounded text-xs bg-gray-100 text-gray-600 inline-block">
                               Auto-cancelled
                             </span>
                           )}
@@ -227,7 +230,7 @@ const AdminDashboard = () => {
                                 ? 'bg-blue-500 hover:bg-blue-600'
                                 : 'bg-royal-600 hover:bg-royal-700'
                             }`}
-                            data-cy="ashboard-table-entry admin-action-btn"
+                            data-cy="Dashboard-table-entry-action"
                           >
                             {event.status === 'In Progress' && !event.cancellationRequest ? 'Edit' : 'View'}
                           </button>

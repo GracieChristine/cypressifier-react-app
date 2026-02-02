@@ -203,20 +203,20 @@ const AdminEventView = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-elegant-50 to-royal-50/30 py-6 px-8" data-cy="event-view">
+    <div className="min-h-screen bg-gradient-to-br from-elegant-50 to-royal-50/30 py-6 px-8" data-cy="eventview">
       <div className="max-w-4xl mx-auto">
 
         {/* Return to Dashboard */}
         <button
           onClick={() => navigate('/admin/dashboard')}
           className="mb-4 text-royal-700 hover:text-royal-900 font-semibold flex items-center gap-2"
-          data-cy="event-view-to-dashboard-btn"
+          data-cy="eventview-dashboard-btn"
         >
           Back to Dashboard
         </button>
 
-        {/* Event View Select Entry */}
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="event-view-selected-entry">
+        {/* Event View Details */}
+        <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="eventview-details">
           <h2 className="text-3xl font-display mb-2">{selectedEvent.name}</h2>
           <p className="text-gray-600 mb-6 font-serif">
             {isNewSubmission && 'New Event Submission - Review Required'}
@@ -226,19 +226,20 @@ const AdminEventView = () => {
           </p>
 
           <div className="space-y-6">
+
             {/* Client Info - Read Only */}
-            <div className="bg-gray-50 border rounded-lg p-6" data-cy="event-view-client-info">
+            <div className="bg-gray-50 border rounded-lg p-6">
               <h3 className="text-lg font-semibold mb-4">Client Information</h3>
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div data-cy="client-info-name">
+                <div>
                   <span className="text-gray-600">User Name:</span>
                   <span className="ml-2 font-semibold">{selectedEvent.userEmail?.split('@')[0].toUpperCase() || 'Not available'}</span>
                 </div>
-                <div data-cy="client-info-id">
+                <div>
                   <span className="text-gray-600">Client ID:</span>
                   <span className="ml-2 font-semibold">#{selectedEvent.userId?.toString().slice(-4) || 'Unknown'}</span>
                 </div>
-                <div data-cy="client-info-email">
+                <div>
                   <span className="text-gray-600">Contact Email:</span>
                   <span className="ml-2 font-semibold">{selectedEvent.userEmail || 'Not available'}</span>
                 </div>
@@ -246,46 +247,46 @@ const AdminEventView = () => {
             </div>
 
             {/* Event Details - Read Only */}
-            <div className="bg-gray-50 border rounded-lg p-6" data-cy="event-view-event-info">
+            <div className="bg-gray-50 border rounded-lg p-6">
               <h3 className="text-lg font-semibold mb-4">Event Details</h3>
 
               <div className="grid grid-cols-2 gap-4 text-lg underline">
-                <div data-cy="event-info-name">
+                <div>
                   <h4 className="mt-2 mb-6 font-semibold">{selectedEvent.name}</h4>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div data-cy="event-info-date">
+                <div>
                   <span className="text-gray-600">Date:</span>
                   <span className="ml-2 font-semibold">{formatDateShort(selectedEvent.date)}</span>
                 </div>
-                <div data-cy="event-info-budget">
+                <div>
                   <span className="text-gray-600">Budget:</span>
                   <span className="ml-2 font-semibold">${parseInt(selectedEvent.budget || selectedEvent.setBudget || selectedEvent.budgetTotal || 0).toLocaleString()}</span>
                 </div>
 
-                <div data-cy="event-info-type">
+                <div>
                   <span className="text-gray-600">Type:</span>
                   <span className="ml-2 font-semibold">{selectedEvent.type}</span>
                 </div>
-                <div data-cy="event-info-venue">
+                <div>
                   <span className="text-gray-600">Venue Type:</span>
                   <span className="ml-2 font-semibold">{selectedEvent.locationType}</span>
                 </div>
 
-                <div data-cy="event-info-guests">
+                <div>
                   <span className="text-gray-600">Guests:</span>
                   <span className="ml-2 font-semibold">{selectedEvent.guestCount || 'Not specified'}</span>
                 </div>
-                <div data-cy="event-info-status">
+                <div>
                   <span className="text-gray-600">Status:</span>
                   <span className="ml-2 font-semibold">{selectedEvent.status}</span>
                 </div>
               </div>
 
               {selectedEvent.description && (
-                <div className="mt-4" data-cy="event-info-description">
+                <div className="mt-4">
                   <span className="text-gray-600">Description:</span>
                   <p className="mt-1 font-semibold text-gray-800">{selectedEvent.description}</p>
                 </div>
@@ -473,14 +474,14 @@ const AdminEventView = () => {
           </div>
         )}
 
-        {/* Activity Log - Always Visible */}
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="event-view-activity-log">
+        {/* Eview View Activity Log - Always Visible */}
+        <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="eventview-log">
           <h2 className="text-3xl font-display mb-2">Activity Log</h2>
           <p className="text-gray-600 mb-6 font-serif">
             Event history and communications
           </p>
 
-          <div className="space-y-4" data-cy="activity-log-container">
+          <div className="space-y-4">
             {(!selectedEvent.activityLog || selectedEvent.activityLog.length === 0) && (
               <div className="text-center py-8 text-gray-500">
                 <p>No activity recorded yet</p>
@@ -493,21 +494,21 @@ const AdminEventView = () => {
                 <div
                   key={index}
                   className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
-                  data-cy={`activity-log-item-${isCurrentUser ? 'right' : 'left'}`}
+                  data-cy={`eventview-log-${isCurrentUser ? 'right' : 'left'}`}
                 >
                   <div className={`max-w-md ${isCurrentUser ? 'bg-royal-100' : 'bg-gray-100'} rounded-lg p-4 shadow-sm`}>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-sm" data-cy="activity-log-actor">
+                      <span className="font-semibold text-sm">
                         {log.actor}
                       </span>
-                      <span className="text-xs text-gray-500" data-cy="activity-log-timestamp">
+                      <span className="text-xs text-gray-500">
                         {formatTimestamp(log.timestamp)}
                       </span>
                     </div>
-                    <div className={`text-xs font-semibold mb-2 ${isCurrentUser ? 'text-royal-700' : 'text-gray-700'}`} data-cy="activity-log-action">
+                    <div className={`text-xs font-semibold mb-2 ${isCurrentUser ? 'text-royal-700' : 'text-gray-700'}`}>
                       {log.action}
                     </div>
-                    <div className="text-sm text-gray-800" data-cy="activity-log-note">
+                    <div className="text-sm text-gray-800">
                       {log.note}
                     </div>
                   </div>
@@ -528,7 +529,7 @@ const AdminEventView = () => {
                 onClick={handleRejectSubmission}
                 // disabled={!rejectReason.trim()}
                 className="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
-                data-cy="decline-new-event-modal confirm-btn"
+                data-cy="decline-new-event-confirm-btn"
               >
                 Confirm Decline
               </button>
@@ -538,7 +539,7 @@ const AdminEventView = () => {
                   setRejectReason('');
                 }}
                 className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
-                data-cy="decline-new-event-modal cancel-btn"
+                data-cy="decline-new-event-cancel-btn"
               >
                 Cancel
               </button>
@@ -559,14 +560,14 @@ const AdminEventView = () => {
               <button
                 onClick={confirmApproveCancellation}
                 className="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700 transition"
-                data-cy="accept-cancel-event-modal confirm-btn"
+                data-cy="accept-cancel-event-confirm-btn"
               >
                 Accept Cancellation
               </button>
               <button
                 onClick={() => setShowApproveCancelModal(false)}
                 className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
-                data-cy="accept-cancel-event-modal cancel-btn"
+                data-cy="accept-cancel-event-cancel-btn"
               >
                 Cancel
               </button>
@@ -587,14 +588,14 @@ const AdminEventView = () => {
               <button
                 onClick={confirmDenyCancellation}
                 className="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
-                data-cy="decline-cancel-event-modal confirm-btn"
+                data-cy="decline-cancel-event-confirm-btn"
               >
                 Confirm Denial
               </button>
               <button
                 onClick={() => setShowDenyCancelModal(false)}
                 className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
-                data-cy="decline-cancel-event-modal cancel-btn"
+                data-cy="decline-cancel-eventcancel-btn"
               >
                 Cancel
               </button>
@@ -605,7 +606,7 @@ const AdminEventView = () => {
 
       {/* Modal - Mark Event as Completed Confirmation */}
       {showCompletedModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-cy="complete-event-modal">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-cy="complete-exist-event-modal">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-xl font-bold mb-4">Mark Event as Completed?</h3>
             <p className="text-gray-700 mb-6">
@@ -615,14 +616,14 @@ const AdminEventView = () => {
               <button
                 onClick={confirmMarkCompleted}
                 className="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
-                data-cy="complete-event-modal confirm-btn"
+                data-cy="complete-exist-event-confirm-btn"
               >
                 Confirm Completion
               </button>
               <button
                 onClick={() => setShowCompletedModal(false)}
                 className="flex-1 bg-gray-300 text-gray-700 py-2 rounded hover:bg-gray-400 transition"
-                data-cy="complete-event-modal cancel-btn"
+                data-cy="complete-exist-event-cancel-btn"
               >
                 Cancel
               </button>

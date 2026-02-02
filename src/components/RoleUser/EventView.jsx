@@ -103,32 +103,31 @@ const EventView = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-8" data-cy="event-view">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-8" data-cy="eventview">
       <div className="max-w-4xl mx-auto">
 
         {/* Return to /user/eventlist */}
         <button
           onClick={() => navigate('/events')}
           className="mb-4 text-gray-700 hover:text-gray-900 font-semibold flex items-center gap-2"
-          data-cy="event-view-to-eventlist-btn"
+          data-cy="eventview-to-eventlist-btn"
         >
           <span className="text-lg">←</span>Back to Event Listing
         </button>
 
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-6" data-cy="event-view-selected-entry">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-6" data-cy="eventview-detail">
 
-          {/* Header */}
           <div className="bg-gradient-to-r from-purple-600 to-pink-500 p-6 text-white">
             <div className="flex justify-between items-start ">
               <div className="flex items-center gap-3">
                 <div>
-                  <h1 className="text-3xl font-bold" data-cy="event-view-selected-entry name">{event.name}</h1>
-                  <p className="text-xl text-purple-100 mt-4" data-cy="event-view-selected-entry type">{event.type}</p>
+                  <h1 className="text-3xl font-bold">{event.name}</h1>
+                  <p className="text-xl text-purple-100 mt-4">{event.type}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <div>
-                  <span className={`px-4 py-10 rounded-lg text-sm font-semibold ${getStatusColor(event.status)} bg-opacity-90`} data-cy="event-view-selected-entry status">
+                  <span className={`px-4 py-10 rounded-lg text-sm font-semibold ${getStatusColor(event.status)} bg-opacity-90`}>
                     {event.status}
                   </span>
                 </div>
@@ -161,9 +160,9 @@ const EventView = () => {
               <div className="space-y-4">
                 <div>
                   <label className="block text-gray-500 text-sm font-semibold mb-1">Date</label>
-                  <div className="flex items-center gap-2 text-lg" data-cy="event-view-selected-entry date">
+                  <div className="flex items-center gap-2 text-lg">
                     <span>📅</span>
-                    <span className="font-semibold" data-cy="event-detail-date">{formatDate(event.date)}</span>
+                    <span className="font-semibold">{formatDate(event.date)}</span>
                   </div>
                 </div>
 
@@ -171,7 +170,7 @@ const EventView = () => {
                   <label className="block text-gray-500 text-sm font-semibold mb-1">Location Type</label>
                   <div className="flex items-center gap-2 text-lg">
                     <span>{getLocationIcon(event.locationType)}</span>
-                    <span className="font-semibold" data-cy="event-view-selected-entry location">{event.locationType}</span>
+                    <span className="font-semibold">{event.locationType}</span>
                   </div>
                 </div>
 
@@ -179,7 +178,7 @@ const EventView = () => {
                   <label className="block text-gray-500 text-sm font-semibold mb-1">Guest Count</label>
                   <div className="flex items-center gap-2 text-lg">
                     <span>👥</span>
-                    <span className="font-semibold" data-cy="event-view-selected-entry guest">{event.guestCount} guests</span>
+                    <span className="font-semibold">{event.guestCount} guests</span>
                   </div>
                 </div>
               </div>
@@ -189,7 +188,7 @@ const EventView = () => {
                   <label className="block text-gray-500 text-sm font-semibold mb-1">Total Budget</label>
                   <div className="flex items-center gap-2 text-lg">
                     <span>💰</span>
-                    <span className="font-semibold text-blue-600" data-cy="event-view-selected-entry budget-total">
+                    <span className="font-semibold text-blue-600">
                       ${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}
                     </span>
                   </div>
@@ -199,7 +198,7 @@ const EventView = () => {
                   <label className="block text-gray-500 text-sm font-semibold mb-1">Budget Spent</label>
                   <div className="flex items-center gap-2 text-lg">
                     <span>💸</span>
-                    <span className="font-semibold text-orange-600" data-cy="event-view-selected-entry budget-spent">
+                    <span className="font-semibold text-orange-600">
                       ${parseInt(event.budgetSpent || 0).toLocaleString()}
                     </span>
                   </div>
@@ -209,7 +208,7 @@ const EventView = () => {
                   <label className="block text-gray-500 text-sm font-semibold mb-1">Remaining Budget</label>
                   <div className="flex items-center gap-2 text-lg">
                     <span>💵</span>
-                    <span className="font-semibold text-green-600" data-cy="event-view-selected-entry budget-remain">
+                    <span className="font-semibold text-green-600">
                       ${(parseInt(event.budget || event.setBudget || event.budgetTotal || 0) - parseInt(event.budgetSpent || 0)).toLocaleString()}
                     </span>
                   </div>
@@ -221,7 +220,7 @@ const EventView = () => {
             {event.description && (
               <div>
                 <label className="block text-gray-500 text-sm font-semibold mb-2">Description</label>
-                <p className="text-gray-700 bg-gray-50 p-4 rounded-lg" data-cy="event-view-selected-entry description">{event.description}</p>
+                <p className="text-gray-700 bg-gray-50 p-4 rounded-lg">{event.description}</p>
               </div>
             )}
           </div>
@@ -229,7 +228,7 @@ const EventView = () => {
 
         {/* Cancellation Request Section */}
         {canCancel && (
-          <div className="bg-white rounded-lg shadow-lg p-8" data-cy="event-view-cancel-section">
+          <div className="bg-white rounded-lg shadow-lg p-8" data-cy="cancel-event-section">
             <h2 className="text-3xl font-display mb-2">Request Cancellation</h2>
             <p className="text-gray-600 mb-6 font-serif">
               Submit a cancellation request for this event
@@ -252,7 +251,7 @@ const EventView = () => {
                     }`}
                     rows="4"
                     placeholder="Please explain why you need to cancel this event... (required)"
-                    data-cy="cancel-reason-input"
+                    data-cy="cancel-event-note"
                   />
                   {cancelError && (
                     <p className="text-red-500 text-sm mt-1">{cancelError}</p>
@@ -264,14 +263,14 @@ const EventView = () => {
                     onClick={handleCancelRequest}
                     disabled={!cancelReason.trim()}
                     className="flex-1 bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
-                    data-cy="request-cancel-btn"
+                    data-cy="cancel-event-submit-btn"
                   >
                     Submit Cancellation Request
                   </button>
                   <button
                     onClick={() => navigate('/events')}
                     className="px-6 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition"
-                    data-cy="cancel-cancel-btn"
+                    data-cy="cancel-event-cancel-btn"
                   >
                     Back to Events
                   </button>

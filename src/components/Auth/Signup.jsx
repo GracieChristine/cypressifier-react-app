@@ -73,11 +73,12 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex flex-col">
-      {/* Simple Header */}
-      <div className="bg-gradient-to-br from-purple-50 to-pink-50">
+
+      {/* Nav */}
+      <div className="bg-gradient-to-br from-purple-50 to-pink-50" data-cy="nav">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <h1>
-              <Link to="/" className="text-2xl font-bold text-purple-600 hover:text-purple-700 transition" data-cy="nav-brand-name">
+              <Link to="/" className="text-2xl font-bold text-purple-600 hover:text-purple-700 transition" data-cy="nav-brand-link">
                 Cypressifier
               </Link>
             </h1>
@@ -97,14 +98,14 @@ const Signup = () => {
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value })}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                required
-                data-cy="email-input"
                 placeholder="john.doe@example.com"
+                required
                 data-lpignore="true"
                 autoComplete="off"
+                data-cy="signup-email-input"
               />
               {errors.email && (
-                <p className="text-red-500 text-sm mt-1" data-cy="email-error">
+                <p className="text-red-500 text-sm mt-1" data-cy="signup-email-error">
                   {errors.email}
                 </p>
               )}
@@ -117,14 +118,14 @@ const Signup = () => {
                 value={formData.password}
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                required
-                data-cy="password-input"
                 placeholder="••••••••"
+                required
                 data-lpignore="true"
                 autoComplete="off"
+                data-cy="signup-password-input"
               />
               {errors.password && (
-                <p className="text-red-500 text-sm mt-1" data-cy="password-error">
+                <p className="text-red-500 text-sm mt-1" data-cy="signup-password-error">
                   {errors.password}
                 </p>
               )}
@@ -137,14 +138,14 @@ const Signup = () => {
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                required
-                data-cy="confirm-password-input"
                 placeholder="••••••••"
+                required
                 data-lpignore="true"
                 autoComplete="off"
+                data-cy="signup-confirm-password-input"
               />
               {errors.confirmPassword && (
-                <p className="text-red-500 text-sm mt-1" data-cy="confirm-password-error">
+                <p className="text-red-500 text-sm mt-1" data-cy="signup-confirm-password-error">
                   {errors.confirmPassword}
                 </p>
               )}

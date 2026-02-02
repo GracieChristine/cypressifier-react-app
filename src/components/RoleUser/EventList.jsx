@@ -113,19 +113,21 @@ const EventsList = () => {
     const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
     
     return (
+
+      // Upcoming Event Card
       <div
         key={event.id}
         className={`bg-white rounded-lg shadow-md hover:shadow-xl transition overflow-hidden h-full flex flex-col ${
           isUpcoming ? 'border-2 border-purple-300' : ''
         }`}
-        data-cy="eventlist-upcoming-card"
+        data-cy="eventlist-upcoming-event-card"
       >
         <div className="p-6 flex flex-col flex-1">
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-center gap-2">
               <div>
-                <h3 className="font-bold text-lg" data-cy="eventlist-upcoming-card name">{event.name}</h3>
-                <span className={`px-2 py-1 rounded text-xs ${getStatusColor(event.status)}`} data-cy="eventlist-upcoming-card status">
+                <h3 className="font-bold text-lg">{event.name}</h3>
+                <span className={`px-2 py-1 rounded text-xs ${getStatusColor(event.status)}`}>
                   {event.status}
                 </span>
               </div>
@@ -133,22 +135,22 @@ const EventsList = () => {
           </div>
           
           <div className="space-y-2 text-sm text-gray-600 mb-4">
-            <div className="flex items-center gap-2" data-cy="eventlist-upcoming-card date">
+            <div className="flex items-center gap-2">
               <span>📅</span>
               <span>{formatDate(event.date)}</span>
             </div>
-            <div className="flex items-center gap-2" data-cy="eventlist-upcoming-card budget">
+            <div className="flex items-center gap-2">
               <span>💰</span>
               <span>${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}</span>
             </div>
-            <div className="flex items-center gap-2" data-cy="eventlist-upcoming-card location">
+            <div className="flex items-center gap-2">
               <span>{getLocationIcon(event.locationType)}</span>
               <span className="truncate">{event.locationType}</span>
             </div>
           </div>
 
           {event.description && (
-            <p className="text-sm text-gray-500 mb-4 line-clamp-2" data-cy="eventlist-upcoming-card description">{event.description}</p>
+            <p className="text-sm text-gray-500 mb-4 line-clamp-2">{event.description}</p>
           )}
           
           <div className="flex-grow"></div>
@@ -164,8 +166,7 @@ const EventsList = () => {
           {isReadOnly || event.cancellationRequest ? (
             <button
               onClick={() => navigate(`/user/events/${event.id}`)}
-              className="w-full py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded transition text-sm"
-              data-cy="view-event-btn"
+              className="w-full py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded transition text-sm" data-cy="eventlist-upcoming-event-view-btn"
             >
               View Detail
             </button>
@@ -174,14 +175,14 @@ const EventsList = () => {
               <button
                 onClick={() => navigate(`/user/events/${event.id}/edit`)}
                 className="flex-1 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded transition text-sm"
-                data-cy="edit-event-btn"
+                data-cy="eventlist-upcoming-event-edit-btn"
               >
                 Edit Detail
               </button>
               <button
                 onClick={() => navigate(`/user/events/${event.id}`)}
                 className="px-4 py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded transition text-sm"
-                data-cy="cancel-request-btn"
+                data-cy="eventlist-upcoming-event-cancel-btn"
               >
                 Cancel Event
               </button>
@@ -195,12 +196,15 @@ const EventsList = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-8" data-cy="eventlist">
       <div className="max-w-full px-4">
+
+        {/* Header */}
         <div className="flex justify-between items-center mb-6" data-cy="eventlist-header">
           <div>
             <h1 className="text-3xl font-bold text-gray-800">My Events</h1>
             <p className="text-gray-600">Manage and track all your events</p>
           </div>
 
+          {/* Create New Event Button */}
           <button
             onClick={() => navigate('/user/events/new')}
             className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition shadow-lg" data-cy="eventlist-create-event-btn"
@@ -209,7 +213,8 @@ const EventsList = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6" data-cy="eventlist-budget">
+        {/* Budget Info */}
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6" data-cy="eventlist-budget">
           <div className="bg-white p-6 rounded-lg shadow-md" data-cy="eventlist-budget-box">
             <div className="text-gray-500 text-sm mb-1">Total Budget</div>
             <div className="text-3xl font-bold text-blue-600">
@@ -223,8 +228,9 @@ const EventsList = () => {
               ${totalSpent.toLocaleString()}
             </div>
           </div>
-        </div>
+        </div> */}
 
+        {/* Upcoming Events */}
         {(thisWeekEvents.length > 0 || nextWeekEvents.length > 0) && (
           <div className="bg-white rounded-lg shadow-md p-6 mb-6" data-cy="eventlist-upcomings">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
@@ -238,10 +244,11 @@ const EventsList = () => {
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6" data-cy="eventlist-filter-event">
+        <div className="bg-white rounded-lg shadow-md p-4 mb-6" data-cy="eventlist-filters-and-event-list">
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">All Events</h2>
-          
-          <div className="flex gap-2 flex-wrap" data-cy="eventlist-filter">
+
+          {/* Filters */}
+          <div className="flex gap-2 flex-wrap" data-cy="eventlist-filters">
             {['all', 'In Review', 'In Progress', 'Completed', 'Cancelled'].map(status => (
               <button
                 key={status}
@@ -251,7 +258,7 @@ const EventsList = () => {
                     ? 'bg-purple-600 text-white' 
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 } flex-1 min-w-[150px]`}
-                data-cy={`eventlist-filter-box filter-${status.toLowerCase().replace(' ', '-')}`}
+                data-cy={`eventlist-filter-${status.toLowerCase().replace(' ', '-')}`}
               >
                 {status === 'all' ? 'All' : status} ({statusCounts[status]})
               </button>
@@ -259,14 +266,19 @@ const EventsList = () => {
           </div>
           <br />
 
+          {/* Event Lists */}
           {filteredEvents.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-md p-12 text-center" data-cy="eventlist-list-no-entry">
+
+            // No Events
+            <div className="bg-white rounded-lg shadow-md p-12 text-center" data-cy="eventlist-event-list-no-entry">
               <div className="text-6xl mb-4">🎉</div>
               <h3 className="text-xl font-semibold mb-2">No events yet</h3>
               <p className="text-gray-600 mb-4">Create your first event to get started!</p>
             </div>
           ) : (
-            <div className="space-y-3" data-cy="eventlist-list">
+
+            // Got Events
+            <div className="space-y-3" data-cy="eventlist-event-list">
               {filteredEvents.map(event => {
                 const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
                 
@@ -274,28 +286,28 @@ const EventsList = () => {
                   <div
                     key={event.id}
                     className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition"
-                    data-cy="eventlist-list-entry"
+                    data-cy="eventlist-event-list-entry"
                   >
                     <div className="p-4 grid grid-cols-12 gap-4 items-center">
-                      <div className="col-span-12 sm:col-span-3" data-cy="eventlist-list-entry name">
+                      <div className="col-span-12 sm:col-span-3">
                         <h3 className="font-semibold text-gray-900">
                           {event.name}
                         </h3>
                       </div>
                       
-                      <div className="col-span-6 sm:col-span-2" data-cy="eventlist-list-entry date">
+                      <div className="col-span-6 sm:col-span-2">
                         <div className="text-sm text-gray-600">
                           {formatDateShort(event.date)}
                         </div>
                       </div>
                       
-                      <div className="hidden lg:block lg:col-span-1" data-cy="eventlist-list-entry budget">
+                      <div className="hidden lg:block lg:col-span-1">
                         <div className="text-sm text-gray-600 font-medium">
                           ${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}
                         </div>
                       </div>
                       
-                      <div className="hidden md:block md:col-span-2 lg:col-span-2" data-cy="eventlist-list-entry location">
+                      <div className="hidden md:block md:col-span-2 lg:col-span-2">
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <span className="text-gray-400">{getLocationIcon(event.locationType)}</span>
                           <span className="truncate">{event.locationType}</span>
@@ -304,16 +316,14 @@ const EventsList = () => {
                       
                       <div className="col-span-6 sm:col-span-3 md:col-span-2 lg:col-span-2 flex flex-col gap-1.5">
                         <span 
-                          className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getStatusColor(event.status)}`} 
-                          data-cy="eventlist-list-entry status"
+                          className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getStatusColor(event.status)}`}
                         >
                           {event.status}
                         </span>
 
                         {event.cancellationRequest && (
                           <span 
-                            className="px-3 py-1 rounded text-xs font-medium bg-orange-100 text-orange-700 whitespace-nowrap text-center" 
-                            data-cy="eventlist-list-entry pending" 
+                            className="px-3 py-1 rounded text-xs font-medium bg-orange-100 text-orange-700 whitespace-nowrap text-center"
                             title="Cancellation pending"
                           >
                             Pending
@@ -326,7 +336,7 @@ const EventsList = () => {
                           <button
                             onClick={() => navigate(`/user/events/${event.id}`)}
                             className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-medium transition whitespace-nowrap"
-                            data-cy="eventlist-list-entry user-action-btn"
+                            data-cy="eventlist-event-list-entry-view-btn"
                           >
                             View
                           </button>
@@ -335,14 +345,14 @@ const EventsList = () => {
                             <button
                               onClick={() => navigate(`/user/events/${event.id}/edit`)}
                               className="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-sm font-medium transition whitespace-nowrap"
-                              data-cy="eventlist-list-entry user-action-btn"
+                              data-cy="eventlist-event-list-entry-edit-btn"
                             >
                               Edit
                             </button>
                             <button
                               onClick={() => navigate(`/user/events/${event.id}`)}
                               className="px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded text-sm font-medium transition whitespace-nowrap"
-                              data-cy="eventlist-list-entry user-action-btn"
+                              data-cy="eventlist-event-list-entry-cancel-btn"
                             >
                               Cancel
                             </button>

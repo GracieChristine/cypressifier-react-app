@@ -10,7 +10,7 @@ import Signup from './components/Auth/Signup';
 import LandingPage from './components/Landing/LandingPage';
 
 // User Components
-import UserEventsList from './components/RoleUser/EventsList';
+import UserEventList from './components/RoleUser/EventList';
 import UserEventForm from './components/RoleUser/EventForm';
 import UserEventView from './components/RoleUser/EventView';
 
@@ -95,7 +95,7 @@ function App() {
           <Route path="/user/events" element={
             <AppLayout>
               <ProtectedRoute>
-                <UserEventsList />
+                <UserEventList />
               </ProtectedRoute>
             </AppLayout>
           } />
