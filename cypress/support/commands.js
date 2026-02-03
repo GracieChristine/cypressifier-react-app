@@ -1,44 +1,134 @@
-// ------------ NEW / UPDATED ONES ------------
+// Initalize Related Commands
+Cypress.Command.add(`clearCacheLoadLanding`, () => {
+    // cy.visit('http://localhost:5173', {
+    //     onBeforeLoad(win) {
+    //         win.localStorage.clear();
+    //         win.sessionStorage.clear();
+    //     }
+    // })
 
-
-
-
+    cy.clearLocalStorage();
+    cy.visit('http://localhost:5173');
+});
 
 // Navigation Related Commands
-Cypress.Commands.add(`landingToSignup`, () => {
-    // Navigate from landing page to signup
+Cypress.Command.add(`landingToSignup`, () => {
     cy.get('[data-cy="landing-signup-btn"]')
-    .should('be.visible')
     .click();
+
+    cy.url()
+    .should('contain','/signup');
 });
 
-Cypress.Commands.add(`landingToLogin`, () => {
-    // Navigate from landing page to login
+Cypress.Command.add(`landingToLogin`, () => {
     cy.get('[data-cy="landing-login-btn"]')
     .click();
+
+    cy.url()
+    .should('contain','/login');
 });
 
-Cypress.Commands.add(`signupToLogin`, () => {
-    // Navigate from singup to login
+Cypress.Command.add(`returnToLanding`, () => {
+    cy.get('[data-cy="nav-brand-link"]')
+    .click();
+    
+    cy.url()
+    .should('eq','http://localhost:5173/');
+});
+
+Cypress.Command.add(`signupToLogin`, () => {
     cy.get('[data-cy="signup-login-link"]')
     .click();
+    
+    cy.url()
+    .should('contain','/login');
 });
 
-Cypress.Commands.add(`loginToSignup`, () => {
-    // Navigate from login to signup
+Cypress.Command.add(`loginToSignup`, () => {
     cy.get('[data-cy="login-signup-link"]')
     .click();
+    
+    cy.url()
+    .should('contain','/signup');
 });
 
-Cypress.Commands.add(`userEventToEventNew`, () => {
-    // Navigate from user/events to user/events
-    cy.get('[data-cy="eventlist-create-event-btn"]')
+// Cypress.Command.add(``, () => {
+//     // dashboard table entry action button
+//         // there is 1 button
+//         // depending on the button name, it will navigate to different page
+// });
+
+// Cypress.Command.add(`adminEventViewToDashboard`, () => {
+//     cy.get('[data-cy="return-dashboard-btn"]')
+//     .click();
+
+//     cy.url()
+//     .should('contain','/admin/dashboard');
+// });
+
+// Cypress.Command.add(`userEventListToEventFormNew`, () => {
+//     cy.get('[data-cy="evenlist-create-event-btn"]')
+//     .click();
+
+//     cy.url()
+//     .should('contain','/user/events/new');
+// });
+
+// Dev Related Commands
+Cypress.Command.add(`devExpandPanel`, () => {
+    cy.get('[data-cy="dev-panel-window-min"]')
     .click();
+
+    cy.get('[data-cy="dev-panel-window-max"]')
+    .should('exisit');
+});
+
+Cypress.Command.add(`devCollapsePanel`, () => {
+    cy.get('[data-cy="dev-panel-window-max"]')
+    .click();
+
+    cy.get('[data-cy="dev-panel-window-min"]')
+    .should('exisit');
+});
+
+Cypress.Command.add(`devAddMockEvents`, () => {
+    cy.get('[data-cy="dev-panel-add-event-btn"]')
+    .click();
+
+    cy.wait(100);
+
+    cy.get('[data-cy="dev-panel-window-max"]')
+    .should('exisit');
+
+    cy.get('[data-cy="dev-panel-window-min"]')
+    .should('exisit');
+
+    cy.get('[data-cy="evenlist-filter-all"]')
+    .should('contain', '30');
+});
+
+Cypress.Command.add(`devClearMockEvents`, () => {
+    cy.get('[data-cy="dev-panel-clear-event-btn"]')
+    .click();
+
+    cy.wait(100);
+
+    cy.get('[data-cy="dev-panel-window-max"]')
+    .should('exisit');
+
+    cy.get('[data-cy="dev-panel-window-min"]')
+    .should('exisit');
+
+    cy.get('[data-cy="evenlist-filter-all"]')
+    .should('contain', '0');
 });
 
 // User Auth Related Commands
-Cypress.Commands.add(`signupUser`, (email, password, confirmPass = null) => {
-    // Fill in sign in form
+Cypress.Command.add(`userSignup`, (email, password, confirmPass = null) => {
+    cy.clearCacheLoadLanding();
+    cy.landingToLogin();
+
+    // Fill in signup form
     cy.get('[data-cy="email-input"]')
     .type(email);
     cy.get('[data-cy="password-input"]')
@@ -46,135 +136,60 @@ Cypress.Commands.add(`signupUser`, (email, password, confirmPass = null) => {
     cy.get('[data-cy="confirm-password-input"]')
     .type(confirmPass || password);
 
-    // Submit
+    // Submit signup form
     cy.get('form')
     .submit();
+
+    cy.url()
+    .should('contain','/user/evelist');
 });
 
-Cypress.Commands.add(`loginUser`, (email, password) => {
-    // Fill in log in form
+// Need to consider, with different user input (admin/user), to navigate to different link.
+Cypress.Command.add(`userLogin`, (email, password) => {
+    cy.clearCacheLoadLanding();
+    cy.landingToLogin();
+
+    // Fill in login form
     cy.get('[data-cy="email-input"]')
     .type(email);
     cy.get('[data-cy="password-input"]')
     .type(password);
 
-    // Submit
+    // Submit login form
     cy.get('form')
     .submit();
-});
 
-Cypress.Commands.add(`logoutUser`, () => {
-    // Log out
-    cy.get('[data-cy="logout-btn"]')
-    .click();
-});
-
-// Check URL Related Commands
-Cypress.Commands.add(`checkCurrentPage`, (urlPath) => {
     cy.url()
-    .should('contain', urlPath)
+    .should('contain','/user/evelist');
 });
 
-// Dev - Mock Events Commands
-Cypress.Commands.add(`loadMockEvents`, () => {
-    // Expand dev panel
-    cy.get('[data-cy="dev-panel-expand-btn"]')
-    .click();
+// Need to consider, with different user input (admin/user), to navigate to different link.
+Cypress.Command.add(`adminLogin`, (email, password) => {
+    cy.clearCacheLoadLanding();
+    cy.landingToLogin();
 
-    // Seed 30 mock events
-    cy.get('[data-cy="dev-panel-add-event-btn"]')
-    .click();
-});
+    // Fill in login form
+    cy.get('[data-cy="email-input"]')
+    .type(email);
+    cy.get('[data-cy="password-input"]')
+    .type(password);
 
-Cypress.Commands.add(`clearMockEvents`, () => {
-    // Expand dev panel
-    cy.get('[data-cy="dev-panel-expand-btn"]')
-    .click();
-
-    // Clear all mock events (user will only clear their own)
-    cy.get('[data-cy="dev-panel-clear-event-btn"]')
-    .click();
-});
-
-// Admin - Check Amount Of Events Commands
-Cypress.Commands.add(`admin_checkTotalNumOfEvents`, (numOfEvent) => {
-    cy.get('[data-cy="dashboard-stat"]')
-    .within(() => {
-        cy.get('[data-cy="dashboard-stat-box"]')
-        .first()
-        .should('contain', 'All')
-        .should('contain', numOfEvent)
-        .and('be.visible');
-    });
-});
-
-Cypress.Commands.add(`admin_checkTableIsEmpty`, () => {
-    cy.get('[data-cy="dashboard-event-table"]')
-    .within(() => {
-        cy.get('[data-cy="dashboard-event-entry"]')
-        .should('not.exist');
-        cy.get('[data-cy="dashboard-event-empty"]')
-        .should('contain', 'No events')
-        .and('be.visible');
-    });
-});
-
-Cypress.Commands.add(`admin_checkTableEventEntries`, (numOfEvent) => {
-    cy.get('[data-cy="dashboard-event-table"]')
-    .within(() => {
-        cy.get('[data-cy="dashboard-event-empty"]')
-        .should('not.exist');
-        cy.get('[data-cy="dashboard-event-entry"]')
-        .should('have.length', numOfEvent)
-        .and('be.visible');
-    });
-});
-
-// User - Check Amount Of Events Commands
-Cypress.Commands.add(`user_checkTotalNumOfEvents`, (numOfEvent) => {
-    cy.get('[data-cy="eventlist-event-list"]')
-    cy.get('[data-cy="eventlist-filter"]')
-    .within(() => {
-        cy.get('[data-cy="eventlist-filter-box filter-all"]')
-        .should('contain', 'All')
-        .should('contain', numOfEvent)
-        .and('be.visible');
-    });
-});
-
-// User - Create/Edit Events Commands
-Cypress.Commands.add(`user_createNewEvent`, () => {
-    // Fill in new event form
-    cy.get('[data-cy="event-name-input"]')
-    .type('Jane Doe\'s Celebration');
-    cy.get('[data-cy="event-type-select"]')
-    .select('Party');
-    cy.get('[data-cy="event-date-input"]')
-    .type('2030-06-28');
-    cy.get('[data-cy="event-location-select"]')
-    .select('Garden Estate');
-    cy.get('[data-cy="event-guests-input"]')
-    .type('175');
-    cy.get('[data-cy="event-budget-input"]')
-    .type('75000');
-    cy.get('[data-cy="event-description-input"]')
-    .type('Everyone has the right to freedom of thought, conscience and religion; this right includes freedom to change his religion or belief, and freedom, either alone or in community with others and in public or private, to manifest his religion or belief in teaching, practice, worship and observance.');
-
-    // Submit
+    // Submit login form
     cy.get('form')
     .submit();
+
+    cy.url()
+    .should('contain','/admin/dashbaord');
 });
 
-// ------------ OLD / EXISTING / NEED REVIEW ONES ------------
-
-
-
-
-// Navigation Related Commands
-
-
-Cypress.Commands.add(`backToLanding`, () => {
-    // Navigate back to landing page
-    cy.get('[data-cy="nav-brand-name"]')
+Cypress.Commands.add(`userOut`, () => {
+    cy.get('[data-cy="nav-logout-btn"]')
     .click();
+
+    cy.url()
+    .should('eq','http://localhost:5173/');
+});
+
+Cypress.Command.add(``, () => {
+
 });

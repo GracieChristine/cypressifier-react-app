@@ -251,7 +251,7 @@ const AdminDashboard = () => {
                                   ? 'bg-blue-500 hover:bg-blue-600'
                                   : 'bg-royal-600 hover:bg-royal-700'
                               }`}
-                            data-cy="Dashboard-table-entry-action"
+                            data-cy="dashboard-table-entry-action"
                           >
                             {event.status === 'In Progress' && !event.cancellationRequest ? 'Edit' : 'View'}
                           </button>
