@@ -222,11 +222,11 @@ const AdminEventView = () => {
               <h3 className="text-lg font-semibold mb-4">Client Information</h3>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-gray-600">User Name:</span>
+                  <span className="text-gray-600">Name:</span>
                   <span className="ml-2 font-semibold">{selectedEvent.userEmail?.split('@')[0].toUpperCase() || 'Not available'}</span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Client ID:</span>
+                  <span className="text-gray-600">ID:</span>
                   <span className="ml-2 font-semibold">#{selectedEvent.userId?.toString().slice(-4) || 'Unknown'}</span>
                 </div>
                 <div>
@@ -240,11 +240,11 @@ const AdminEventView = () => {
             <div className="bg-gray-50 border rounded-lg p-6">
               <h3 className="text-lg font-semibold mb-4">Event Details</h3>
 
-              <div className="grid grid-cols-2 gap-4 text-lg underline">
+              {/* <div className="grid grid-cols-2 gap-4 text-lg underline">
                 <div>
                   <h4 className="mt-2 mb-6 font-semibold">{selectedEvent.name}</h4>
                 </div>
-              </div>
+              </div> */}
 
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
@@ -252,31 +252,32 @@ const AdminEventView = () => {
                   <span className="ml-2 font-semibold">{formatDateShort(selectedEvent.date)}</span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Budget:</span>
-                  <span className="ml-2 font-semibold">${parseInt(selectedEvent.budget || selectedEvent.setBudget || selectedEvent.budgetTotal || 0).toLocaleString()}</span>
-                </div>
-
-                <div>
-                  <span className="text-gray-600">Type:</span>
-                  <span className="ml-2 font-semibold">{selectedEvent.type}</span>
-                </div>
-                <div>
                   <span className="text-gray-600">Venue Type:</span>
                   <span className="ml-2 font-semibold">{selectedEvent.locationType}</span>
                 </div>
 
                 <div>
-                  <span className="text-gray-600">Guests:</span>
-                  <span className="ml-2 font-semibold">{selectedEvent.guestCount || 'Not specified'}</span>
+                  <span className="text-gray-600">Event Type:</span>
+                  <span className="ml-2 font-semibold">{selectedEvent.type}</span>
                 </div>
                 <div>
+                  <span className="text-gray-600">Guest Count:</span>
+                  <span className="ml-2 font-semibold">{selectedEvent.guestCount || 'Not specified'}</span>
+                </div>
+
+                <div>
+                  <span className="text-gray-600">Budget:</span>
+                  <span className="ml-2 font-semibold">${parseInt(selectedEvent.budget || selectedEvent.setBudget || selectedEvent.budgetTotal || 0).toLocaleString()}</span>
+                </div>
+   
+                {/* <div>
                   <span className="text-gray-600">Status:</span>
                   <span className="ml-2 font-semibold">{selectedEvent.status}</span>
-                </div>
+                </div> */}
               </div>
 
               {selectedEvent.description && (
-                <div className="mt-4">
+                <div className="mt-4 text-sm">
                   <span className="text-gray-600">Description:</span>
                   <p className="mt-1 font-semibold text-gray-800">{selectedEvent.description}</p>
                 </div>

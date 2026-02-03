@@ -178,7 +178,7 @@ const EventForm = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
-                Event Name *
+                Name
               </label>
               <input
                 type="text"
@@ -198,7 +198,7 @@ const EventForm = () => {
 
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
-                Event Date *
+                Date
               </label>
               <input
                 type="date"
@@ -217,50 +217,7 @@ const EventForm = () => {
 
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
-                Budget ($) *
-              </label>
-              <input
-                type="number"
-                name="budget"
-                value={formData.budget.toLocaleString()}
-                onChange={handleChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                  errors.budget ? 'border-red-500' : ''
-                }`}
-                placeholder={currentMinBudget.toLocaleString()}
-                min={currentMinBudget.toLocaleString()} data-cy="eventform-budget-input"
-              />
-              <p className="text-sm text-gray-600 mt-1">
-                Minimum budget for {formData.locationType}: ${currentMinBudget.toLocaleString()}
-              </p>
-              {errors.budget && (
-                <p className="text-red-500 text-sm mt-1" data-cy="eventform-budget-error">{errors.budget}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                Event Type *
-              </label>
-              <select
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                data-cy="eventform-type-input"
-              >
-                <option value="Wedding">💒 Wedding</option>
-                <option value="Birthday">🎂 Birthday</option>
-                <option value="Corporate">💼 Corporate</option>
-                <option value="Conference">🎤 Conference</option>
-                <option value="Party">🎊 Party</option>
-                <option value="Other">🎉 Other</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                Location Type *
+                Location Type
               </label>
               <select
                 name="locationType"
@@ -282,7 +239,27 @@ const EventForm = () => {
 
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
-                Guest Count *
+                Event Type
+              </label>
+              <select
+                name="type"
+                value={formData.type}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                data-cy="eventform-type-input"
+              >
+                <option value="Wedding">💒 Wedding</option>
+                <option value="Birthday">🎂 Birthday</option>
+                <option value="Corporate">💼 Corporate</option>
+                <option value="Conference">🎤 Conference</option>
+                <option value="Party">🎊 Party</option>
+                <option value="Other">🎉 Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Guest Count
               </label>
               <input
                 type="number"
@@ -300,7 +277,30 @@ const EventForm = () => {
                 <p className="text-red-500 text-sm mt-1" data-cy="eventform-guestCount-error">{errors.guestCount}</p>
               )}
             </div>
-            
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Budget ($)
+              </label>
+              <input
+                type="number"
+                name="budget"
+                value={formData.budget.toLocaleString()}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  errors.budget ? 'border-red-500' : ''
+                }`}
+                placeholder={currentMinBudget.toLocaleString()}
+                min={currentMinBudget.toLocaleString()} data-cy="eventform-budget-input"
+              />
+              <p className="text-sm text-gray-600 mt-1">
+                Minimum budget for {formData.locationType}: ${currentMinBudget.toLocaleString()}
+              </p>
+              {errors.budget && (
+                <p className="text-red-500 text-sm mt-1" data-cy="eventform-budget-error">{errors.budget}</p>
+              )}
+            </div>
+
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
                 Description

@@ -173,8 +173,10 @@ const AdminDashboard = () => {
               <thead className="bg-royal-700 text-white">
                 <tr>
                   <th className="px-6 py-4 text-left font-sans text-sm">Event</th>
+                   <th className="px-6 py-4 text-left font-sans text-sm">Date</th>
                   <th className="px-6 py-4 text-left font-sans text-sm">Client</th>
-                  <th className="px-6 py-4 text-left font-sans text-sm">Date</th>
+                  <th className="px-6 py-4 text-left font-sans text-sm">Type</th>
+                  <th className="px-6 py-4 text-left font-sans text-sm">Budget</th>
                   <th className="px-6 py-4 text-left font-sans text-sm">Status</th>
                   <th className="px-6 py-4 text-left font-sans text-sm">Actions</th>
                 </tr>
@@ -190,7 +192,14 @@ const AdminDashboard = () => {
                   events.map(event => (
                     <tr key={event.id} className="hover:bg-gray-50 transition" data-cy="dashboard-table-entry">
                       <td className="px-6 py-4">
-                        <div className="font-semibold text-gray-900">{event.name}</div>
+                        <div className="font-semibold text-gray-900"> 
+                          {event.name}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-700">
+                          {formatDateShort(event.date)}
+                        </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-700">
@@ -200,36 +209,48 @@ const AdminDashboard = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-700">
-                          {formatDateShort(event.date)}
+                          {event.type}
                         </div>
                       </td>
                       <td className="px-6 py-4">
+                        <div className="text-sm text-gray-700">
+                          ${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}
+                        </div>
+                      </td>
+                      
+                      <td className="px-6 py-4">
                         <div className="flex flex-col gap-2">
-                          <span className={`px-3 py-1 rounded text-xs font-semibold inline-block ${getStatusColor(event.status)}`}>
+                          <span className={`px-3 py-1 rounded text-xs font-semibold inline-flex 
+                              items-center justify-center text-center whitespace-nowrap
+                              max-w-[140px] truncate ${getStatusColor(event.status)}`}
+                            title={event.status}
+                          >
                             {event.status}
                           </span>
                           {event.cancellationRequest && (
-                            <span className="px-3 py-1 rounded text-xs font-semibold bg-orange-100 text-orange-700 inline-block">
+                            <span className="px-3 py-1 rounded text-xs font-semibold inline-flex items-center justify-center max-w-[140px] truncate bg-orange-100 text-orange-700">
                               🚨 Cancel Request
                             </span>
                           )}
                           {event.autoCancelled && (
-                            <span className="px-2 py-1 rounded text-xs bg-gray-100 text-gray-600 inline-block">
+                            <span className="px-2 py-1 rounded text-xs inline-flex items-center justify-center max-w-[140px] truncate bg-gray-100 text-gray-600">
                               Auto-cancelled
                             </span>
                           )}
                         </div>
                       </td>
+                      
                       <td className="px-6 py-4">
                         <div className="flex gap-2">
                           {/* Show View/Edit based on status and cancellation */}
                           <button
                             onClick={() => navigate(`/admin/events/${event.id}/edit`)}
-                            className={`px-3 py-1 text-white rounded text-sm transition ${
-                              event.status === 'In Progress' && !event.cancellationRequest
-                                ? 'bg-blue-500 hover:bg-blue-600'
-                                : 'bg-royal-600 hover:bg-royal-700'
-                            }`}
+                            className={`min-w-[72px] h-8 px-3 text-white rounded text-sm 
+                              flex items-center justify-center whitespace-nowrap transition ${
+                                event.status === 'In Progress' && !event.cancellationRequest
+                                  ? 'bg-blue-500 hover:bg-blue-600'
+                                  : 'bg-royal-600 hover:bg-royal-700'
+                              }`}
                             data-cy="Dashboard-table-entry-action"
                           >
                             {event.status === 'In Progress' && !event.cancellationRequest ? 'Edit' : 'View'}

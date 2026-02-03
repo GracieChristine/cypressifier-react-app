@@ -113,12 +113,12 @@ const EventView = () => {
               <div className="flex items-center gap-3">
                 <div>
                   <h1 className="text-3xl font-bold">{event.name}</h1>
-                  <p className="text-xl text-purple-100 mt-4">{event.type}</p>
+                  {/* <p className="text-xl text-purple-100 mt-4">{event.type}</p> */}
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-start gap-3 -mt-2">
                 <div>
-                  <span className={`px-4 py-10 rounded-lg text-sm font-semibold ${getStatusColor(event.status)} bg-opacity-90`}>
+                  <span className={`px-4 py-7 rounded-lg text-sm font-semibold ${getStatusColor(event.status)} bg-opacity-90`}>
                     {event.status}
                   </span>
                 </div>
@@ -162,6 +162,14 @@ const EventView = () => {
                   <div className="flex items-center gap-2 text-lg">
                     <span>{getLocationIcon(event.locationType)}</span>
                     <span className="font-semibold">{event.locationType}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-gray-500 text-sm font-semibold mb-1">Event Type</label>
+                  <div className="flex items-center gap-2 text-lg">
+                    <span>{getEventIcon(event.type)}</span>
+                    <span className="font-semibold">{event.type}</span>
                   </div>
                 </div>
 

@@ -124,30 +124,26 @@ const EventsList = () => {
       >
         <div className="p-6 flex flex-col flex-1">
           <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div>
-                <h3 className="font-bold text-lg">{event.name}</h3>
-                <span className={`px-2 py-1 rounded text-xs ${getStatusColor(event.status)}`}>
-                  {event.status}
-                </span>
-              </div>
-            </div>
+            <h3 className="font-bold text-lg">{event.name}</h3>
+            <span
+              className={`ml-2 shrink-0 px-2 py-1 rounded text-xs ${getStatusColor(event.status)}`}
+            >
+              {event.status}
+            </span>
           </div>
           
-          <div className="space-y-2 text-sm text-gray-600 mb-4">
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600 mb-4">
             <div className="flex items-center gap-2">
               <span>📅</span>
               <span>{formatDate(event.date)}</span>
             </div>
+
             <div className="flex items-center gap-2">
-              <span>💰</span>
-              <span>${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span>{getLocationIcon(event.locationType)}</span>
-              <span className="truncate">{event.locationType}</span>
+              <span>👥</span>
+              <span className="truncate">{event.guestCount}</span>
             </div>
           </div>
+
 
           {event.description && (
             <p className="text-sm text-gray-500 mb-4 line-clamp-2">{event.description}</p>
@@ -212,23 +208,6 @@ const EventsList = () => {
             + Create Event
           </button>
         </div>
-
-        {/* Budget Info */}
-        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6" data-cy="eventlist-budget">
-          <div className="bg-white p-6 rounded-lg shadow-md" data-cy="eventlist-budget-box">
-            <div className="text-gray-500 text-sm mb-1">Total Budget</div>
-            <div className="text-3xl font-bold text-blue-600">
-              ${totalBudget.toLocaleString()}
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-md" data-cy="eventlist-budget-box">
-            <div className="text-gray-500 text-sm mb-1">Total Spent</div>
-            <div className="text-3xl font-bold text-orange-600">
-              ${totalSpent.toLocaleString()}
-            </div>
-          </div>
-        </div> */}
 
         {/* Upcoming Events */}
         {(thisWeekEvents.length > 0 || nextWeekEvents.length > 0) && (
@@ -295,26 +274,19 @@ const EventsList = () => {
                         </h3>
                       </div>
                       
-                      <div className="col-span-6 sm:col-span-2">
+                      <div className="col-span-6 sm:col-span-2 md:col-span-3 lg:col-span-2">
                         <div className="text-sm text-gray-600">
-                          {formatDateShort(event.date)}
+                          {formatDate(event.date)}
                         </div>
                       </div>
                       
-                      <div className="hidden lg:block lg:col-span-1">
+                      <div className="hidden lg:block lg:col-span-2">
                         <div className="text-sm text-gray-600 font-medium">
-                          ${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}
+                          {event.guestCount} Guests
                         </div>
                       </div>
                       
-                      <div className="hidden md:block md:col-span-2 lg:col-span-2">
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <span className="text-gray-400">{getLocationIcon(event.locationType)}</span>
-                          <span className="truncate">{event.locationType}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="col-span-6 sm:col-span-3 md:col-span-2 lg:col-span-2 flex flex-col gap-1.5">
+                      <div className="col-span-6 sm:col-span-3 md:col-span-3 lg:col-span-2 flex flex-col gap-1.5">
                         <span 
                           className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getStatusColor(event.status)}`}
                         >
@@ -331,7 +303,7 @@ const EventsList = () => {
                         )}
                       </div>
 
-                      <div className="col-span-6 sm:col-span-4 md:col-span-3 lg:col-span-2 flex justify-end gap-2">
+                      <div className="col-span-6 sm:col-span-4 md:col-span-3 lg:col-span-3 flex justify-end gap-2">
                         {isReadOnly || event.cancellationRequest ? (
                           <button
                             onClick={() => navigate(`/user/events/${event.id}`)}
