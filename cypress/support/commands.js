@@ -1,5 +1,5 @@
 // Initalize Related Commands
-Cypress.Command.add(`clearCacheLoadLanding`, () => {
+Cypress.Commands.add(`clearCacheLoadLanding`, () => {
     // cy.visit('http://localhost:5173', {
     //     onBeforeLoad(win) {
     //         win.localStorage.clear();
@@ -12,7 +12,7 @@ Cypress.Command.add(`clearCacheLoadLanding`, () => {
 });
 
 // Navigation Related Commands
-Cypress.Command.add(`landingToSignup`, () => {
+Cypress.Commands.add(`landingToSignup`, () => {
     cy.get('[data-cy="landing-signup-btn"]')
     .click();
 
@@ -20,7 +20,7 @@ Cypress.Command.add(`landingToSignup`, () => {
     .should('contain','/signup');
 });
 
-Cypress.Command.add(`landingToLogin`, () => {
+Cypress.Commands.add(`landingToLogin`, () => {
     cy.get('[data-cy="landing-login-btn"]')
     .click();
 
@@ -28,7 +28,7 @@ Cypress.Command.add(`landingToLogin`, () => {
     .should('contain','/login');
 });
 
-Cypress.Command.add(`returnToLanding`, () => {
+Cypress.Commands.add(`returnToLanding`, () => {
     cy.get('[data-cy="nav-brand-link"]')
     .click();
     
@@ -36,7 +36,7 @@ Cypress.Command.add(`returnToLanding`, () => {
     .should('eq','http://localhost:5173/');
 });
 
-Cypress.Command.add(`signupToLogin`, () => {
+Cypress.Commands.add(`signupToLogin`, () => {
     cy.get('[data-cy="signup-login-link"]')
     .click();
     
@@ -44,7 +44,7 @@ Cypress.Command.add(`signupToLogin`, () => {
     .should('contain','/login');
 });
 
-Cypress.Command.add(`loginToSignup`, () => {
+Cypress.Commands.add(`loginToSignup`, () => {
     cy.get('[data-cy="login-signup-link"]')
     .click();
     
@@ -52,13 +52,13 @@ Cypress.Command.add(`loginToSignup`, () => {
     .should('contain','/signup');
 });
 
-// Cypress.Command.add(``, () => {
+// Cypress.Commands.add(``, () => {
 //     // dashboard table entry action button
 //         // there is 1 button
 //         // depending on the button name, it will navigate to different page
 // });
 
-// Cypress.Command.add(`adminEventViewToDashboard`, () => {
+// Cypress.Commands.add(`adminEventViewToDashboard`, () => {
 //     cy.get('[data-cy="return-dashboard-btn"]')
 //     .click();
 
@@ -66,7 +66,7 @@ Cypress.Command.add(`loginToSignup`, () => {
 //     .should('contain','/admin/dashboard');
 // });
 
-// Cypress.Command.add(`userEventListToEventFormNew`, () => {
+// Cypress.Commands.add(`userEventListToEventFormNew`, () => {
 //     cy.get('[data-cy="evenlist-create-event-btn"]')
 //     .click();
 
@@ -75,7 +75,7 @@ Cypress.Command.add(`loginToSignup`, () => {
 // });
 
 // Dev Related Commands
-Cypress.Command.add(`devExpandPanel`, () => {
+Cypress.Commands.add(`devExpandPanel`, () => {
     cy.get('[data-cy="dev-panel-window-min"]')
     .click();
 
@@ -83,7 +83,7 @@ Cypress.Command.add(`devExpandPanel`, () => {
     .should('exisit');
 });
 
-Cypress.Command.add(`devCollapsePanel`, () => {
+Cypress.Commands.add(`devCollapsePanel`, () => {
     cy.get('[data-cy="dev-panel-window-max"]')
     .click();
 
@@ -91,7 +91,7 @@ Cypress.Command.add(`devCollapsePanel`, () => {
     .should('exisit');
 });
 
-Cypress.Command.add(`devAddMockEvents`, () => {
+Cypress.Commands.add(`devAddMockEvents`, () => {
     cy.get('[data-cy="dev-panel-add-event-btn"]')
     .click();
 
@@ -107,7 +107,7 @@ Cypress.Command.add(`devAddMockEvents`, () => {
     .should('contain', '30');
 });
 
-Cypress.Command.add(`devClearMockEvents`, () => {
+Cypress.Commands.add(`devClearMockEvents`, () => {
     cy.get('[data-cy="dev-panel-clear-event-btn"]')
     .click();
 
@@ -124,16 +124,16 @@ Cypress.Command.add(`devClearMockEvents`, () => {
 });
 
 // User Auth Related Commands
-Cypress.Command.add(`userSignup`, (email, password, confirmPass = null) => {
+Cypress.Commands.add(`userSignup`, (email, password, confirmPass = null) => {
     cy.clearCacheLoadLanding();
-    cy.landingToLogin();
+    cy.landingToSignup();
 
     // Fill in signup form
-    cy.get('[data-cy="email-input"]')
+    cy.get('[data-cy="signup-email-input"]')
     .type(email);
-    cy.get('[data-cy="password-input"]')
+    cy.get('[data-cy="signup-password-input"]')
     .type(password);
-    cy.get('[data-cy="confirm-password-input"]')
+    cy.get('[data-cy="signup-confirm-password-input"]')
     .type(confirmPass || password);
 
     // Submit signup form
@@ -141,18 +141,18 @@ Cypress.Command.add(`userSignup`, (email, password, confirmPass = null) => {
     .submit();
 
     cy.url()
-    .should('contain','/user/evelist');
+    .should('contain','/user/events');
 });
 
 // Need to consider, with different user input (admin/user), to navigate to different link.
-Cypress.Command.add(`userLogin`, (email, password) => {
+Cypress.Commands.add(`userLogin`, (email, password) => {
     cy.clearCacheLoadLanding();
     cy.landingToLogin();
 
     // Fill in login form
-    cy.get('[data-cy="email-input"]')
+    cy.get('[data-cy="login-email-input"]')
     .type(email);
-    cy.get('[data-cy="password-input"]')
+    cy.get('[data-cy="login-password-input"]')
     .type(password);
 
     // Submit login form
@@ -164,14 +164,14 @@ Cypress.Command.add(`userLogin`, (email, password) => {
 });
 
 // Need to consider, with different user input (admin/user), to navigate to different link.
-Cypress.Command.add(`adminLogin`, (email, password) => {
+Cypress.Commands.add(`adminLogin`, (email, password) => {
     cy.clearCacheLoadLanding();
     cy.landingToLogin();
 
     // Fill in login form
-    cy.get('[data-cy="email-input"]')
+    cy.get('[data-cy="login-email-input"]')
     .type(email);
-    cy.get('[data-cy="password-input"]')
+    cy.get('[data-cy="login-password-input"]')
     .type(password);
 
     // Submit login form
@@ -179,10 +179,10 @@ Cypress.Command.add(`adminLogin`, (email, password) => {
     .submit();
 
     cy.url()
-    .should('contain','/admin/dashbaord');
+    .should('contain','/admin/dashboard');
 });
 
-Cypress.Commands.add(`userOut`, () => {
+Cypress.Commands.add(`userLogout`, () => {
     cy.get('[data-cy="nav-logout-btn"]')
     .click();
 
@@ -190,6 +190,6 @@ Cypress.Commands.add(`userOut`, () => {
     .should('eq','http://localhost:5173/');
 });
 
-Cypress.Command.add(``, () => {
+Cypress.Commands.add(``, () => {
 
 });
