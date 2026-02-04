@@ -74,54 +74,7 @@ Cypress.Commands.add(`loginToSignup`, () => {
 //     .should('contain','/user/events/new');
 // });
 
-// Dev Related Commands
-Cypress.Commands.add(`devExpandPanel`, () => {
-    cy.get('[data-cy="dev-panel-window-min"]')
-    .click();
 
-    cy.get('[data-cy="dev-panel-window-max"]')
-    .should('exisit');
-});
-
-Cypress.Commands.add(`devCollapsePanel`, () => {
-    cy.get('[data-cy="dev-panel-window-max"]')
-    .click();
-
-    cy.get('[data-cy="dev-panel-window-min"]')
-    .should('exisit');
-});
-
-Cypress.Commands.add(`devAddMockEvents`, () => {
-    cy.get('[data-cy="dev-panel-add-event-btn"]')
-    .click();
-
-    cy.wait(100);
-
-    cy.get('[data-cy="dev-panel-window-max"]')
-    .should('exisit');
-
-    cy.get('[data-cy="dev-panel-window-min"]')
-    .should('exisit');
-
-    cy.get('[data-cy="evenlist-filter-all"]')
-    .should('contain', '30');
-});
-
-Cypress.Commands.add(`devClearMockEvents`, () => {
-    cy.get('[data-cy="dev-panel-clear-event-btn"]')
-    .click();
-
-    cy.wait(100);
-
-    cy.get('[data-cy="dev-panel-window-max"]')
-    .should('exisit');
-
-    cy.get('[data-cy="dev-panel-window-min"]')
-    .should('exisit');
-
-    cy.get('[data-cy="evenlist-filter-all"]')
-    .should('contain', '0');
-});
 
 // User Auth Related Commands
 Cypress.Commands.add(`userSignup`, (email, password, confirmPass = null) => {
@@ -192,4 +145,111 @@ Cypress.Commands.add(`userLogout`, () => {
 
 Cypress.Commands.add(``, () => {
 
+});
+
+
+// Event Management Related Commands
+Cypress.Commands.add(`userAddNewEvent`, () => {
+    cy.get('[data-cy="eventlist-filter-all"]')
+    .scrollIntoView()
+    .should('contain', '(0)')
+    .and('be.visible');
+
+    cy.get('[data-cy="eventlist-create-event-btn"]')
+    .scrollIntoView()
+    .click();
+
+    cy.url()
+    .should('contain', '/user/events/new');
+
+    cy.get('[data-cy="eventform-name-input"]')
+    .type('Test Event 1');
+
+    cy.get('[data-cy="eventform-date-input"]')
+    .scrollIntoView()
+    .type('2026-03-15');
+
+    cy.get('[data-cy="eventform-location-input"]')
+    .scrollIntoView()
+    .type('Carden Estate');
+
+    cy.get('[data-cy="eventform-type-input"]')
+    .scrollIntoView()
+    .type('Birthday');
+
+    cy.get('[data-cy="eventform-guestCount-input"]')
+    .scrollIntoView()
+    .type('50');
+
+    cy.get('[data-cy="eventform-budget-input"]')
+    .scrollIntoView()
+    .type('75000');
+
+    cy.get('[data-cy="eventform-description-input"]')
+    .scrollIntoView()
+    .type('This is just a test event for testing sake.');
+
+    cy.get('form')
+    .submit();
+
+    cy.wait(100);
+
+    cy.get('[data-cy="eventlist-filter-all"]')
+    .scrollIntoView()
+    .should('contain', '(1)')
+    .and('be.visible');
+
+    cy.get('[data-cy="eventlist-filter-in-review"]')
+    .scrollIntoView()
+    .should('contain', '(1)')
+    .and('be.visible');
+});
+
+// Dev Related Commands
+Cypress.Commands.add(`devExpandPanel`, () => {
+    cy.get('[data-cy="dev-panel-window-min"]')
+    .click();
+
+    cy.get('[data-cy="dev-panel-window-max"]')
+    .should('exisit');
+});
+
+Cypress.Commands.add(`devCollapsePanel`, () => {
+    cy.get('[data-cy="dev-panel-window-max"]')
+    .click();
+
+    cy.get('[data-cy="dev-panel-window-min"]')
+    .should('exisit');
+});
+
+Cypress.Commands.add(`devAddMockEvents`, () => {
+    cy.get('[data-cy="dev-panel-add-event-btn"]')
+    .click();
+
+    cy.wait(100);
+
+    cy.get('[data-cy="dev-panel-window-max"]')
+    .should('exisit');
+
+    cy.get('[data-cy="dev-panel-window-min"]')
+    .should('exisit');
+
+    cy.get('[data-cy="evenlist-filter-all"]')
+    .should('contain', '30');
+});
+
+Cypress.Commands.add(`devClearMockEvents`, () => {
+    cy.get('[data-cy="dev-panel-clear-event-btn"]')
+    .click();
+
+    cy.wait(100);
+
+    cy.get('[data-cy="dev-panel-window-max"]')
+    .should('exisit');
+
+    cy.get('[data-cy="dev-panel-window-min"]')
+    .should('exisit');
+
+    cy.get('[data-cy="evenlist-filter-all"]')
+    .should('contain', '0');
 });
