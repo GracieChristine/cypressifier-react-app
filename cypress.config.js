@@ -5,6 +5,7 @@ export default defineConfig({
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
-    // experimentalRunAllSpecs: true
+    testIsolation: false,
+    // experimentalRunAllSpecs: true,
   },
 });

@@ -125,8 +125,8 @@ Cypress.Commands.add(`devClearMockEvents`, () => {
 
 // User Auth Related Commands
 Cypress.Commands.add(`userSignup`, (email, password, confirmPass = null) => {
-    cy.clearCacheLoadLanding();
-    cy.landingToSignup();
+    // cy.clearCacheLoadLanding();
+    // cy.landingToSignup();
 
     // Fill in signup form
     cy.get('[data-cy="signup-email-input"]')
@@ -146,8 +146,8 @@ Cypress.Commands.add(`userSignup`, (email, password, confirmPass = null) => {
 
 // Need to consider, with different user input (admin/user), to navigate to different link.
 Cypress.Commands.add(`userLogin`, (email, password) => {
-    cy.clearCacheLoadLanding();
-    cy.landingToLogin();
+    // cy.clearCacheLoadLanding();
+    // cy.landingToLogin();
 
     // Fill in login form
     cy.get('[data-cy="login-email-input"]')
@@ -160,13 +160,13 @@ Cypress.Commands.add(`userLogin`, (email, password) => {
     .submit();
 
     cy.url()
-    .should('contain','/user/evelist');
+    .should('contain','/user/events');
 });
 
 // Need to consider, with different user input (admin/user), to navigate to different link.
 Cypress.Commands.add(`adminLogin`, (email, password) => {
-    cy.clearCacheLoadLanding();
-    cy.landingToLogin();
+    // cy.clearCacheLoadLanding();
+    // cy.landingToLogin();
 
     // Fill in login form
     cy.get('[data-cy="login-email-input"]')
