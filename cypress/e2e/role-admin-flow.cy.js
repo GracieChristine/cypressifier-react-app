@@ -175,11 +175,24 @@ describe(`Admin Experience Flow`, () => {
 
         // describe(`Admin Reviews Cancellation Requests`, () => {
         //     before(() => {
+        //         cy.clearCacheLoadLanding();
 
+        //         cy.landingToSignup();
+        //         cy.userSignup(userEmail, userPassword);
+                
+        //         // create 3 new events
+        //         Cypress._.times(3, () => {
+        //             cy.userAddNewEvent();
+        //         });
+
+        //         cy.userLogout();
+
+        //         cy.landingToLogin();
+        //         cy.adminLogin(adminEmail, adminPassword);
         //     });
 
         //     it(`should return to /admin/dashboard without any action`, () => {
-
+        //         cy.adminAcceptNewEvent();
         //     });
 
         //     it(`should approve cancellation request`, () => {

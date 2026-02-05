@@ -149,12 +149,10 @@ Cypress.Commands.add(``, () => {
 
 
 // Event Management Related Commands
-let newEventCount = 0;
-
-Cypress.Commands.add(`userAddNewEvent`, (numEvent) => {
+Cypress.Commands.add(`userAddNewEvent-old`, (eventName = null) => {
     cy.get('[data-cy="eventlist-filter-all"]')
     .scrollIntoView()
-    .should('contain', newEventCount)
+    .should('contain', eventCount)
     .and('be.visible');
 
     cy.get('[data-cy="eventlist-create-event-btn"]')
@@ -197,18 +195,121 @@ Cypress.Commands.add(`userAddNewEvent`, (numEvent) => {
 
     cy.wait(100);
     
-    newEventCount++;
+    eventCount++;
 
     cy.get('[data-cy="eventlist-filter-all"]')
     .scrollIntoView()
-    .should('contain', newEventCount)
+    .should('contain', eventCount)
     .and('be.visible');
 
     cy.get('[data-cy="eventlist-filter-in-review"]')
     .scrollIntoView()
-    .should('contain', newEventCount)
+    .should('contain', eventCount)
     .and('be.visible');
 });
+
+Cypress.Commands.add(`userAddNewEvent`, (eventName = null) => {
+    cy.get('[data-cy="eventlist-filter-all"]')
+    .invoke('text')
+    .then((text) => {
+        const currentCount = parseInt(text.match(/\((\d+)\)/)[1] || 0);
+
+        cy.get('[data-cy="eventlist-create-event-btn"]')
+        .click();
+
+        cy.url()
+        .should('contain', '/user/events/new');
+
+        cy.get('[data-cy="eventform-name-input"]')
+        .type(eventName || `Test Event ${currentCount + 1}`);
+
+        cy.get('[data-cy="eventform-date-input"]')
+        .scrollIntoView()
+        .type('2026-06-28');
+
+        cy.get('[data-cy="eventform-location-input"]')
+        .scrollIntoView()
+        .type('Garden Estate');
+
+        cy.get('[data-cy="eventform-type-input"]')
+        .scrollIntoView()
+        .type('Brithday');
+
+        cy.get('[data-cy="eventform-guestCount-input"]')
+        .scrollIntoView()
+        .type('50');
+
+        cy.get('[data-cy="eventform-budget-input"]')
+        .scrollIntoView()
+        .clear()
+        .type('75000');
+
+        cy.get('[data-cy="eventform-description-input"]')
+        .scrollIntoView()
+        .type(`This is just test event ${currentCount + 1} created for testing sake.`);
+
+        cy.get('form')
+        .submit();
+
+        cy.wait(100);
+
+        cy.url()
+        .should('contain', '/user/events');
+
+        cy.get('[data-cy="eventlist-filter-all"]')
+        .scrollIntoView()
+        .should('contain', `(${currentCount + 1})`)
+        .and('be.visible');
+
+        cy.get('[data-cy="eventlist-filter-all"]')
+        .scrollIntoView()
+        .should('contain', `(${currentCount + 1})`)
+        .and('be.visible');
+
+        cy.get('[data-cy="eventlist-filter-all"]')
+        .scrollIntoView()
+        .should('contain', `(${currentCount + 1})`)
+        .and('be.visible');
+    });
+});
+
+Cypress.Commands.add(`adminAcceptNewEvent`, () => {
+    cy.get('[data-cy="dashboard-table-entry"]')
+    .then(($events) => {
+        eventCount = $events.length;
+        expect(eventCount).to.be.greaterThan(0);
+    });
+
+    // cy.get('[data-cy="dashboard-status-box"]')
+    // .eq(0)
+    // .should('contain', 'All')
+    // .should('contain', '3')
+    // .and('be.visible');
+
+    // cy.get('[data-cy="dashboard-status-box"]')
+    // .eq(1)
+    // .should('contain', 'In Review')
+    // .should('contain', '3')
+    // .and('be.visible');
+
+    // cy.get('[data-cy="dashboard-table-entry"]')
+    // .eq(1)
+    // .find('[data-cy="dashboard-table-entry-action"]')
+    // .should('contain', 'View')
+    // .click();
+
+    // cy.url()
+    // .should('contain', '/admin/events/event_')
+    // .and('contain', '/edit');
+
+    // cy.get('[data-cy="review-new-comment-input"]')
+    // .scrollIntoView()
+    // .type('After reviewing, we have decided to accept this request. We will reach out shortly via email.');
+
+    // cy.get('[data-cy="accept-new-event-btn"]')
+    // .scrollIntoView()
+    // .click();
+})
 
 // Dev Related Commands
 Cypress.Commands.add(`devExpandPanel`, () => {
