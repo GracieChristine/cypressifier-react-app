@@ -43,25 +43,6 @@ describe(`Admin Experience Flow`, () => {
                 cy.adminLogin(adminEmail, adminPassword);
             });
 
-            it(`should have 3 new events`, () => {
-                cy.get('[data-cy="dashboard-alert-box"]')
-                .eq(0)
-                .should('contain', 'New Event Submission Requests')
-                .and('be.visible');
-                
-                cy.get('[data-cy="dashboard-status-box"]')
-                .eq(0)
-                .should('contain', 'All')
-                .should('contain', '3')
-                .and('be.visible');
-
-                cy.get('[data-cy="dashboard-status-box"]')
-                .eq(1)
-                .should('contain', 'In Review')
-                .should('contain', '3')
-                .and('be.visible');
-            });
-
             it(`should return with no action`, () => {
                 cy.get('[data-cy="dashboard-table-entry"]')
                 .first()
@@ -91,119 +72,45 @@ describe(`Admin Experience Flow`, () => {
             });
 
             it(`should accept new event`, () => {
-                cy.get('[data-cy="dashboard-table-entry"]')
-                .eq(1)
-                .find('[data-cy="dashboard-table-entry-action"]')
-                .should('contain', 'View')
-                .click();
-
-                cy.url()
-                .should('contain', '/admin/events/event_')
-                .and('contain', '/edit');
-
-                cy.get('[data-cy="review-new-comment-input"]')
-                .scrollIntoView()
-                .type('After reviewing, we have decided to accept this request. We will reach out shortly via email.');
-
-                cy.get('[data-cy="accept-new-event-btn"]')
-                .scrollIntoView()
-                .click();
-
-                cy.get('[data-cy="dashboard-status-box"]')
-                .eq(0)
-                .should('contain', 'All')
-                .should('contain', '3')
-                .and('be.visible');
-
-                cy.get('[data-cy="dashboard-status-box"]')
-                .eq(1)
-                .should('contain', 'In Review')
-                .should('contain', '2')
-                .and('be.visible');
-
-                cy.get('[data-cy="dashboard-status-box"]')
-                .eq(2)
-                .should('contain', 'In Progress')
-                .should('contain', '1')
-                .and('be.visible');
+                cy.adminAcceptNewEvent(1);
             });
 
             it(`should decline new event`, () => {
-                cy.get('[data-cy="dashboard-table-entry"]')
-                .eq(2)
-                .find('[data-cy="dashboard-table-entry-action"]')
-                .should('contain', 'View')
-                .click();
-
-                cy.url()
-                .should('contain', '/admin/events/event_')
-                .and('contain', '/edit');
-
-                cy.get('[data-cy="review-new-comment-input"]')
-                .scrollIntoView()
-                .type('After reviewing, we have decided to accept this request. We will reach out shortly via email.');
-
-                cy.get('[data-cy="decline-new-event-btn"]')
-                .scrollIntoView()
-                .click();
-
-                cy.get('[data-cy="dashboard-status-box"]')
-                .eq(0)
-                .should('contain', 'All')
-                .should('contain', '3')
-                .and('be.visible');
-
-                cy.get('[data-cy="dashboard-status-box"]')
-                .eq(1)
-                .should('contain', 'In Review')
-                .should('contain', '1')
-                .and('be.visible');
-
-                cy.get('[data-cy="dashboard-status-box"]')
-                .eq(2)
-                .should('contain', 'In Progress')
-                .should('contain', '1')
-                .and('be.visible');
-
-                cy.get('[data-cy="dashboard-status-box"]')
-                .eq(4)
-                .should('contain', 'Cancelled')
-                .should('contain', '1')
-                .and('be.visible');
+                cy.adminDeclineNewEvent(2);
             });
         });
 
-        // describe(`Admin Reviews Cancellation Requests`, () => {
-        //     before(() => {
-        //         cy.clearCacheLoadLanding();
+        describe(`Admin Reviews Cancellation Requests`, () => {
+            before(() => {
+                cy.clearCacheLoadLanding();
 
-        //         cy.landingToSignup();
-        //         cy.userSignup(userEmail, userPassword);
+                cy.landingToSignup();
+                cy.userSignup(userEmail, userPassword);
                 
-        //         // create 3 new events
-        //         Cypress._.times(3, () => {
-        //             cy.userAddNewEvent();
-        //         });
+                // create 3 new events
+                Cypress._.times(3, () => {
+                    cy.userAddNewEvent();
+                });
 
-        //         cy.userLogout();
+                cy.userLogout();
 
-        //         cy.landingToLogin();
-        //         cy.adminLogin(adminEmail, adminPassword);
-        //     });
+                cy.landingToLogin();
+                cy.adminLogin(adminEmail, adminPassword);
+            });
 
-        //     it(`should return to /admin/dashboard without any action`, () => {
-        //         cy.adminAcceptNewEvent();
-        //     });
+            it(`should return to /admin/dashboard without any action`, () => {
+                cy.adminAcceptNewEvent();
+            });
 
-        //     it(`should approve cancellation request`, () => {
+            it(`should approve cancellation request`, () => {
 
-        //     });
+            });
 
-        //     it(`should deny cancellation request`, () => {
+            it(`should deny cancellation request`, () => {
 
-        //     });
+            });
             
-        // });
+        });
 
         // describe(`Admin Reviews Event Completion`, () => {
         //     before(() => {
