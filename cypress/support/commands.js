@@ -149,10 +149,12 @@ Cypress.Commands.add(``, () => {
 
 
 // Event Management Related Commands
-Cypress.Commands.add(`userAddNewEvent`, () => {
+let newEventCount = 0;
+
+Cypress.Commands.add(`userAddNewEvent`, (numEvent) => {
     cy.get('[data-cy="eventlist-filter-all"]')
     .scrollIntoView()
-    .should('contain', '(0)')
+    .should('contain', newEventCount)
     .and('be.visible');
 
     cy.get('[data-cy="eventlist-create-event-btn"]')
@@ -183,6 +185,7 @@ Cypress.Commands.add(`userAddNewEvent`, () => {
 
     cy.get('[data-cy="eventform-budget-input"]')
     .scrollIntoView()
+    .clear()
     .type('75000');
 
     cy.get('[data-cy="eventform-description-input"]')
@@ -193,15 +196,17 @@ Cypress.Commands.add(`userAddNewEvent`, () => {
     .submit();
 
     cy.wait(100);
+    
+    newEventCount++;
 
     cy.get('[data-cy="eventlist-filter-all"]')
     .scrollIntoView()
-    .should('contain', '(1)')
+    .should('contain', newEventCount)
     .and('be.visible');
 
     cy.get('[data-cy="eventlist-filter-in-review"]')
     .scrollIntoView()
-    .should('contain', '(1)')
+    .should('contain', newEventCount)
     .and('be.visible');
 });
 

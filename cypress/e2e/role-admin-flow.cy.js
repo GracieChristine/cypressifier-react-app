@@ -4,6 +4,7 @@ describe(`Admin Experience Flow`, () => {
     const adminPassword = 'admin123';
     const userEmail = 'jane.doe@example.com';
     const userPassword = 'user123';
+    const numEvent = 0;
 
     describe(`Admin Authentication`, () => {
         before(() => {
@@ -24,15 +25,17 @@ describe(`Admin Experience Flow`, () => {
     });
 
     describe(`Admin Event Mgmt.`, () => {
-        describe(`Admin Declines New Event`, () => {
+        describe(`Admin Reviewing New Events`, () => {
             before(() => {
                 cy.clearCacheLoadLanding();
 
                 cy.landingToSignup();
                 cy.userSignup(userEmail, userPassword);
                 
-                // create new event
-                cy.userAddNewEvent();
+                // create 3 new events
+                Cypress._.times(3, () => {
+                    cy.userAddNewEvent();
+                });
 
                 cy.userLogout();
 
@@ -40,120 +43,173 @@ describe(`Admin Experience Flow`, () => {
                 cy.adminLogin(adminEmail, adminPassword);
             });
 
-            it(`should have a status of 'in review'`, () => {
+            it(`should have 3 new events`, () => {
                 cy.get('[data-cy="dashboard-alert-box"]')
                 .eq(0)
-                .should('contain', '1 New Event Submission')
+                .should('contain', 'New Event Submission Requests')
                 .and('be.visible');
                 
                 cy.get('[data-cy="dashboard-status-box"]')
                 .eq(0)
                 .should('contain', 'All')
-                .should('contain', '(1)')
+                .should('contain', '3')
                 .and('be.visible');
 
                 cy.get('[data-cy="dashboard-status-box"]')
                 .eq(1)
                 .should('contain', 'In Review')
-                .should('contain', '(1)')
-                .and('be.visible');
-
-                cy.get('[data-cy="dashboard-table-entry"]')
-                .eq(0)
-                .should('contain', "In Review")
-                .should('contain', 'View')
+                .should('contain', '3')
                 .and('be.visible');
             });
 
-            it(`should click on 'view' button and navigate to /admin/event `, () => {
-                cy.get('[data-cy="dashboard-table-entry-action"]')
+            it(`should return with no action`, () => {
+                cy.get('[data-cy="dashboard-table-entry"]')
+                .first()
+                .find('[data-cy="dashboard-table-entry-action"]')
+                .should('contain', 'View')
                 .click();
 
                 cy.url()
                 .should('contain', '/admin/events/event_')
                 .and('contain', '/edit');
 
-            });
-
-            it(`should display new event submitted need reviewing `, () => {
-                cy.get('[data-cy="eventview-details"]')
-                .scrollIntoView;
-
-                cy.get('[data-cy="eventview-details"]')
-                .should('contain', "New Event Submission")
-                .should('contain', 'Review Required')
-                .and('be.visible');
-
-            });
-
-            it(`should decline the event and navigate back to /admin/dashboard`, () => {
-                cy.get('[data-cy="review-new-comment-input"]')
+                cy.get('[data-cy="return-dashboard-btn"]')
                 .scrollIntoView()
-                .type('I\\m declining this new event submission due to x, y, and z reasoning. Thanks for your understanding.');
-
-                cy.get('[data-cy="decline-new-event-btn"]')
                 .click();
-
-                cy.url()
-                .should('contain', '/admin/dashboard')
-            });
-
-            it(`should now have a status of 'cancel'`, () => {
-                cy.get('[data-cy="dashboard-alert-box"]')
-                .should('not.exist');
 
                 cy.get('[data-cy="dashboard-status-box"]')
                 .eq(0)
                 .should('contain', 'All')
-                .should('contain', '(1)')
+                .should('contain', '3')
+                .and('be.visible');
+
+                cy.get('[data-cy="dashboard-status-box"]')
+                .eq(1)
+                .should('contain', 'In Review')
+                .should('contain', '3')
+                .and('be.visible');
+            });
+
+            it(`should accept new event`, () => {
+                cy.get('[data-cy="dashboard-table-entry"]')
+                .eq(1)
+                .find('[data-cy="dashboard-table-entry-action"]')
+                .should('contain', 'View')
+                .click();
+
+                cy.url()
+                .should('contain', '/admin/events/event_')
+                .and('contain', '/edit');
+
+                cy.get('[data-cy="review-new-comment-input"]')
+                .scrollIntoView()
+                .type('After reviewing, we have decided to accept this request. We will reach out shortly via email.');
+
+                cy.get('[data-cy="accept-new-event-btn"]')
+                .scrollIntoView()
+                .click();
+
+                cy.get('[data-cy="dashboard-status-box"]')
+                .eq(0)
+                .should('contain', 'All')
+                .should('contain', '3')
+                .and('be.visible');
+
+                cy.get('[data-cy="dashboard-status-box"]')
+                .eq(1)
+                .should('contain', 'In Review')
+                .should('contain', '2')
+                .and('be.visible');
+
+                cy.get('[data-cy="dashboard-status-box"]')
+                .eq(2)
+                .should('contain', 'In Progress')
+                .should('contain', '1')
+                .and('be.visible');
+            });
+
+            it(`should decline new event`, () => {
+                cy.get('[data-cy="dashboard-table-entry"]')
+                .eq(2)
+                .find('[data-cy="dashboard-table-entry-action"]')
+                .should('contain', 'View')
+                .click();
+
+                cy.url()
+                .should('contain', '/admin/events/event_')
+                .and('contain', '/edit');
+
+                cy.get('[data-cy="review-new-comment-input"]')
+                .scrollIntoView()
+                .type('After reviewing, we have decided to accept this request. We will reach out shortly via email.');
+
+                cy.get('[data-cy="decline-new-event-btn"]')
+                .scrollIntoView()
+                .click();
+
+                cy.get('[data-cy="dashboard-status-box"]')
+                .eq(0)
+                .should('contain', 'All')
+                .should('contain', '3')
+                .and('be.visible');
+
+                cy.get('[data-cy="dashboard-status-box"]')
+                .eq(1)
+                .should('contain', 'In Review')
+                .should('contain', '1')
+                .and('be.visible');
+
+                cy.get('[data-cy="dashboard-status-box"]')
+                .eq(2)
+                .should('contain', 'In Progress')
+                .should('contain', '1')
                 .and('be.visible');
 
                 cy.get('[data-cy="dashboard-status-box"]')
                 .eq(4)
                 .should('contain', 'Cancelled')
-                .should('contain', '(1)')
-                .and('be.visible');
-
-                cy.get('[data-cy="dashboard-table-entry"]')
-                .eq(0)
-                .should('contain', "Cancelled")
+                .should('contain', '1')
                 .and('be.visible');
             });
-            
         });
 
-        describe(`Admin Declines Event Cancellation Request`, () => {
-            before(() => {
-                
-            });
+        // describe(`Admin Reviews Cancellation Requests`, () => {
+        //     before(() => {
 
-            it(``, () => {
+        //     });
 
-            });
+        //     it(`should return to /admin/dashboard without any action`, () => {
+
+        //     });
+
+        //     it(`should approve cancellation request`, () => {
+
+        //     });
+
+        //     it(`should deny cancellation request`, () => {
+
+        //     });
             
-        });
+        // });
 
-        describe(`Admin Cancels Event Completion`, () => {
-            before(() => {
-                
-            });
+        // describe(`Admin Reviews Event Completion`, () => {
+        //     before(() => {
 
-            it(``, () => {
+        //     });
 
-            });
+        //     it(`should return to /admin/dashboard without any action`, () => {
+
+        //     });
+
+        //     it(`should confirm event completion`, () => {
+
+        //     });
+
+        //     it(`should cancel event completion`, () => {
+
+        //     });
             
-        });
-
-        describe(`Admin Completes An Event`, () => {
-            before(() => {
-                
-            });
-
-            it(``, () => {
-
-            });
-            
-        });
+        // });
     });
 
     // describe(`Admin's Dev Tool`, () => {
