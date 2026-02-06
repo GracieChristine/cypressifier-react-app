@@ -149,6 +149,7 @@ Cypress.Commands.add(``, () => {
 
 
 // Event Management Related Commands
+
 // Helper function to extract count
 const getCountFromText = (text) => {
   const match = text.match(/\((\d+)\)/);
@@ -169,40 +170,45 @@ Cypress.Commands.add('userAddNewEvent', (eventName = null) => {
   cy.userGetOneFilterCount('[data-cy="eventlist-filter-all"]')
   .then((allCount) => {
 
-    cy.get('[data-cy="eventlist-create-event-btn"]')
+    cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-review"]')
+    .then((inReviewCount) => {
+
+      cy.get('[data-cy="eventlist-create-event-btn"]')
     .click();
 
-    cy.url()
-    .should('contain', '/user/events/new');
+      cy.url()
+      .should('contain', '/user/events/new');
 
-    cy.get('[data-cy="eventform-name-input"]')
-      .type(eventName || `Test Event ${allCount + 1}`);
+      cy.get('[data-cy="eventform-name-input"]')
+        .type(eventName || `Test Event ${allCount + 1}`);
 
-    cy.get('[data-cy="eventform-date-input"]')
-    .type('2026-06-28');
-    cy.get('[data-cy="eventform-location-input"]')
-    .type('Garden Estate');
-    cy.get('[data-cy="eventform-type-input"]')
-    .type('Birthday');
-    cy.get('[data-cy="eventform-guestCount-input"]')
-    .type('50');
-    cy.get('[data-cy="eventform-budget-input"]')
-    .clear()
-    .type('75000');
-    cy.get('[data-cy="eventform-description-input"]')
-      .type(`This is test event ${allCount + 1}.`);
+      cy.get('[data-cy="eventform-date-input"]')
+      .type('2026-06-28');
+      cy.get('[data-cy="eventform-location-input"]')
+      .type('Garden Estate');
+      cy.get('[data-cy="eventform-type-input"]')
+      .type('Birthday');
+      cy.get('[data-cy="eventform-guestCount-input"]')
+      .type('50');
+      cy.get('[data-cy="eventform-budget-input"]')
+      .clear()
+      .type('75000');
+      cy.get('[data-cy="eventform-description-input"]')
+        .type(`This is test event ${allCount + 1}.`);
 
-    cy.get('form')
-    .submit();
+      cy.get('form')
+      .submit();
 
-    cy.url()
-    .should('contain', '/user/events');
+      cy.url()
+      .should('contain', '/user/events');
 
-    cy.userGetOneFilterCount('[data-cy="eventlist-filter-all"]')
-      .should('eq', allCount + 1);
+      cy.userGetOneFilterCount('[data-cy="eventlist-filter-all"]')
+        .should('eq', allCount + 1);
 
-    cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-review"]')
-      .should('eq', allCount + 1);
+      cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-review"]')
+        .should('eq', inReviewCount + 1);
+
+    }); 
   });
 });
 
@@ -210,9 +216,9 @@ Cypress.Commands.add('adminAcceptNewEvent', () => {
   cy.adminGetOneStatusCount('All')
   .then((allCount) => {
     cy.adminGetOneStatusCount('In Review')
-    .then((reviewCount) => {
+    .then((inReviewCount) => {
         cy.adminGetOneStatusCount('In Progress')
-        .then((progressCount) => {
+        .then((inProgressCount) => {
 
         cy.contains('[data-cy="dashboard-table-entry"]', 'In Review')
             .first()
@@ -239,9 +245,9 @@ Cypress.Commands.add('adminAcceptNewEvent', () => {
         cy.adminGetOneStatusCount('All')
         .should('eq', allCount);
         cy.adminGetOneStatusCount('In Review')
-        .should('eq', reviewCount - 1);
+        .should('eq', inReviewCount - 1);
         cy.adminGetOneStatusCount('In Progress')
-        .should('eq', progressCount + 1);
+        .should('eq', inProgressCount + 1);
         });
     });
 
@@ -289,6 +295,50 @@ Cypress.Commands.add('adminDeclineNewEvent', () => {
   });
 });
 
+Cypress.Commands.add('adminConsiderNewEvent', () => {
+  cy.adminGetOneStatusCount('All')
+  .then((allCount) => {
+    cy.adminGetOneStatusCount('In Review')
+    .then((inReviewCount) => {
+        cy.adminGetOneStatusCount('In Progress')
+        .then((inProgressCount) => {
+
+          cy.adminGetOneStatusCount('Cancelled')
+          .then((cancelledCount) => {
+
+            cy.contains('[data-cy="dashboard-table-entry"]', 'In Review')
+            .first()
+            .within(() => {
+                cy.get('[data-cy="dashboard-table-entry-action"]')
+                .click();
+            });
+
+            cy.url()
+            .should('include', '/admin/events/')
+            .and('contain', '/edit');
+
+            cy.get('[data-cy="return-dashboard-btn"]')
+            .scrollIntoView()
+            .click();
+
+            cy.url()
+            .should('contain', '/admin/dashboard');
+
+            cy.adminGetOneStatusCount('All')
+            .should('eq', allCount);
+            cy.adminGetOneStatusCount('In Review')
+            .should('eq', inReviewCount);
+            cy.adminGetOneStatusCount('In Progress')
+            .should('eq', inProgressCount);
+            cy.adminGetOneStatusCount('Cancelled')
+            .should('eq', cancelledCount);
+            });
+            
+        }); 
+    });
+  });
+});
+
 Cypress.Commands.add('userSendCancellationRequest', () => {
   cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]').then((inProgressCount) => {
 
@@ -323,9 +373,12 @@ Cypress.Commands.add('userSendCancellationRequest', () => {
 });
 
 Cypress.Commands.add('adminAcceptEventCancelRequest', () => {
-  cy.adminGetOneStatusCount('All').then((allCount) => {
-    cy.adminGetOneStatusCount('In Progress').then((progressCount) => {
-        cy.adminGetOneStatusCount('Cancelled').then((cancelledCount) => {
+  cy.adminGetOneStatusCount('All')
+  .then((allCount) => {
+    cy.adminGetOneStatusCount('In Progress')
+    .then((inProgressCount) => {
+        cy.adminGetOneStatusCount('Cancelled')
+        .then((cancelledCount) => {
 
         cy.contains('[data-cy="dashboard-table-entry"]', 'Cancel Request')
             .first()
@@ -344,7 +397,7 @@ Cypress.Commands.add('adminAcceptEventCancelRequest', () => {
         cy.adminGetOneStatusCount('All')
         .should('eq', allCount);
         cy.adminGetOneStatusCount('In Progress')
-        .should('eq', progressCount - 1);
+        .should('eq', inProgressCount - 1);
         cy.adminGetOneStatusCount('Cancelled')
         .should('eq', cancelledCount + 1);
         });
@@ -353,140 +406,131 @@ Cypress.Commands.add('adminAcceptEventCancelRequest', () => {
 });
 
 Cypress.Commands.add('adminDeclineEventCancelRequest', () => {
-  cy.adminGetOneStatusCount('All').then((allCount) => {
-    Cypress.Commands.add('adminAcceptEventCancelRequest', () => {
-    cy.adminGetOneStatusCount('In Progress').then((progressCount) => {
-        cy.adminGetOneStatusCount('Cancelled').then((cancelledCount) => {
+  cy.adminGetOneStatusCount('All')
+  .then((allCount) => {
+    cy.adminGetOneStatusCount('In Progress')
+    .then((inProgressCount) => {
+        cy.adminGetOneStatusCount('Cancelled')
+        .then((cancelledCount) => {
 
-            cy.contains('[data-cy="dashboard-table-entry"]', 'Cancel Request')
-                .first()
-                .within(() => {
-                cy.get('[data-cy="dashboard-table-entry-action"]').click();
-                });
-
-            cy.url()
-                .should('contain', '/admin/events/')
-                .and('contain', '/edit');
-
-              cy.get('[data-cy="review-cancel-comment-input"]')
-                .scrollIntoView()
-                .type('After much consideration, we\'re unable to cancel this event at this moment.');
-
-            cy.get('[data-cy="accept-cancel-event-btn"]').click();
-
-            cy.adminGetOneStatusCount('All').should('eq', allCount);
-            cy.adminGetOneStatusCount('In Progress').should('eq', progressCount);
-            cy.adminGetOneStatusCount('Cancelled').should('eq', cancelledCount);
+        cy.contains('[data-cy="dashboard-table-entry"]', 'Cancel Request')
+            .first()
+            .within(() => {
+            cy.get('[data-cy="dashboard-table-entry-action"]').click();
             });
+
+        cy.get('[data-cy="review-cancel-comment-input"]')
+            .scrollIntoView()
+            .type('After much consideration, we\'re unable to cancel this event at this moment.');
+
+        cy.get('[data-cy="decline-cancel-event-btn"]')
+        .should('be.enabled')
+        .click();
+
+        cy.adminGetOneStatusCount('All')
+        .should('eq', allCount);
+        cy.adminGetOneStatusCount('In Progress')
+        .should('eq', inProgressCount);
+        cy.adminGetOneStatusCount('Cancelled')
+        .should('eq', cancelledCount);
         });
     });
   });
 });
 
-Cypress.Commands.add('adminSaveEventAsCompleted', () => {
-  cy.get('[data-cy="dashboard-status-box"]')
-    .contains('In Progress')
-    .invoke('text')
-    .then((text) => {
-        const inProgressCount = parseInt(text.match(/\((\d+)\)/)[1]);
+Cypress.Commands.add('adminConsiderEventCancelRequest', () => {
+  cy.adminGetOneStatusCount('All')
+  .then((allCount) => {
+    cy.adminGetOneStatusCount('In Progress')
+    .then((inProgressCount) => {
+        cy.adminGetOneStatusCount('Cancelled')
+        .then((cancelledCount) => {
 
-      cy.get('[data-cy="dashboard-status-box"]')
-        .contains('In Progress')
-        .invoke('text')
-        .then((progressText) => {
-          const completedCount = parseInt(progressText.match(/\((\d+)\)/)?.[1] || 0);
-
-          // 🔑 Find FIRST row that is In Progress
-          cy.get('[data-cy="dashboard-table-entry"]')
-            .contains('In Progress')
-            .parents('[data-cy="dashboard-table-entry"]')
+        cy.contains('[data-cy="dashboard-table-entry"]', 'Cancel Request')
             .first()
             .within(() => {
-              cy.get('[data-cy="dashboard-table-entry-action"]')
-                .should('contain', 'Update')
-                .click();
+            cy.get('[data-cy="dashboard-table-entry-action"]').click();
             });
 
-          cy.url()
-            .should('contain', '/admin/events/')
-            .and('contain', '/edit');
+        cy.get('[data-cy="return-dashboard-btn"]')
+        .last()
+        .scrollIntoView()
+        .click();
 
-          cy.get('[data-cy="complete-event-checkbox"]')
-            .click();
-
-          cy.get('[data-cy="complete-event-comment-input"]')
-            .type('All event\'s action items are done successfully. Moving it to complete.');
-
-          cy.get('[data-cy="save-event-update-btn"]').click();
-
-          cy.url().should('contain', '/admin/dashboard');
-
-          cy.get('[data-cy="dashboard-status-box"]')
-            .contains('All')
-            .should('contain', `(${inProgressCount - 1 + completedCount + 1})`);
-
-          cy.get('[data-cy="dashboard-status-box"]')
-            .contains('In Progress')
-            .should('contain', `(${inProgressCount - 1})`);
-
-          cy.get('[data-cy="dashboard-status-box"]')
-            .contains('Cancelled')
-            .should('contain', `(${completedCount + 1})`);
+        cy.adminGetOneStatusCount('All')
+        .should('eq', allCount);
+        cy.adminGetOneStatusCount('In Progress')
+        .should('eq', inProgressCount);
+        cy.adminGetOneStatusCount('Cancelled')
+        .should('eq', cancelledCount);
         });
     });
+  });
 });
 
-Cypress.Commands.add('adminCancelventAsCompleted', () => {
-  cy.get('[data-cy="dashboard-status-box"]')
-    .contains('In Progress')
-    .invoke('text')
-    .then((text) => {
-        const inProgressCount = parseInt(text.match(/\((\d+)\)/)[1]);
+Cypress.Commands.add('adminSetEventAsCompleted', () => {
+  cy.adminGetOneStatusCount('All')
+  .then((allCount) => {
+    cy.adminGetOneStatusCount('In Progress')
+    .then((inProgressCount) => {
+        cy.adminGetOneStatusCount('Completed')
+        .then((completedCount) => {
 
-      cy.get('[data-cy="dashboard-status-box"]')
-        .contains('In Progress')
-        .invoke('text')
-        .then((progressText) => {
-          const completedCount = parseInt(progressText.match(/\((\d+)\)/)?.[1] || 0);
-
-          // 🔑 Find FIRST row that is In Progress
-          cy.get('[data-cy="dashboard-table-entry"]')
-            .contains('In Progress')
-            .parents('[data-cy="dashboard-table-entry"]')
+        cy.contains('[data-cy="dashboard-table-entry"]', 'Update')
             .first()
             .within(() => {
-              cy.get('[data-cy="dashboard-table-entry-action"]')
-                .should('contain', 'Update')
-                .click();
+            cy.get('[data-cy="dashboard-table-entry-action"]').click();
             });
 
-          cy.url()
-            .should('contain', '/admin/events/')
-            .and('contain', '/edit');
-
-          cy.get('[data-cy="complete-event-checkbox"]')
+        cy.get('[data-cy="complete-event-checkbox"]')
             .click();
 
-          cy.get('[data-cy="complete-event-comment-input"]')
+        cy.get('[data-cy="complete-event-comment-input"]')
+            .scrollIntoView()
             .type('All event\'s action items are done successfully. Moving it to complete.');
 
-          cy.get('[data-cy="return-dashboard-btn"]').click();
+        cy.get('[data-cy="save-event-update-btn"]')
+        .should('be.enabled')
+        .click();
 
-          cy.url().should('contain', '/admin/dashboard');
-
-          cy.get('[data-cy="dashboard-status-box"]')
-            .contains('All')
-            .should('contain', `(${inProgressCount + completedCount})`);
-
-          cy.get('[data-cy="dashboard-status-box"]')
-            .contains('In Progress')
-            .should('contain', `(${inProgressCount})`);
-
-          cy.get('[data-cy="dashboard-status-box"]')
-            .contains('Cancelled')
-            .should('contain', `(${completedCount})`);
+        cy.adminGetOneStatusCount('All')
+        .should('eq', allCount);
+        cy.adminGetOneStatusCount('In Progress')
+        .should('eq', inProgressCount - 1);
+        cy.adminGetOneStatusCount('Completed')
+        .should('eq', completedCount + 1);
         });
     });
+  });
+});
+
+Cypress.Commands.add('adminConsiderEventAsCompleted', () => {
+  cy.adminGetOneStatusCount('All')
+  .then((allCount) => {
+    cy.adminGetOneStatusCount('In Progress')
+    .then((inProgressCount) => {
+        cy.adminGetOneStatusCount('Completed')
+        .then((completedCount) => {
+
+        cy.contains('[data-cy="dashboard-table-entry"]', 'Update')
+            .first()
+            .within(() => {
+            cy.get('[data-cy="dashboard-table-entry-action"]').click();
+            });
+
+        cy.get('[data-cy="return-dashboard-btn"]')
+        .scrollIntoView()
+        .click();
+
+        cy.adminGetOneStatusCount('All')
+        .should('eq', allCount);
+        cy.adminGetOneStatusCount('In Progress')
+        .should('eq', inProgressCount);
+        cy.adminGetOneStatusCount('Completed')
+        .should('eq', completedCount);
+        });
+    });
+  });
 });
 
 
