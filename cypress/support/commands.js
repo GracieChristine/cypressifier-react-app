@@ -149,87 +149,261 @@ Cypress.Commands.add(``, () => {
 
 
 // Event Management Related Commands
-Cypress.Commands.add(`userAddNewEvent`, (eventName = null) => {
-    cy.get('[data-cy="eventlist-filter-all"]')
+// Helper function to extract count
+const getCountFromText = (text) => {
+  const match = text.match(/\((\d+)\)/);
+  return match ? Number(match[1]) : 0;
+};
+
+Cypress.Commands.add('userGetOneFilterCount', (filter) => {
+  return cy.get(filter).invoke('text').then(getCountFromText);
+});
+
+Cypress.Commands.add('adminGetOneStatusCount', (status) => {
+  return cy.contains('[data-cy="dashboard-status-box"]', status)
     .invoke('text')
-    .then((text) => {
-        const totalCount = parseInt(text.match(/\((\d+)\)/)[1] || 0);
+    .then(getCountFromText);
+});
 
-        cy.get('[data-cy="eventlist-create-event-btn"]')
-        .click();
+Cypress.Commands.add('userAddNewEvent', (eventName = null) => {
+  cy.userGetOneFilterCount('[data-cy="eventlist-filter-all"]')
+  .then((allCount) => {
 
-        cy.url()
-        .should('contain', '/user/events/new');
+    cy.get('[data-cy="eventlist-create-event-btn"]')
+    .click();
 
-        cy.get('[data-cy="eventform-name-input"]')
-        .type(eventName || `Test Event ${totalCount + 1}`);
+    cy.url()
+    .should('contain', '/user/events/new');
 
-        cy.get('[data-cy="eventform-date-input"]')
-        .scrollIntoView()
-        .type('2026-06-28');
+    cy.get('[data-cy="eventform-name-input"]')
+      .type(eventName || `Test Event ${allCount + 1}`);
 
-        cy.get('[data-cy="eventform-location-input"]')
-        .scrollIntoView()
-        .type('Garden Estate');
+    cy.get('[data-cy="eventform-date-input"]')
+    .type('2026-06-28');
+    cy.get('[data-cy="eventform-location-input"]')
+    .type('Garden Estate');
+    cy.get('[data-cy="eventform-type-input"]')
+    .type('Birthday');
+    cy.get('[data-cy="eventform-guestCount-input"]')
+    .type('50');
+    cy.get('[data-cy="eventform-budget-input"]')
+    .clear()
+    .type('75000');
+    cy.get('[data-cy="eventform-description-input"]')
+      .type(`This is test event ${allCount + 1}.`);
 
-        cy.get('[data-cy="eventform-type-input"]')
-        .scrollIntoView()
-        .type('Brithday');
+    cy.get('form')
+    .submit();
 
-        cy.get('[data-cy="eventform-guestCount-input"]')
-        .scrollIntoView()
-        .type('50');
+    cy.url()
+    .should('contain', '/user/events');
 
-        cy.get('[data-cy="eventform-budget-input"]')
-        .scrollIntoView()
-        .clear()
-        .type('75000');
+    cy.userGetOneFilterCount('[data-cy="eventlist-filter-all"]')
+      .should('eq', allCount + 1);
 
-        cy.get('[data-cy="eventform-description-input"]')
-        .scrollIntoView()
-        .type(`This is just test event ${totalCount + 1} created for testing sake.`);
-
-        cy.get('form')
-        .submit();
-
-        cy.wait(100);
-
-        cy.url()
-        .should('contain', '/user/events');
-
-        cy.get('[data-cy="eventlist-filter-all"]')
-        .scrollIntoView()
-        .should('contain', `(${totalCount + 1})`)
-        .and('be.visible');
-
-        cy.get('[data-cy="eventlist-filter-in-review"]')
-        .scrollIntoView()
-        .should('contain', `(${totalCount + 1})`)
-        .and('be.visible');
-    });
+    cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-review"]')
+      .should('eq', allCount + 1);
+  });
 });
 
 Cypress.Commands.add('adminAcceptNewEvent', () => {
+  cy.adminGetOneStatusCount('All')
+  .then((allCount) => {
+    cy.adminGetOneStatusCount('In Review')
+    .then((reviewCount) => {
+        cy.adminGetOneStatusCount('In Progress')
+        .then((progressCount) => {
+
+        cy.contains('[data-cy="dashboard-table-entry"]', 'In Review')
+            .first()
+            .within(() => {
+                cy.get('[data-cy="dashboard-table-entry-action"]')
+                .click();
+            });
+
+        cy.url()
+        .should('include', '/admin/events/')
+        .and('contain', '/edit');
+
+        cy.get('[data-cy="review-new-comment-input"]')
+        .should('be.visible')
+        .type('After reviewing, we have accepted this request. We will  reach out shortly via email.');
+
+        cy.get('[data-cy="accept-new-event-btn"]')
+        .should('be.enabled')
+        .click();
+
+        cy.url()
+        .should('contain', '/admin/dashboard');
+
+        cy.adminGetOneStatusCount('All')
+        .should('eq', allCount);
+        cy.adminGetOneStatusCount('In Review')
+        .should('eq', reviewCount - 1);
+        cy.adminGetOneStatusCount('In Progress')
+        .should('eq', progressCount + 1);
+        });
+    });
+
+  });
+  
+});
+
+Cypress.Commands.add('adminDeclineNewEvent', () => {
+  cy.adminGetOneStatusCount('All')
+  .then((allCount) => {
+    cy.adminGetOneStatusCount('In Review')
+    .then((reviewCount) => {
+        cy.adminGetOneStatusCount('Cancelled')
+        .then((cancelledCount) => {
+
+        cy.contains('[data-cy="dashboard-table-entry"]', 'In Review')
+            .first()
+            .within(() => {
+                cy.get('[data-cy="dashboard-table-entry-action"]')
+                .click();
+            });
+
+        cy.url()
+        .should('contain', '/admin/events/')
+        .and('contain', '/edit');
+
+        cy.get('[data-cy="review-new-comment-input"]')
+            .type('After much consideration, we decided to decline this request.');
+
+        cy.get('[data-cy="decline-new-event-btn"]')
+        .should('be.enabled')
+        .click();
+
+        cy.url()
+        .should('contain', '/admin/dashboard');
+
+        cy.adminGetOneStatusCount('All')
+        .should('eq', allCount);
+        cy.adminGetOneStatusCount('In Review')
+        .should('eq', reviewCount - 1);
+        cy.adminGetOneStatusCount('Cancelled')
+        .should('eq', cancelledCount + 1);
+        });
+    });
+  });
+});
+
+Cypress.Commands.add('userSendCancellationRequest', () => {
+  cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]').then((inProgressCount) => {
+
+    cy.get('[data-cy="eventlist-event-list-entry"]').then($entries => {
+      const target = $entries.filter((i, el) => {
+        const $el = Cypress.$(el);
+        return $el.text().includes('In Progress') && !$el.text().includes('Pending');
+      });
+
+      expect(target.length).to.be.greaterThan(0);
+
+      cy.wrap(target.first())
+        .find('[data-cy="eventlist-event-list-entry-cancel-btn"]')
+        .click();
+    });
+
+    cy.url()
+    .should('contain', '/user/events/event_');
+
+    cy.get('[data-cy="cancel-event-comment-input"]')
+      .type('I need to cancel this event due to family reasons.');
+
+    cy.get('[data-cy="cancel-event-submit-btn"]')
+    .should('be.enabled')
+    .click();
+
+    cy.url().should('contain', '/user/events');
+
+    cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]')
+      .should('eq', inProgressCount);
+  });
+});
+
+Cypress.Commands.add('adminAcceptEventCancelRequest', () => {
+  cy.adminGetOneStatusCount('All').then((allCount) => {
+    cy.adminGetOneStatusCount('In Progress').then((progressCount) => {
+        cy.adminGetOneStatusCount('Cancelled').then((cancelledCount) => {
+
+        cy.contains('[data-cy="dashboard-table-entry"]', 'Cancel Request')
+            .first()
+            .within(() => {
+            cy.get('[data-cy="dashboard-table-entry-action"]').click();
+            });
+
+        cy.get('[data-cy="review-cancel-comment-input"]')
+            .scrollIntoView()
+            .type('After much consideration, we\'re unable to cancel this event at this moment.');
+
+        cy.get('[data-cy="accept-cancel-event-btn"]')
+        .should('be.enabled')
+        .click();
+
+        cy.adminGetOneStatusCount('All')
+        .should('eq', allCount);
+        cy.adminGetOneStatusCount('In Progress')
+        .should('eq', progressCount - 1);
+        cy.adminGetOneStatusCount('Cancelled')
+        .should('eq', cancelledCount + 1);
+        });
+    });
+  });
+});
+
+Cypress.Commands.add('adminDeclineEventCancelRequest', () => {
+  cy.adminGetOneStatusCount('All').then((allCount) => {
+    Cypress.Commands.add('adminAcceptEventCancelRequest', () => {
+    cy.adminGetOneStatusCount('In Progress').then((progressCount) => {
+        cy.adminGetOneStatusCount('Cancelled').then((cancelledCount) => {
+
+            cy.contains('[data-cy="dashboard-table-entry"]', 'Cancel Request')
+                .first()
+                .within(() => {
+                cy.get('[data-cy="dashboard-table-entry-action"]').click();
+                });
+
+            cy.url()
+                .should('contain', '/admin/events/')
+                .and('contain', '/edit');
+
+              cy.get('[data-cy="review-cancel-comment-input"]')
+                .scrollIntoView()
+                .type('After much consideration, we\'re unable to cancel this event at this moment.');
+
+            cy.get('[data-cy="accept-cancel-event-btn"]').click();
+
+            cy.adminGetOneStatusCount('All').should('eq', allCount);
+            cy.adminGetOneStatusCount('In Progress').should('eq', progressCount);
+            cy.adminGetOneStatusCount('Cancelled').should('eq', cancelledCount);
+            });
+        });
+    });
+  });
+});
+
+Cypress.Commands.add('adminSaveEventAsCompleted', () => {
   cy.get('[data-cy="dashboard-status-box"]')
-    .contains('In Review')
+    .contains('In Progress')
     .invoke('text')
     .then((text) => {
-      const inReviewCount = parseInt(text.match(/\((\d+)\)/)[1]);
+        const inProgressCount = parseInt(text.match(/\((\d+)\)/)[1]);
 
       cy.get('[data-cy="dashboard-status-box"]')
         .contains('In Progress')
         .invoke('text')
         .then((progressText) => {
-          const inProgressCount = parseInt(progressText.match(/\((\d+)\)/)?.[1] || 0);
+          const completedCount = parseInt(progressText.match(/\((\d+)\)/)?.[1] || 0);
 
-          // 🔑 Find FIRST row that is In Review
+          // 🔑 Find FIRST row that is In Progress
           cy.get('[data-cy="dashboard-table-entry"]')
-            .contains('In Review')
+            .contains('In Progress')
             .parents('[data-cy="dashboard-table-entry"]')
             .first()
             .within(() => {
               cy.get('[data-cy="dashboard-table-entry-action"]')
-                .should('contain', 'View')
+                .should('contain', 'Update')
                 .click();
             });
 
@@ -237,208 +411,82 @@ Cypress.Commands.add('adminAcceptNewEvent', () => {
             .should('contain', '/admin/events/')
             .and('contain', '/edit');
 
-          cy.get('[data-cy="review-new-comment-input"]')
-            .type(
-              'After reviewing, we have decided to accept this request. We will reach out shortly via email.'
-            );
+          cy.get('[data-cy="complete-event-checkbox"]')
+            .click();
 
-          cy.get('[data-cy="accept-new-event-btn"]').click();
+          cy.get('[data-cy="complete-event-comment-input"]')
+            .type('All event\'s action items are done successfully. Moving it to complete.');
+
+          cy.get('[data-cy="save-event-update-btn"]').click();
 
           cy.url().should('contain', '/admin/dashboard');
 
           cy.get('[data-cy="dashboard-status-box"]')
-            .contains('In Review')
-            .should('contain', `(${inReviewCount - 1})`);
+            .contains('All')
+            .should('contain', `(${inProgressCount - 1 + completedCount + 1})`);
 
           cy.get('[data-cy="dashboard-status-box"]')
             .contains('In Progress')
-            .should('contain', `(${inProgressCount + 1})`);
+            .should('contain', `(${inProgressCount - 1})`);
+
+          cy.get('[data-cy="dashboard-status-box"]')
+            .contains('Cancelled')
+            .should('contain', `(${completedCount + 1})`);
         });
     });
 });
 
-Cypress.Commands.add(`adminDeclineNewEvent`, (position = 0) => {
-    cy.get('[data-cy="dashboard-status-box"]')
-        .contains('In Review')
-        .invoke('text')
-        .then((text) => {
-            const inReviewCount = parseInt(text.match(/\((\d+)\)/)[1]);
-            
-            cy.get('[data-cy="dashboard-status-box"]')
-                .contains('Cancelled')
-                .invoke('text')
-                .then((cancelledText) => {
-                    const cancelledCount = parseInt(cancelledText.match(/\((\d+)\)/)?.[1] || 0);
-                    
-                    cy.get('[data-cy="dashboard-table-entry"]')
-                        .should('have.length.greaterThan', 0)
-                        .eq(position)
-                        .find('[data-cy="dashboard-table-entry-action"]')
-                        .should('contain', 'View')
-                        .click();
+Cypress.Commands.add('adminCancelventAsCompleted', () => {
+  cy.get('[data-cy="dashboard-status-box"]')
+    .contains('In Progress')
+    .invoke('text')
+    .then((text) => {
+        const inProgressCount = parseInt(text.match(/\((\d+)\)/)[1]);
 
-                    cy.url()
-                        .should('contain', '/admin/events/event_')
-                        .and('contain', '/edit');
-
-                    cy.get('[data-cy="review-new-comment-input"]')
-                        .scrollIntoView()
-                        .type('Unfortunately, we cannot accommodate this event request due to scheduling conflicts.');
-
-                    cy.get('[data-cy="decline-new-event-btn"]')
-                        .scrollIntoView()
-                        .click();
-
-                    cy.url()
-                        .should('contain', '/admin/dashboard');
-                    
-                    cy.get('[data-cy="dashboard-status-box"]')
-                        .contains('In Review')
-                        .should('contain', `(${inReviewCount - 1})`);
-                    
-                    cy.get('[data-cy="dashboard-status-box"]')
-                        .contains('Cancelled')
-                        .should('contain', `(${cancelledCount + 1})`);
-                });
-        });
-});
-
-Cypress.Commands.add(`adminAcceptEventCancelRequest`, (eventPosition = 0) => {
-    cy.get('[data-cy="dashboard-status-box"]')
+      cy.get('[data-cy="dashboard-status-box"]')
         .contains('In Progress')
         .invoke('text')
-        .then((text) => {
-            const inProgressCount = parseInt(text.match(/\((\d+)\)/)[1]);
-            
-            cy.get('[data-cy="dashboard-status-box"]')
-                .contains('Cancelled')
-                .invoke('text')
-                .then((cancelledText) => {
-                    const cancelledCount = parseInt(cancelledText.match(/\((\d+)\)/)?.[1] || 0);
-                    
-                    cy.get('[data-cy="dashboard-table-entry"]')
-                        .eq(eventPosition)
-                        .find('[data-cy="dashboard-table-entry-action"]')
-                        .click();
-                    
-                    cy.url()
-                        .should('contain', '/admin/events/event_')
-                        .and('contain', '/edit');
-                    
-                    cy.get('[data-cy="review-cancel-comment-input"]')
-                        .scrollIntoView()
-                        .type('We understand the situation and approve this cancellation request.');
-                    
-                    cy.get('[data-cy="accept-cancel-event-btn"]')
-                        .scrollIntoView()
-                        .click();
-                    
-                    cy.url()
-                        .should('contain', '/admin/dashboard');
-                    
-                    // Verify counts changed
-                    cy.get('[data-cy="dashboard-status-box"]')
-                        .contains('In Progress')
-                        .should('contain', `(${inProgressCount - 1})`);
-                    
-                    cy.get('[data-cy="dashboard-status-box"]')
-                        .contains('Cancelled')
-                        .should('contain', `(${cancelledCount + 1})`);
-                });
-        });
-});
+        .then((progressText) => {
+          const completedCount = parseInt(progressText.match(/\((\d+)\)/)?.[1] || 0);
 
-Cypress.Commands.add(`adminDeclineEventCancelRequest`, (eventPosition = 0) => {
-    cy.get('[data-cy="dashboard-status-box"]')
-        .contains('In Progress')
-        .invoke('text')
-        .then((text) => {
-            const inProgressCount = parseInt(text.match(/\((\d+)\)/)[1]);
-            
-            cy.get('[data-cy="dashboard-status-box"]')
-                .contains('Cancelled')
-                .invoke('text')
-                .then((cancelledText) => {
-                    const cancelledCount = parseInt(cancelledText.match(/\((\d+)\)/)?.[1] || 0);
-                    
-                    cy.get('[data-cy="dashboard-table-entry"]')
-                        .eq(eventPosition)
-                        .find('[data-cy="dashboard-table-entry-action"]')
-                        .click();
-                    
-                    cy.url()
-                        .should('contain', '/admin/events/event_')
-                        .and('contain', '/edit');
-                    
-                    cy.get('[data-cy="review-cancel-comment-input"]')
-                        .scrollIntoView()
-                        .type('We understand the situation and approve this cancellation request.');
-                    
-                    cy.get('[data-cy="decline-cancel-event-btn"]')
-                        .scrollIntoView()
-                        .click();
-                    
-                    cy.url()
-                        .should('contain', '/admin/dashboard');
-                    
-                    // Verify counts changed
-                    cy.get('[data-cy="dashboard-status-box"]')
-                        .contains('In Progress')
-                        .should('contain', `(${inProgressCount})`);
-                    
-                    cy.get('[data-cy="dashboard-status-box"]')
-                        .contains('Cancelled')
-                        .should('contain', `(${cancelledCount})`);
-                });
-        });
-});
+          // 🔑 Find FIRST row that is In Progress
+          cy.get('[data-cy="dashboard-table-entry"]')
+            .contains('In Progress')
+            .parents('[data-cy="dashboard-table-entry"]')
+            .first()
+            .within(() => {
+              cy.get('[data-cy="dashboard-table-entry-action"]')
+                .should('contain', 'Update')
+                .click();
+            });
 
-Cypress.Commands.add(`adminCompleteEvent`, (eventPosition = 0) => {
-    cy.get('[data-cy="dashboard-status-box"]')
-        .contains('In Progress')
-        .invoke('text')
-        .then((text) => {
-            const inProgressCount = parseInt(text.match(/\((\d+)\)/)[1]);
-            
-            cy.get('[data-cy="dashboard-status-box"]')
-                .contains('Completed')
-                .invoke('text')
-                .then((completedText) => {
-                    const completedCount = parseInt(completedText.match(/\((\d+)\)/)?.[1] || 0);
-                    
-                    cy.get('[data-cy="dashboard-table-entry"]')
-                        .eq(eventPosition)
-                        .find('[data-cy="dashboard-table-entry-action"]')
-                        .click();
-                    
-                    cy.url()
-                        .should('contain', '/admin/events/event_');
-                    
-                    cy.get('[data-cy="complete-event-checkbox"]')
-                        .scrollIntoView()
-                        .check();
-                    
-                    cy.get('[data-cy="complete-event-note-input"]')
-                        .scrollIntoView()
-                        .type('All event\'s action items are done successfully. Moving it to complete.');
-                    
-                    cy.get('[data-cy="save-event-update-btn"]')
-                        .scrollIntoView()
-                        .click();
-                    
-                    cy.url()
-                        .should('contain', '/admin/dashboard');
-                    
-                    // Verify counts
-                    cy.get('[data-cy="dashboard-status-box"]')
-                        .contains('In Progress')
-                        .should('contain', `(${inProgressCount - 1})`);
-                    
-                    cy.get('[data-cy="dashboard-status-box"]')
-                        .contains('Completed')
-                        .should('contain', `(${completedCount + 1})`);
-                });
+          cy.url()
+            .should('contain', '/admin/events/')
+            .and('contain', '/edit');
+
+          cy.get('[data-cy="complete-event-checkbox"]')
+            .click();
+
+          cy.get('[data-cy="complete-event-comment-input"]')
+            .type('All event\'s action items are done successfully. Moving it to complete.');
+
+          cy.get('[data-cy="return-dashboard-btn"]').click();
+
+          cy.url().should('contain', '/admin/dashboard');
+
+          cy.get('[data-cy="dashboard-status-box"]')
+            .contains('All')
+            .should('contain', `(${inProgressCount + completedCount})`);
+
+          cy.get('[data-cy="dashboard-status-box"]')
+            .contains('In Progress')
+            .should('contain', `(${inProgressCount})`);
+
+          cy.get('[data-cy="dashboard-status-box"]')
+            .contains('Cancelled')
+            .should('contain', `(${completedCount})`);
         });
+    });
 });
 
 

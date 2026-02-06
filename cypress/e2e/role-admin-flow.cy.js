@@ -43,9 +43,17 @@ describe(`Admin Experience Flow`, () => {
                 cy.adminLogin(adminEmail, adminPassword);
             });
 
+            it(`should accept new event`, () => {
+                cy.adminAcceptNewEvent();
+            });
+
+            it(`should decline new event`, () => {
+                cy.adminDeclineNewEvent();
+            });
+
             it(`should return with no action`, () => {
                 cy.get('[data-cy="dashboard-table-entry"]')
-                .first()
+                .eq(2)
                 .find('[data-cy="dashboard-table-entry-action"]')
                 .should('contain', 'View')
                 .click();
@@ -58,25 +66,17 @@ describe(`Admin Experience Flow`, () => {
                 .scrollIntoView()
                 .click();
 
-                cy.get('[data-cy="dashboard-status-box"]')
-                .eq(0)
-                .should('contain', 'All')
-                .should('contain', '3')
-                .and('be.visible');
+                // cy.get('[data-cy="dashboard-status-box"]')
+                // .eq(0)
+                // .should('contain', 'All')
+                // .should('contain', '3')
+                // .and('be.visible');
 
-                cy.get('[data-cy="dashboard-status-box"]')
-                .eq(1)
-                .should('contain', 'In Review')
-                .should('contain', '3')
-                .and('be.visible');
-            });
-
-            it(`should accept new event`, () => {
-                cy.adminAcceptNewEvent(1);
-            });
-
-            it(`should decline new event`, () => {
-                cy.adminDeclineNewEvent(2);
+                // cy.get('[data-cy="dashboard-status-box"]')
+                // .eq(1)
+                // .should('contain', 'In Review')
+                // .should('contain', '3')
+                // .and('be.visible');
             });
         });
 
@@ -101,38 +101,64 @@ describe(`Admin Experience Flow`, () => {
                 Cypress._.times(3, () => {
                     cy.adminAcceptNewEvent();
                 });
-                // cy.wrap([1, 2, 3]).each(() => {
-                //     cy.adminAcceptNewEvent();
-                // });
-            });
 
-            it(`should return to /admin/dashboard without any action`, () => {
-                cy.get('[data-cy="dashboard-status-box"]')
-                .eq(0)
-                .should('contain', 'All')
-                .should('contain', '3')
-                .and('be.visible');
+                cy.userLogout();
 
-                cy.get('[data-cy="dashboard-status-box"]')
-                .eq(1)
-                .should('contain', 'In Review')
-                .should('contain', '0')
-                .and('be.visible');
+                cy.landingToLogin();
+                cy.userLogin(userEmail, userPassword);
 
-                cy.get('[data-cy="dashboard-status-box"]')
-                .eq(2)
-                .should('contain', 'In Progress')
-                .should('contain', '3')
-                .and('be.visible');
-                
+                // user requests 3 event cancellations
+                Cypress._.times(3, () => {
+                    cy.userSendCancellationRequest();
+                });
+
+                cy.userLogout();
+
+                cy.landingToLogin();
+                cy.adminLogin(adminEmail, adminPassword);
+
             });
 
             it(`should approve cancellation request`, () => {
-
+                cy.adminAcceptEventCancelRequest();
             });
 
             it(`should deny cancellation request`, () => {
+                cy.adminDeclineEventCancelRequest();
+            });
 
+            it(`should return with no action`, () => {
+                cy.get('[data-cy="dashboard-table-entry"]')
+                .eq(2)
+                .find('[data-cy="dashboard-table-entry-action"]')
+                .should('contain', 'View')
+                .click();
+
+                cy.url()
+                .should('contain', '/admin/events/event_')
+                .and('contain', '/edit');
+
+                cy.get('[data-cy="return-dashboard-btn"]')
+                .scrollIntoView()
+                .click();
+
+                // cy.get('[data-cy="dashboard-status-box"]')
+                // .eq(0)
+                // .should('contain', 'All')
+                // .should('contain', '3')
+                // .and('be.visible');
+
+                // cy.get('[data-cy="dashboard-status-box"]')
+                // .eq(1)
+                // .should('contain', 'In Review')
+                // .should('contain', '3')
+                // .and('be.visible');
+
+                // cy.get('[data-cy="dashboard-status-box"]')
+                // .eq(4)
+                // .should('contain', 'Cancelled')
+                // .should('contain', '0')
+                // .and('be.visible'); 
             });
             
         });

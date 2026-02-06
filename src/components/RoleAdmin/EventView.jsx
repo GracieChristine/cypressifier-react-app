@@ -355,6 +355,7 @@ const AdminEventView = () => {
               )}
 
               {/* WIP - Existing Event - Planning Features (shown for In Progress, even with cancellation) */}
+              {/* WIP - Existing Event - Planning Features (shown for In Progress, even with cancellation) */}
               {(isInProgress || isInProgressWithCancellation) && (
                 <div className="bg-gray-50 border rounded-lg p-6">
                   <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-6" data-cy="eventview-action-plan">
@@ -414,16 +415,18 @@ const AdminEventView = () => {
                       </div>
                     )}
 
-                    {/* Always show Return to Dashboard button */}
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => navigate('/admin/dashboard')}
-                        className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
-                        data-cy="return-dashboard-btn"
-                      >
-                        Return to Dashboard
-                      </button>
-                    </div>
+                    {/* Only show Return to Dashboard button if there's NO cancellation request */}
+                    {!isInProgressWithCancellation && (
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => navigate('/admin/dashboard')}
+                          className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                          data-cy="return-dashboard-btn"
+                        >
+                          Return to Dashboard
+                        </button>
+                      </div>
+                    )}
 
                   </div>
                 </div>
