@@ -1,12 +1,12 @@
 // Frontend-only seed data generator
 
 const EVENT_NAMES = {
-  'Wedding': [
-    'Enchanted Garden Wedding',
-    'Royal Romance Celebration',
-    'Vintage Countryside Wedding',
-    'Elegant Summer Soirée',
-    'Rustic Charm Wedding'
+  'Anniversary': [
+    'Platinum Jubilee Celebration',
+    '20th Year Memorial',
+    'The Synergy Soirée',
+    'The 10-Year Toast',
+    'A Decade of Memories'
   ],
   'Birthday': [
     'Golden Jubilee Celebration',
@@ -15,19 +15,26 @@ const EVENT_NAMES = {
     'Milestone Birthday Gala',
     'Garden Birthday Party'
   ],
-  'Corporate': [
+  'Celebration': [
+    'Product Launch Event',
+    'Cultural Festival',
+    'Community Gathering',
+    'Endless Summer Party',
+    'Hearts of Hope Fundraiser'
+  ],
+  'Corporate Retreat': [
     'Annual Company Gala',
     'Executive Leadership Summit',
     'Team Building Retreat',
     'Corporate Awards Ceremony',
     'Business Networking Event'
   ],
-  'Conference': [
-    'International Tech Conference',
-    'Innovation Summit 2026',
-    'Industry Leaders Forum',
-    'Annual Professional Gathering',
-    'Strategic Planning Conference'
+  'Gala': [
+    'Midnight Masquerade Ball',
+    'Art Exhibition Opening',
+    'Echoes of Elegance Charity Auction',
+    'Starlight Symphony',
+    'GalaGleam'
   ],
   'Party': [
     'New Year\'s Eve Celebration',
@@ -36,12 +43,12 @@ const EVENT_NAMES = {
     'Charity Fundraiser',
     'Summer Garden Party'
   ],
-  'Other': [
-    'Product Launch Event',
-    'Art Exhibition Opening',
-    'Charity Auction',
-    'Cultural Festival',
-    'Community Gathering'
+  'Wedding': [
+    'Enchanted Garden Wedding',
+    'Royal Romance Celebration',
+    'Vintage Countryside Wedding',
+    'Elegant Summer Soirée',
+    'Rustic Charm Wedding'
   ]
 };
 
@@ -57,10 +64,10 @@ const LOCATION_TYPES = [
 const LOCATION_MINIMUMS = {
   'Castle': 50000,
   'Chateau': 45000,
-  'Manor House': 35000,
+  'Historic Abbey': 55000,
   'Garden Estate': 30000,
-  'Villa': 40000,
-  'Historic Abbey': 55000
+  'Manor House': 35000,
+  'Villa': 40000
 };
 
 const DESCRIPTIONS = [

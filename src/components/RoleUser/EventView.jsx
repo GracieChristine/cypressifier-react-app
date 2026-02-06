@@ -38,16 +38,14 @@ const EventView = () => {
 
   const getEventIcon = (type) => {
     const icons = {
-      'Wedding': '💒',
-      'Birthday': '🎂',
-      'Corporate': '💼',
-      'Conference': '🎤',
-      'Party': '🎊',
-      'Other': '🎉',
-      'Gala': '✨',
       'Anniversary': '💐',
+      'Birthday': '🎂',
+      'Celebration': '🎊',
       'Corporate Retreat': '🏢',
-      'Celebration': '🎊'
+      'Gala': '✨',
+      'Party': '🎊',
+      'Wedding': '💒',
+      'Other': '🎉'
     };
     return icons[type] || '🎉';
   };
@@ -66,17 +64,16 @@ const EventView = () => {
     const icons = {
       'Castle': '🏰',
       'Chateau': '🏛️',
-      'Palace': '👑',
-      'Manor House': '🏡',
       'Garden Estate': '🌿',
-      'Villa': '🏘️',
-      'Historic Abbey': '⛪'
+      'Historic Abbey': '⛪',
+      'Manor House': '🏡',
+      'Villa': '🏘️'
     };
     return icons[locationType] || '🏰';
   };
 
   const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
-  const canCancel = !isReadOnly && !event.cancellationRequest;
+  const canCancel = event.status === 'In Progress' && !event.cancellationRequest;
 
   const handleCancelRequest = () => {
     if (!cancelReason.trim()) {
@@ -113,7 +110,6 @@ const EventView = () => {
               <div className="flex items-center gap-3">
                 <div>
                   <h1 className="text-3xl font-bold">{event.name}</h1>
-                  {/* <p className="text-xl text-purple-100 mt-4">{event.type}</p> */}
                 </div>
               </div>
               <div className="flex items-start gap-3 -mt-2">
@@ -242,9 +238,6 @@ const EventView = () => {
         {canCancel && (
           <div className="bg-white rounded-lg shadow-lg p-8" data-cy="cancel-event-section">
             <h2 className="text-3xl font-display mb-2">Submit Cancellation Request</h2>
-            {/* <p className="text-gray-600 mb-6 font-serif">
-              Submit a cancellation request for this event
-            </p> */}
 
             <div className="space-y-6">
               <div className="bg-gray-50 border rounded-lg p-6">

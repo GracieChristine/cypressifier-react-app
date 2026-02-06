@@ -72,16 +72,14 @@ const EventsList = () => {
 
   const getEventIcon = (type) => {
     const icons = {
-      'Wedding': '💒',
-      'Birthday': '🎂',
-      'Corporate': '💼',
-      'Conference': '🎤',
-      'Party': '🎊',
-      'Other': '🎉',
-      'Gala': '✨',
       'Anniversary': '💐',
+      'Birthday': '🎂',
+      'Celebration': '🎊',
       'Corporate Retreat': '🏢',
-      'Celebration': '🎊'
+      'Gala': '✨',
+      'Party': '🎊',
+      'Wedding': '💒',
+      'Other': '🎉'
     };
     return icons[type] || '🎉';
   };
@@ -100,17 +98,17 @@ const EventsList = () => {
     const icons = {
       'Castle': '🏰',
       'Chateau': '🏛️',
-      'Palace': '👑',
-      'Manor House': '🏡',
       'Garden Estate': '🌿',
+      'Historic Abbey': '⛪',
+      'Manor House': '🏡',
       'Villa': '🏘️',
-      'Historic Abbey': '⛪'
     };
     return icons[locationType] || '🏰';
   };
 
   const renderEventCard = (event, isUpcoming = false) => {
     const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
+    const canCancel = event.status === 'In Progress' && !event.cancellationRequest;
     
     return (
 
@@ -166,7 +164,7 @@ const EventsList = () => {
             >
               View Detail
             </button>
-          ) : (
+          ) : canCancel ? (
             <div className="flex gap-2">
               <button
                 onClick={() => navigate(`/user/events/${event.id}/edit`)}
@@ -183,6 +181,14 @@ const EventsList = () => {
                 Cancel Event
               </button>
             </div>
+          ) : (
+            <button
+              onClick={() => navigate(`/user/events/${event.id}/edit`)}
+              className="w-full py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded transition text-sm"
+              data-cy="eventlist-upcoming-event-edit-btn"
+            >
+              Edit Detail
+            </button>
           )}
         </div>
       </div>
@@ -260,6 +266,7 @@ const EventsList = () => {
             <div className="space-y-3" data-cy="eventlist-event-list">
               {filteredEvents.map(event => {
                 const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
+                const canCancel = event.status === 'In Progress' && !event.cancellationRequest;
                 
                 return (
                   <div
@@ -312,7 +319,7 @@ const EventsList = () => {
                           >
                             View
                           </button>
-                        ) : (
+                        ) : canCancel ? (
                           <>
                             <button
                               onClick={() => navigate(`/user/events/${event.id}/edit`)}
@@ -329,6 +336,14 @@ const EventsList = () => {
                               Cancel
                             </button>
                           </>
+                        ) : (
+                          <button
+                            onClick={() => navigate(`/user/events/${event.id}/edit`)}
+                            className="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-sm font-medium transition whitespace-nowrap"
+                            data-cy="eventlist-event-list-entry-edit-btn"
+                          >
+                            Edit
+                          </button>
                         )}
                       </div>
                     </div>

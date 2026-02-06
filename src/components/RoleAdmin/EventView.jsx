@@ -12,10 +12,8 @@ const AdminEventView = () => {
   const [completionNotes, setCompletionNotes] = useState('');
   const [adminComment, setAdminComment] = useState('');
 
-  // Current logged-in admin (in production, this would come from auth context)
   const currentAdmin = 'Admin';
 
-  // Load event from storage
   useEffect(() => {
     const events = loadEventsFromStorage();
     const event = events.find(e => e.id === id);
@@ -240,12 +238,6 @@ const AdminEventView = () => {
             <div className="bg-gray-50 border rounded-lg p-6">
               <h3 className="text-lg font-semibold mb-4">Event Details</h3>
 
-              {/* <div className="grid grid-cols-2 gap-4 text-lg underline">
-                <div>
-                  <h4 className="mt-2 mb-6 font-semibold">{selectedEvent.name}</h4>
-                </div>
-              </div> */}
-
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-gray-600">Date:</span>
@@ -269,11 +261,6 @@ const AdminEventView = () => {
                   <span className="text-gray-600">Budget:</span>
                   <span className="ml-2 font-semibold">${parseInt(selectedEvent.budget || selectedEvent.setBudget || selectedEvent.budgetTotal || 0).toLocaleString()}</span>
                 </div>
-   
-                {/* <div>
-                  <span className="text-gray-600">Status:</span>
-                  <span className="ml-2 font-semibold">{selectedEvent.status}</span>
-                </div> */}
               </div>
 
               {selectedEvent.description && (
@@ -288,7 +275,7 @@ const AdminEventView = () => {
             {isReadOnly && (
               <div className="flex gap-3">
                 <button
-                  onClick={() => navigate('/events')}
+                  onClick={() => navigate('/admin/dashboard')}
                   className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
                   data-cy="return-dashboard-btn"
                 >
@@ -319,7 +306,7 @@ const AdminEventView = () => {
                     <p className="text-lg font-semibold mb-4">Review New Event Submission</p>
                     
                     <div className="mb-4">
-                      <label className="block text-sm text-gray-700  font-semibold mb-2">
+                      <label className="block text-sm text-gray-700 font-semibold mb-2">
                         Response to Client <span className="text-red-500">*</span>
                       </label>
                       <textarea
@@ -334,36 +321,33 @@ const AdminEventView = () => {
                     </div>
 
                     <div className="flex gap-3">
+                      <button
+                        onClick={handleAcceptSubmission}
+                        disabled={!adminComment.trim()}
+                        className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        data-cy="accept-new-event-btn"
+                      >
+                        Accept Request
+                      </button>
+                      <button
+                        onClick={handleRejectSubmission}
+                        disabled={!adminComment.trim()}
+                        className="flex-1 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        data-cy="decline-new-event-btn"
+                      >
+                        Decline Request
+                      </button>
+                    </div>
 
-                      {!adminComment.trim() ? (
-                        <button
-                          onClick={() => navigate('/events')}
-                          className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
-                          data-cy="return-dashboard-btn"
-                        >
-                          Close and Return to Dashboard
-                        </button>
-                      ) : (
-                        <>
-                          <button
-                            onClick={handleAcceptSubmission}
-                            disabled={!adminComment.trim()}
-                            className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
-                            data-cy="accept-new-event-btn"
-                          >
-                            Accept Request
-                          </button>
-                          <button
-                            onClick={handleRejectSubmission}
-                            disabled={!adminComment.trim()}
-                            className="flex-1 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
-                            data-cy="decline-new-event-btn"
-                          >
-                            Decline Request
-                          </button>
-                        </>
-                      )}
-                      
+                    {/* Always show Return to Dashboard button */}
+                    <div className="flex gap-3 mt-3">
+                      <button
+                        onClick={() => navigate('/admin/dashboard')}
+                        className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                        data-cy="return-dashboard-btn"
+                      >
+                        Return to Dashboard
+                      </button>
                     </div>
 
                   </div>
@@ -381,7 +365,7 @@ const AdminEventView = () => {
                     </p>
                   </div>
 
-                  {/* Existing Event Markt As Complete */}
+                  {/* Existing Event Mark As Complete */}
                   <div className="border-t pt-6" data-cy="eventview-action-complete">
                     <div className="flex items-start gap-3 mb-4">
                       <input
@@ -395,7 +379,7 @@ const AdminEventView = () => {
                       <label htmlFor="mark-completed" className="cursor-pointer">
                         <div className="font-semibold text-gray-800">All Task Completed</div>
                         <div className="text-sm text-gray-600">
-                          Check this box whne all tasks have been successfully completed
+                          Check this box when all tasks have been successfully completed
                         </div>
                       </label>
                     </div>
@@ -418,42 +402,28 @@ const AdminEventView = () => {
                     )}
 
                     {markAsCompleted && (
-                      <div className="flex gap-3">
+                      <div className="flex gap-3 mb-3">
                         <button
                           onClick={handleSaveProgress}
                           disabled={markAsCompleted && !completionNotes.trim()}
-                          className={`flex-1 px-6 text-white py-3 rounded-lg transition font-semibold ${
-                            markAsCompleted 
-                              ? 'bg-green-600 hover:bg-green-700' 
-                              : 'bg-royal-600 hover:bg-royal-700'
-                          } disabled:bg-gray-400 disabled:cursor-not-allowed`}
+                          className="flex-1 px-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
                           data-cy="save-event-update-btn"
                         >
-                          {markAsCompleted ? 'Event is Completed' : 'Return to Dashboard'}
+                          Event is Completed
                         </button>
-                        <button
-                          onClick={() => navigate('/admin/dashboard')}
-                          disabled={markAsCompleted && !completionNotes.trim()}
-                          className="flex-1 px-6 bg-gray-300 text-white py-3 rounded-lg hover:bg-gray-400 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
-                          data-cy="cancel-event-update-btn"
-                        >
-                          Cancel
-                        </button>
-                        {}
                       </div>
                     )}
 
-                    {!markAsCompleted && (
-                      <div className="flex gap-3">
-                        <button
-                          onClick={() => navigate('/events')}
-                          className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
-                          data-cy="return-dashboard-btn"
-                        >
-                          Close and Return to Dashboard
-                        </button>
-                      </div>
-                    )}
+                    {/* Always show Return to Dashboard button */}
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => navigate('/admin/dashboard')}
+                        className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                        data-cy="return-dashboard-btn"
+                      >
+                        Return to Dashboard
+                      </button>
+                    </div>
 
                   </div>
                 </div>
@@ -503,6 +473,17 @@ const AdminEventView = () => {
                         data-cy="decline-cancel-event-btn"
                       >
                         Decline Request
+                      </button>
+                    </div>
+
+                    {/* Always show Return to Dashboard button */}
+                    <div className="flex gap-3 mt-3">
+                      <button
+                        onClick={() => navigate('/admin/dashboard')}
+                        className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                        data-cy="return-dashboard-btn"
+                      >
+                        Return to Dashboard
                       </button>
                     </div>
                   </div>
@@ -559,5 +540,6 @@ const AdminEventView = () => {
     </div>
   );
 };
+
 
 export default AdminEventView;

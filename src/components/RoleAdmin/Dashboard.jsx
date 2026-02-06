@@ -90,11 +90,10 @@ const AdminDashboard = () => {
     const icons = {
       'Castle': '🏰',
       'Chateau': '🏛️',
-      'Palace': '👑',
-      'Manor House': '🏡',
       'Garden Estate': '🌿',
-      'Villa': '🏘️',
-      'Historic Abbey': '⛪'
+      'Historic Abbey': '⛪',
+      'Manor House': '🏡',
+      'Villa': '🏘️'
     };
     return icons[locationType] || '🏰';
   };
@@ -253,7 +252,7 @@ const AdminDashboard = () => {
                               }`}
                             data-cy="dashboard-table-entry-action"
                           >
-                            {event.status === 'In Progress' && !event.cancellationRequest ? 'Edit' : 'View'}
+                            {event.status === 'In Progress' && !event.cancellationRequest ? 'Update' : 'View'}
                           </button>
                         </div>
                       </td>

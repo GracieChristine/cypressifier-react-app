@@ -14,25 +14,25 @@ const LOCATION_TYPES = {
     icon: '🏛️',
     description: 'French country estates with elegant architecture'
   },
-  'Manor House': { 
-    min: 35000, 
-    icon: '🏡',
-    description: 'Stately manor homes with period features'
-  },
   'Garden Estate': { 
     min: 30000, 
     icon: '🌿',
     description: 'Romantic gardens and outdoor pavilions'
   },
-  'Villa': { 
-    min: 40000, 
-    icon: '🏘️',
-    description: 'Luxury villas with Mediterranean charm'
-  },
   'Historic Abbey': { 
     min: 55000, 
     icon: '⛪',
     description: 'Centuries-old abbeys with Gothic grandeur'
+  },
+  'Manor House': { 
+    min: 35000, 
+    icon: '🏡',
+    description: 'Stately manor homes with period features'
+  },
+  'Villa': { 
+    min: 40000, 
+    icon: '🏘️',
+    description: 'Luxury villas with Mediterranean charm'
   }
 };
 
@@ -43,7 +43,7 @@ const EventForm = () => {
   
   const [formData, setFormData] = useState({
     name: '',
-    type: 'Wedding',
+    type: 'Anniversary',
     date: '',
     locationType: 'Castle',
     budget: '50000', // Default to Castle minimum
@@ -102,8 +102,6 @@ const EventForm = () => {
 
     const events = loadEventsFromStorage();
     
-    // In the handleSubmit function, replace the localStorage.setItem lines:
-
     if (isEditing) {
       // Update existing event
       const updatedEvents = events.map(e => 
@@ -248,11 +246,13 @@ const EventForm = () => {
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 data-cy="eventform-type-input"
               >
-                <option value="Wedding">💒 Wedding</option>
+                <option value="Anniversary">💐 Anniversary</option>
                 <option value="Birthday">🎂 Birthday</option>
-                <option value="Corporate">💼 Corporate</option>
-                <option value="Conference">🎤 Conference</option>
+                <option value="Celebration">🎊 Celebration</option>
+                <option value="Corporate Retreat">🏢 Corporate Retreat</option>
+                <option value="Gala">✨ Gala</option>
                 <option value="Party">🎊 Party</option>
+                <option value="Wedding">💒 Wedding</option>
                 <option value="Other">🎉 Other</option>
               </select>
             </div>
