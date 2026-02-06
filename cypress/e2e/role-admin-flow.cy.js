@@ -87,7 +87,7 @@ describe(`Admin Experience Flow`, () => {
                 cy.landingToSignup();
                 cy.userSignup(userEmail, userPassword);
                 
-                // create 3 new events
+                // user creates 3 new events
                 Cypress._.times(3, () => {
                     cy.userAddNewEvent();
                 });
@@ -96,10 +96,35 @@ describe(`Admin Experience Flow`, () => {
 
                 cy.landingToLogin();
                 cy.adminLogin(adminEmail, adminPassword);
+
+                // admin accepts 3 new events
+                Cypress._.times(3, () => {
+                    cy.adminAcceptNewEvent();
+                });
+                // cy.wrap([1, 2, 3]).each(() => {
+                //     cy.adminAcceptNewEvent();
+                // });
             });
 
             it(`should return to /admin/dashboard without any action`, () => {
-                cy.adminAcceptNewEvent();
+                cy.get('[data-cy="dashboard-status-box"]')
+                .eq(0)
+                .should('contain', 'All')
+                .should('contain', '3')
+                .and('be.visible');
+
+                cy.get('[data-cy="dashboard-status-box"]')
+                .eq(1)
+                .should('contain', 'In Review')
+                .should('contain', '0')
+                .and('be.visible');
+
+                cy.get('[data-cy="dashboard-status-box"]')
+                .eq(2)
+                .should('contain', 'In Progress')
+                .should('contain', '3')
+                .and('be.visible');
+                
             });
 
             it(`should approve cancellation request`, () => {

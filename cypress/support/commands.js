@@ -209,50 +209,52 @@ Cypress.Commands.add(`userAddNewEvent`, (eventName = null) => {
     });
 });
 
-Cypress.Commands.add(`adminAcceptNewEvent`, (position = 0) => {
-    cy.get('[data-cy="dashboard-status-box"]')
-        .contains('In Review')
+Cypress.Commands.add('adminAcceptNewEvent', () => {
+  cy.get('[data-cy="dashboard-status-box"]')
+    .contains('In Review')
+    .invoke('text')
+    .then((text) => {
+      const inReviewCount = parseInt(text.match(/\((\d+)\)/)[1]);
+
+      cy.get('[data-cy="dashboard-status-box"]')
+        .contains('In Progress')
         .invoke('text')
-        .then((text) => {
-            const inReviewCount = parseInt(text.match(/\((\d+)\)/)[1]);
-            
-            cy.get('[data-cy="dashboard-status-box"]')
-                .contains('In Progress')
-                .invoke('text')
-                .then((progressText) => {
-                    const inProgressCount = parseInt(progressText.match(/\((\d+)\)/)?.[1] || 0);
-                    
-                    cy.get('[data-cy="dashboard-table-entry"]')
-                        .should('have.length.greaterThan', 0)
-                        .eq(position)
-                        .find('[data-cy="dashboard-table-entry-action"]')
-                        .should('contain', 'View')
-                        .click();
+        .then((progressText) => {
+          const inProgressCount = parseInt(progressText.match(/\((\d+)\)/)?.[1] || 0);
 
-                    cy.url()
-                        .should('contain', '/admin/events/event_')
-                        .and('contain', '/edit');
+          // 🔑 Find FIRST row that is In Review
+          cy.get('[data-cy="dashboard-table-entry"]')
+            .contains('In Review')
+            .parents('[data-cy="dashboard-table-entry"]')
+            .first()
+            .within(() => {
+              cy.get('[data-cy="dashboard-table-entry-action"]')
+                .should('contain', 'View')
+                .click();
+            });
 
-                    cy.get('[data-cy="review-new-comment-input"]')
-                        .scrollIntoView()
-                        .type('After reviewing, we have decided to accept this request. We will reach out shortly via email.');
+          cy.url()
+            .should('contain', '/admin/events/')
+            .and('contain', '/edit');
 
-                    cy.get('[data-cy="accept-new-event-btn"]')
-                        .scrollIntoView()
-                        .click();
+          cy.get('[data-cy="review-new-comment-input"]')
+            .type(
+              'After reviewing, we have decided to accept this request. We will reach out shortly via email.'
+            );
 
-                    cy.url()
-                        .should('contain', '/admin/dashboard');
-                    
-                    cy.get('[data-cy="dashboard-status-box"]')
-                        .contains('In Review')
-                        .should('contain', `(${inReviewCount - 1})`);
-                    
-                    cy.get('[data-cy="dashboard-status-box"]')
-                        .contains('In Progress')
-                        .should('contain', `(${inProgressCount + 1})`);
-                });
+          cy.get('[data-cy="accept-new-event-btn"]').click();
+
+          cy.url().should('contain', '/admin/dashboard');
+
+          cy.get('[data-cy="dashboard-status-box"]')
+            .contains('In Review')
+            .should('contain', `(${inReviewCount - 1})`);
+
+          cy.get('[data-cy="dashboard-status-box"]')
+            .contains('In Progress')
+            .should('contain', `(${inProgressCount + 1})`);
         });
+    });
 });
 
 Cypress.Commands.add(`adminDeclineNewEvent`, (position = 0) => {
