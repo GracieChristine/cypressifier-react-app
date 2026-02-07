@@ -355,7 +355,6 @@ const AdminEventView = () => {
               )}
 
               {/* WIP - Existing Event - Planning Features (shown for In Progress, even with cancellation) */}
-              {/* WIP - Existing Event - Planning Features (shown for In Progress, even with cancellation) */}
               {(isInProgress || isInProgressWithCancellation) && (
                 <div className="bg-gray-50 border rounded-lg p-6">
                   <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-6" data-cy="eventview-action-plan">
@@ -366,57 +365,57 @@ const AdminEventView = () => {
                     </p>
                   </div>
 
-                  {/* Existing Event Mark As Complete */}
-                  <div className="border-t pt-6" data-cy="eventview-action-complete">
-                    <div className="flex items-start gap-3 mb-4">
-                      <input
-                        type="checkbox"
-                        id="mark-completed"
-                        checked={markAsCompleted}
-                        onChange={(e) => setMarkAsCompleted(e.target.checked)}
-                        className="mt-3 w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500"
-                        data-cy="complete-event-checkbox"
-                      />
-                      <label htmlFor="mark-completed" className="cursor-pointer">
-                        <div className="font-semibold text-gray-800">All Task Completed</div>
-                        <div className="text-sm text-gray-600">
-                          Check this box when all tasks have been successfully completed
-                        </div>
-                      </label>
-                    </div>
-
-                    {markAsCompleted && (
-                      <div className="mb-4">
-                        <label className="block text-sm text-gray-700 mb-2 font-semibold">
-                          Comment to Client <span className="text-red-500">*</span>
-                        </label>
-                        <textarea
-                          value={completionNotes}
-                          onChange={(e) => setCompletionNotes(e.target.value)}
-                          required
-                          className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
-                          rows="3"
-                          placeholder="Add any final notes about how the event went..."
-                          data-cy="complete-event-comment-input"
+                  {/* Existing Event Mark As Complete - ONLY show if NO cancellation request */}
+                  {!isInProgressWithCancellation && (
+                    <div className="border-t pt-6" data-cy="eventview-action-complete">
+                      <div className="flex items-start gap-3 mb-4">
+                        <input
+                          type="checkbox"
+                          id="mark-completed"
+                          checked={markAsCompleted}
+                          onChange={(e) => setMarkAsCompleted(e.target.checked)}
+                          className="mt-3 w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500"
+                          data-cy="complete-event-checkbox"
                         />
+                        <label htmlFor="mark-completed" className="cursor-pointer">
+                          <div className="font-semibold text-gray-800">All Task Completed</div>
+                          <div className="text-sm text-gray-600">
+                            Check this box when all tasks have been successfully completed
+                          </div>
+                        </label>
                       </div>
-                    )}
 
-                    {markAsCompleted && (
-                      <div className="flex gap-3 mb-3">
-                        <button
-                          onClick={handleSaveProgress}
-                          disabled={markAsCompleted && !completionNotes.trim()}
-                          className="flex-1 px-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
-                          data-cy="save-event-update-btn"
-                        >
-                          Event is Completed
-                        </button>
-                      </div>
-                    )}
+                      {markAsCompleted && (
+                        <div className="mb-4">
+                          <label className="block text-sm text-gray-700 mb-2 font-semibold">
+                            Comment to Client <span className="text-red-500">*</span>
+                          </label>
+                          <textarea
+                            value={completionNotes}
+                            onChange={(e) => setCompletionNotes(e.target.value)}
+                            required
+                            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                            rows="3"
+                            placeholder="Add any final notes about how the event went..."
+                            data-cy="complete-event-comment-input"
+                          />
+                        </div>
+                      )}
 
-                    {/* Only show Return to Dashboard button if there's NO cancellation request */}
-                    {!isInProgressWithCancellation && (
+                      {markAsCompleted && (
+                        <div className="flex gap-3 mb-3">
+                          <button
+                            onClick={handleSaveProgress}
+                            disabled={markAsCompleted && !completionNotes.trim()}
+                            className="flex-1 px-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                            data-cy="save-event-update-btn"
+                          >
+                            Event is Completed
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Return to Dashboard button - only shown when no cancellation */}
                       <div className="flex gap-3">
                         <button
                           onClick={() => navigate('/admin/dashboard')}
@@ -426,9 +425,8 @@ const AdminEventView = () => {
                           Return to Dashboard
                         </button>
                       </div>
-                    )}
-
-                  </div>
+                    </div>
+                  )}
                 </div>
               )}
 
