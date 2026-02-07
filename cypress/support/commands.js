@@ -156,14 +156,72 @@ const getCountFromText = (text) => {
   return match ? Number(match[1]) : 0;
 };
 
+// Get 1 specific user eventlist filter count
 Cypress.Commands.add('userGetOneFilterCount', (filter) => {
   return cy.get(filter).invoke('text').then(getCountFromText);
 });
 
+// Get 1 specific  admin event status count
 Cypress.Commands.add('adminGetOneStatusCount', (status) => {
   return cy.contains('[data-cy="dashboard-status-box"]', status)
     .invoke('text')
     .then(getCountFromText);
+});
+
+// Get all 5 admin event status counts
+Cypress.Commands.add('adminGetAllStatusCounts', () => {
+  const statuses = ['All', 'In Review', 'In Progress', 'Completed', 'Cancelled'];
+  const counts = {};
+  
+  let chain = cy.wrap(null);
+  
+  statuses.forEach(status => {
+    chain = chain.then(() => {
+      return cy.contains('[data-cy="dashboard-status-box"]', status)
+        .invoke('text')
+        .then(getCountFromText)
+        .then(count => {
+          counts[status] = count;
+        });
+    });
+  });
+  
+  // DON'T return counts directly - wrap it properly
+  return chain.then(() => {
+    cy.log('Admin Status Counts:', JSON.stringify(counts, null, 2));
+    return cy.wrap(counts);  // ← Use cy.wrap() instead of returning directly
+  });
+});
+
+// Get all 5 user event list filter counts
+Cypress.Commands.add('userGetAllFilterCounts', () => {
+  const filters = {
+    'All': '[data-cy="eventlist-filter-all"]',
+    'In Review': '[data-cy="eventlist-filter-in-review"]',
+    'In Progress': '[data-cy="eventlist-filter-in-progress"]',
+    'Completed': '[data-cy="eventlist-filter-completed"]',
+    'Cancelled': '[data-cy="eventlist-filter-cancelled"]'
+  };
+  
+  const counts = {};
+  let chain = cy.wrap(null);
+  
+  Object.entries(filters).forEach(([status, selector]) => {
+    chain = chain.then(() => {
+      return cy.get(selector)
+        .invoke('text')
+        .then(getCountFromText)
+        .then(count => {
+          counts[status] = count;
+        });
+    });
+  });
+  
+  // DON'T return counts directly - wrap it properly
+  return chain.then(() => {
+    cy.log('User Filter Counts:', JSON.stringify(counts, null, 2));
+    return cy.wrap(counts);  // ← Use cy.wrap() instead of returning directly
+  });
 });
 
 Cypress.Commands.add('userAddNewEvent', (eventName = null) => {
