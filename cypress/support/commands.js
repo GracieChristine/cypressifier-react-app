@@ -18,6 +18,10 @@ Cypress.Commands.add(`landingToSignup`, () => {
 
     cy.url()
     .should('contain','/signup');
+
+    cy.get('[data-cy="signup-email-input"]').should('be.visible');
+    cy.get('[data-cy="signup-password-input"]').should('be.visible');
+    cy.get('[data-cy="signup-confirm-password-input"]').should('be.visible');
 });
 
 Cypress.Commands.add(`landingToLogin`, () => {
@@ -26,6 +30,9 @@ Cypress.Commands.add(`landingToLogin`, () => {
 
     cy.url()
     .should('contain','/login');
+
+    cy.get('[data-cy="login-email-input"]').should('be.visible');
+    cy.get('[data-cy="login-password-input"]').should('be.visible');
 });
 
 Cypress.Commands.add(`returnToLanding`, () => {
@@ -42,6 +49,9 @@ Cypress.Commands.add(`signupToLogin`, () => {
     
     cy.url()
     .should('contain','/login');
+
+    cy.get('[data-cy="login-email-input"]').should('be.visible');
+    cy.get('[data-cy="login-password-input"]').should('be.visible');
 });
 
 Cypress.Commands.add(`loginToSignup`, () => {
@@ -50,6 +60,10 @@ Cypress.Commands.add(`loginToSignup`, () => {
     
     cy.url()
     .should('contain','/signup');
+
+    cy.get('[data-cy="signup-email-input"]').should('be.visible');
+    cy.get('[data-cy="signup-password-input"]').should('be.visible');
+    cy.get('[data-cy="signup-confirm-password-input"]').should('be.visible');
 });
 
 // Cypress.Commands.add(``, () => {
@@ -83,10 +97,13 @@ Cypress.Commands.add(`userSignup`, (email, password, confirmPass = null) => {
 
     // Fill in signup form
     cy.get('[data-cy="signup-email-input"]')
+    .should('be.visible')
     .type(email);
     cy.get('[data-cy="signup-password-input"]')
+    .should('be.visible')
     .type(password);
     cy.get('[data-cy="signup-confirm-password-input"]')
+    .should('be.visible')
     .type(confirmPass || password);
 
     // Submit signup form
@@ -104,8 +121,10 @@ Cypress.Commands.add(`userLogin`, (email, password) => {
 
     // Fill in login form
     cy.get('[data-cy="login-email-input"]')
+    .should('be.visible')
     .type(email);
     cy.get('[data-cy="login-password-input"]')
+    .should('be.visible')
     .type(password);
 
     // Submit login form
@@ -123,8 +142,10 @@ Cypress.Commands.add(`adminLogin`, (email, password) => {
 
     // Fill in login form
     cy.get('[data-cy="login-email-input"]')
+    .should('be.visible')
     .type(email);
     cy.get('[data-cy="login-password-input"]')
+    .should('be.visible')
     .type(password);
 
     // Submit login form
@@ -142,11 +163,6 @@ Cypress.Commands.add(`userLogout`, () => {
     cy.url()
     .should('eq','http://localhost:5173/');
 });
-
-Cypress.Commands.add(``, () => {
-
-});
-
 
 // Event Management Related Commands
 
@@ -594,49 +610,38 @@ Cypress.Commands.add('adminConsiderEventAsCompleted', () => {
 
 // Dev Related Commands
 Cypress.Commands.add(`devExpandPanel`, () => {
-    cy.get('[data-cy="dev-panel-window-min"]')
+    cy.get('[data-cy="dev-panel-expand-btn"]')
     .click();
 
     cy.get('[data-cy="dev-panel-window-max"]')
-    .should('exisit');
+    .should('exist')
+    .and('be.visible');
 });
 
 Cypress.Commands.add(`devCollapsePanel`, () => {
-    cy.get('[data-cy="dev-panel-window-max"]')
+    cy.get('[data-cy="dev-panel-collapse-btn"]')
     .click();
 
     cy.get('[data-cy="dev-panel-window-min"]')
-    .should('exisit');
+    .should('exist')
+    .and('be.visible');
 });
 
+
 Cypress.Commands.add(`devAddMockEvents`, () => {
+    cy.devExpandPanel();
+
     cy.get('[data-cy="dev-panel-add-event-btn"]')
     .click();
 
-    cy.wait(100);
-
-    cy.get('[data-cy="dev-panel-window-max"]')
-    .should('exisit');
-
-    cy.get('[data-cy="dev-panel-window-min"]')
-    .should('exisit');
-
-    cy.get('[data-cy="evenlist-filter-all"]')
-    .should('contain', '30');
+    cy.wait(500);
 });
 
 Cypress.Commands.add(`devClearMockEvents`, () => {
+    cy.devExpandPanel();
+
     cy.get('[data-cy="dev-panel-clear-event-btn"]')
     .click();
 
-    cy.wait(100);
-
-    cy.get('[data-cy="dev-panel-window-max"]')
-    .should('exisit');
-
-    cy.get('[data-cy="dev-panel-window-min"]')
-    .should('exisit');
-
-    cy.get('[data-cy="evenlist-filter-all"]')
-    .should('contain', '0');
+    cy.wait(500);
 });

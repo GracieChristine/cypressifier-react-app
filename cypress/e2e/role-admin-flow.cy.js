@@ -301,17 +301,120 @@ describe(`Admin Experience Flow`, () => {
         });
     });
 
-    // describe(`Admin's Dev Tool`, () => {
-    //     beforeEach(() => {
+    describe(`Admin's Dev Tool`, () => {
+        before(() => {
+            cy.clearCacheLoadLanding();
+            cy.landingToSignup();
+            cy.userSignup(userEmail, userPassword);
+            cy.userLogout();
+            cy.landingToLogin();
+            cy.adminLogin(adminEmail, adminPassword);
+        });
 
-    //     });
+        it(`should display 1 event from user`, () => {
+            // Step 1: Start with clean slate
+            cy.adminGetAllStatusCounts().then((initial) => {
+                expect(initial['All']).to.equal(0);
+                expect(initial['In Review']).to.equal(0);
+                expect(initial['In Progress']).to.equal(0);
+                expect(initial['Completed']).to.equal(0);
+                expect(initial['Cancelled']).to.equal(0);
+            });
 
-    //     it(``, () => {
+            // Step 2: User creates event
+            cy.userLogout();
+            cy.landingToLogin();
+            cy.userLogin(userEmail, userPassword);
+            cy.userAddNewEvent();
+            cy.userLogout();
 
-    //     });
+            // Step 3: Verify In Review
+            cy.landingToLogin();
+            cy.adminLogin(adminEmail, adminPassword);
+            cy.adminGetAllStatusCounts().then((afterCreate) => {
+                expect(afterCreate['All']).to.equal(1, 'All should be 1 after event created');
+                expect(afterCreate['In Review']).to.equal(1, 'In Review should be 1');
+                expect(afterCreate['In Progress']).to.equal(0, 'In Progress should be 0');
+                expect(afterCreate['Completed']).to.equal(0, 'Completed should be 0');
+                expect(afterCreate['Cancelled']).to.equal(0, 'Cancelled should be 0');
+            });
+        });
 
-    //     it(``, () => {
+        it(`should display 30 mock events from user`, () => {            
+            // Step 1: Verify admin view first
+            cy.adminGetAllStatusCounts().then((initial) => {
+                expect(initial['All']).to.equal(1);
+                expect(initial['In Review']).to.equal(1);
+                expect(initial['In Progress']).to.equal(0);
+                expect(initial['Completed']).to.equal(0);
+                expect(initial['Cancelled']).to.equal(0);
+            });
 
-    //     });
-    // });
+            cy.userLogout();
+            cy.landingToLogin();
+            cy.userLogin(userEmail, userPassword);
+            cy.devAddMockEvents();
+            cy.wait(500);
+            cy.userLogout();
+            cy.landingToLogin();
+            cy.adminLogin(adminEmail, adminPassword);
+            
+            // Step 3: Verify admin view updated correctly
+            cy.adminGetAllStatusCounts().then((afterCreate) => {
+                expect(afterCreate['All']).to.equal(31, 'Admin should see 31 total events');
+                expect(afterCreate['In Review']).to.equal(9, 'Admin should see 9 in review');
+                expect(afterCreate['In Progress']).to.equal(12, 'Admin should see 12 in progress');
+                expect(afterCreate['Completed']).to.equal(6, 'Admin should see 6 completed');
+                expect(afterCreate['Cancelled']).to.equal(4, 'Admin should see 4 cancelled');
+            });
+        });
+
+        it(`should display 30 mock events from admin`, () => {
+            // Step 1: Checking current status
+            cy.adminGetAllStatusCounts().then((initial) => {
+                expect(initial['All']).to.equal(31);
+                expect(initial['In Review']).to.equal(9);
+                expect(initial['In Progress']).to.equal(12);
+                expect(initial['Completed']).to.equal(6);
+                expect(initial['Cancelled']).to.equal(4);
+            });
+
+            // Step 2: Admin loads mock events
+            cy.devAddMockEvents();
+            cy.wait(500);
+
+            // Step 3: Verify In Review
+            cy.adminGetAllStatusCounts().then((afterCreate) => {
+                expect(afterCreate['All']).to.equal(31 + 30, 'All should be 61 after user loads mock events.');
+                expect(afterCreate['In Review']).to.equal(9 + 8, 'In Review should be 17 after user loads mock events.');
+                expect(afterCreate['In Progress']).to.equal(12 + 12, 'In Progress should be 24 after user loads mock events.');
+                expect(afterCreate['Completed']).to.equal(6 + 6, 'Completed should be 12 after user loads mock events.');
+                expect(afterCreate['Cancelled']).to.equal(4 + 4, 'Cancelled should be 8 after user loads mock events.');
+            });
+        });
+
+        it(`should clear all mock events, leaving the 1 event created by the user`, () => {
+            // Step 1: Checking current status
+            cy.adminGetAllStatusCounts().then((initial) => {
+                expect(initial['All']).to.equal(61);
+                expect(initial['In Review']).to.equal(17);
+                expect(initial['In Progress']).to.equal(24);
+                expect(initial['Completed']).to.equal(12);
+                expect(initial['Cancelled']).to.equal(8);
+            });
+
+            // Step 2: Admin clears mock events
+            cy.devClearMockEvents();
+            cy.wait(500);
+
+            // Step 3: Verify In Review
+            cy.adminGetAllStatusCounts().then((afterCreate) => {
+                expect(afterCreate['All']).to.equal(1, 'All should be 1 after admin clears the mock events.');
+                expect(afterCreate['In Review']).to.equal(1, 'In Review should be 1 after admin clears the mock events.');
+                expect(afterCreate['In Progress']).to.equal(0, 'In Progress should be 0 after admin clears the mock events.');
+                expect(afterCreate['Completed']).to.equal(0, 'Completed should be 0 after admin clears the mock events.');
+                expect(afterCreate['Cancelled']).to.equal(0, 'Cancelled should be 0 after admin clears the mock events.');
+            });
+        });   
+    });
 });
