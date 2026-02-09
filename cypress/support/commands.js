@@ -308,7 +308,7 @@ Cypress.Commands.add('userGetAllFilterCounts', () => {
   });
 });
 
-Cypress.Commands.add('userAddNewEvent', (eventName = null) => {
+Cypress.Commands.add('userAddNewEvent', (eventName = null, eventDate = null, eventLocation = null, eventType = null, eventGuestCount = null, eventbudget = null, eventDescription) => {
   cy.userGetOneFilterCount('[data-cy="eventlist-filter-all"]')
   .then((allCount) => {
 
@@ -325,18 +325,18 @@ Cypress.Commands.add('userAddNewEvent', (eventName = null) => {
         .type(eventName || `Test Event ${allCount + 1}`);
 
       cy.get('[data-cy="eventform-date-input"]')
-      .type('2026-06-28');
+      .type(eventDate || '2050-06-28');
       cy.get('[data-cy="eventform-location-input"]')
-      .type('Garden Estate');
+      .type(eventLocation || 'Garden Estate');
       cy.get('[data-cy="eventform-type-input"]')
-      .type('Birthday');
+      .type(eventType || 'Birthday');
       cy.get('[data-cy="eventform-guestCount-input"]')
-      .type('50');
+      .type(eventGuestCount || '50');
       cy.get('[data-cy="eventform-budget-input"]')
       .clear()
-      .type('75000');
+      .type(eventbudget || '75000');
       cy.get('[data-cy="eventform-description-input"]')
-        .type(`This is test event ${allCount + 1}.`);
+        .type(eventDescription || `This is test event ${allCount + 1}.`);
 
       cy.get('form')
       .submit();
@@ -349,6 +349,52 @@ Cypress.Commands.add('userAddNewEvent', (eventName = null) => {
 
       cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-review"]')
         .should('eq', inReviewCount + 1);
+
+    }); 
+  });
+});
+
+Cypress.Commands.add('userCancelNewEvent', (eventName = null, eventDate = null, eventLocation = null, eventType = null, eventGuestCount = null, eventbudget = null, eventDescription) => {
+  cy.userGetOneFilterCount('[data-cy="eventlist-filter-all"]')
+  .then((allCount) => {
+
+    cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-review"]')
+    .then((inReviewCount) => {
+
+      cy.get('[data-cy="eventlist-create-event-btn"]')
+    .click();
+
+      cy.url()
+      .should('contain', '/user/events/new');
+
+      cy.get('[data-cy="eventform-name-input"]')
+        .type(eventName || `Test Event ${allCount + 1}`);
+
+      cy.get('[data-cy="eventform-date-input"]')
+      .type(eventDate || '2050-06-28');
+      cy.get('[data-cy="eventform-location-input"]')
+      .type(eventLocation || 'Garden Estate');
+      cy.get('[data-cy="eventform-type-input"]')
+      .type(eventType || 'Birthday');
+      cy.get('[data-cy="eventform-guestCount-input"]')
+      .type(eventGuestCount || '50');
+      cy.get('[data-cy="eventform-budget-input"]')
+      .clear()
+      .type(eventbudget || '75000');
+      cy.get('[data-cy="eventform-description-input"]')
+        .type(eventDescription || `This is test event ${allCount + 1}.`);
+
+      cy.get('[data-cy="eventform-cancel-btn"]')
+      .click();
+
+      cy.url()
+      .should('contain', '/user/events');
+
+      cy.userGetOneFilterCount('[data-cy="eventlist-filter-all"]')
+        .should('eq', allCount);
+
+      cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-review"]')
+        .should('eq', inReviewCount);
 
     }); 
   });

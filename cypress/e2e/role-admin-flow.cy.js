@@ -5,6 +5,16 @@ describe(`Admin Experience Flow`, () => {
     const userEmail = 'jane.doe@example.com';
     const userPassword = 'user123';
 
+    const event = {
+      'name': '',
+      'date': '2026-06-28',
+      'location': 'Castle',
+      'type': 'Other',
+      'guestCount': '15',
+      'budget': '125000',
+      'description': ''
+    };
+
     describe(`Admin Auth.`, () => {
         before(() => {
             cy.clearCacheLoadLanding();
@@ -37,7 +47,7 @@ describe(`Admin Experience Flow`, () => {
                 
                 // create 3 new events
                 Cypress._.times(3, () => {
-                    cy.userAddNewEvent();
+                    cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
                 });
 
                 cy.userLogout();
@@ -68,7 +78,7 @@ describe(`Admin Experience Flow`, () => {
                 
                 // user creates 3 new events
                 Cypress._.times(3, () => {
-                    cy.userAddNewEvent();
+                    cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
                 });
 
                 cy.userLogout();
@@ -121,7 +131,7 @@ describe(`Admin Experience Flow`, () => {
                 
                 // user creates 3 new events
                 Cypress._.times(3, () => {
-                    cy.userAddNewEvent();
+                    cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
                 });
 
                 cy.userLogout();
@@ -170,7 +180,7 @@ describe(`Admin Experience Flow`, () => {
                     cy.userLogout();
                     cy.landingToLogin();
                     cy.userLogin(userEmail, userPassword);
-                    cy.userAddNewEvent();
+                    cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
                     cy.userLogout();
 
                     // Step 3: Verify In Review
@@ -218,7 +228,7 @@ describe(`Admin Experience Flow`, () => {
                     cy.userLogout();
                     cy.landingToLogin();
                     cy.userLogin(userEmail, userPassword);
-                    cy.userAddNewEvent();
+                    cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
                     cy.userLogout();
 
                     // Step 3: Admin accepts
@@ -276,7 +286,7 @@ describe(`Admin Experience Flow`, () => {
                     cy.userLogout();
                     cy.landingToLogin();
                     cy.userLogin(userEmail, userPassword);
-                    cy.userAddNewEvent();
+                    cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
                     cy.userLogout();
 
                     // Step 3: Admin accepts
@@ -328,7 +338,7 @@ describe(`Admin Experience Flow`, () => {
             cy.userLogout();
             cy.landingToLogin();
             cy.userLogin(userEmail, userPassword);
-            cy.userAddNewEvent();
+            cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
             cy.userLogout();
 
             // Step 3: Verify In Review

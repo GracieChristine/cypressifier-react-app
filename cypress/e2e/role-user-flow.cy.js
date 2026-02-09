@@ -5,6 +5,16 @@ describe(`User Experience Flow`, () => {
     const userEmail = 'jane.doe@example.com';
     const userPassword = 'user123';
 
+    const event = {
+      'name': '',
+      'date': '2026-06-28',
+      'location': 'Castle',
+      'type': 'Other',
+      'guestCount': '15',
+      'budget': '125000',
+      'description': ''
+    };
+
   describe(`User Auth.`, () => {
     before(() => {
       cy.clearCacheLoadLanding();
@@ -138,7 +148,9 @@ describe(`User Experience Flow`, () => {
   describe(`User Event Mgmt.`, () => {
     describe(`User Creating New Event`, () => {
       before(() => {
-
+        cy.clearCacheLoadLanding();
+        cy.landingToSignup();
+        cy.userSignup(userEmail, userPassword, userPassword)
       });
 
       it(`FAILED CASES....create event error`, () => {
@@ -146,10 +158,29 @@ describe(`User Experience Flow`, () => {
       });
 
       it(`should create new event`, () => {
-
+        cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
       });
 
       it(`should cancel creating new event`, () => {
+        cy.userCancelNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
+      });
+    });
+
+    describe(`User Editing Existing Event`, () => {
+      before(() => {
+        cy.clearCacheLoadLanding();
+        cy.landingToSignup();
+        cy.userSignup(userEmail, userPassword, userPassword)
+      });
+
+      it(`FAILED CASES....create event error`, () => {
+
+      });
+
+      it(`should update existing event`, () => {
+      });
+
+      it(`should cancel upddating existing event`, () => {
 
       });
     });

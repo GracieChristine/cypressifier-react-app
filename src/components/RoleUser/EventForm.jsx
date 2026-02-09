@@ -329,7 +329,7 @@ const EventForm = () => {
                 type="button"
                 onClick={() => navigate('/events')}
                 className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition font-semibold"
-                data-cy="ventform-cancel-btn"
+                data-cy="eventform-cancel-btn"
               >
                 Cancel and Close
               </button>
