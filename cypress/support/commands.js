@@ -88,22 +88,20 @@ Cypress.Commands.add(`loginToSignup`, () => {
 //     .should('contain','/user/events/new');
 // });
 
-
-
 // User Auth Related Commands
 Cypress.Commands.add(`userSignup`, (email, password, confirmPass = null) => {
-    // cy.clearCacheLoadLanding();
-    // cy.landingToSignup();
-
     // Fill in signup form
     cy.get('[data-cy="signup-email-input"]')
     .should('be.visible')
+    .clear()
     .type(email);
     cy.get('[data-cy="signup-password-input"]')
     .should('be.visible')
+    .clear()
     .type(password);
     cy.get('[data-cy="signup-confirm-password-input"]')
     .should('be.visible')
+    .clear()
     .type(confirmPass || password);
 
     // Submit signup form
@@ -114,17 +112,56 @@ Cypress.Commands.add(`userSignup`, (email, password, confirmPass = null) => {
     .should('contain','/user/events');
 });
 
-// Need to consider, with different user input (admin/user), to navigate to different link.
-Cypress.Commands.add(`userLogin`, (email, password) => {
-    // cy.clearCacheLoadLanding();
-    // cy.landingToLogin();
+Cypress.Commands.add(`userSignupError`, (email, password, confirmPass) => {
+  // Fill in signup form
+    cy.get('[data-cy="signup-email-input"]')
+    .should('be.visible')
+    .clear();
 
+    cy.get('[data-cy="signup-password-input"]')
+    .should('be.visible')
+    .clear();
+
+    cy.get('[data-cy="signup-confirm-password-input"]')
+    .should('be.visible')
+    .clear();
+
+    if (email) {
+        cy.get('[data-cy="signup-email-input"]')
+        .type(email);
+    }
+
+    if (password) {
+        cy.get('[data-cy="signup-password-input"]')
+        .type(password);
+    }
+    
+    if (confirmPass) {
+        cy.get('[data-cy="signup-confirm-password-input"]')
+        .type(confirmPass);
+    }
+
+    // Submit signup form
+    cy.get('form')
+    .submit();
+
+    cy.get('[data-cy="signup-email-error"], [data-cy="signup-password-error"], [data-cy="signup-confirm-password-error"]')
+    .should('exist')
+    .and('be.visible');
+    
+    cy.url()
+    .should('contain', '/signup');
+});
+
+Cypress.Commands.add(`userLogin`, (email, password) => {
     // Fill in login form
     cy.get('[data-cy="login-email-input"]')
     .should('be.visible')
+    .clear()
     .type(email);
     cy.get('[data-cy="login-password-input"]')
     .should('be.visible')
+    .clear()
     .type(password);
 
     // Submit login form
@@ -135,7 +172,38 @@ Cypress.Commands.add(`userLogin`, (email, password) => {
     .should('contain','/user/events');
 });
 
-// Need to consider, with different user input (admin/user), to navigate to different link.
+Cypress.Commands.add(`userLoginError`, (email, password) => {
+    // Fill in login form
+    cy.get('[data-cy="login-email-input"]')
+    .should('be.visible')
+    .clear();
+
+    cy.get('[data-cy="login-password-input"]')
+    .should('be.visible')
+    .clear();
+
+    if (email) {
+        cy.get('[data-cy="login-email-input"]')
+        .type(email);
+    }
+    
+    if (password) {
+        cy.get('[data-cy="login-password-input"]')
+        .type(password);
+    }
+
+    // Submit login form
+    cy.get('form')
+    .submit();
+
+    cy.get('[data-cy="login-email-error"], [data-cy="login-password-error"]')
+    .should('exist')
+    .and('be.visible');
+    
+    cy.url()
+    .should('contain', '/login');
+});
+
 Cypress.Commands.add(`adminLogin`, (email, password) => {
     // cy.clearCacheLoadLanding();
     // cy.landingToLogin();

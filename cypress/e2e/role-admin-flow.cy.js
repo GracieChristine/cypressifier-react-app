@@ -4,15 +4,18 @@ describe(`Admin Experience Flow`, () => {
     const adminPassword = 'admin123';
     const userEmail = 'jane.doe@example.com';
     const userPassword = 'user123';
-    const numEvent = 0;
 
-    describe(`Admin Authentication`, () => {
+    describe(`Admin Auth.`, () => {
         before(() => {
             cy.clearCacheLoadLanding();
         });
 
         it(`should navigate to /login`, () => {
             cy.landingToLogin();
+        });
+
+        it(`FAILED CASES....login error`, () => {
+
         });
 
         it(`should login as admin and navigate to /admin/dashboard`, () => {
@@ -301,7 +304,7 @@ describe(`Admin Experience Flow`, () => {
         });
     });
 
-    describe(`Admin's Dev Tool`, () => {
+    describe(`Admin with Mock Event Seeding`, () => {
         before(() => {
             cy.clearCacheLoadLanding();
             cy.landingToSignup();

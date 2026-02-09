@@ -52,6 +52,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signup = (email, password) => {
+    // Check if trying to use admin email
+    if (email === 'admin@cypressifier.com') {
+      return { success: false, error: 'User already exists. Please login.', field: 'email' };
+    }
+    
     // Check if user already exists
     const users = JSON.parse(localStorage.getItem('registered_users') || '[]');
     const existingUser = users.find(u => u.email === email);
