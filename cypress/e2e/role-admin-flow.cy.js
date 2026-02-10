@@ -24,8 +24,28 @@ describe(`Admin Experience Flow`, () => {
             cy.landingToLogin();
         });
 
-        it(`FAILED CASES....login error`, () => {
+        it(`should error out with no email`, () => {
+            cy.userLoginError('', adminPassword);
+        });
 
+        it(`should error out with invalid email`, () => {
+            cy.userLoginError('invalid@email', adminPassword);
+        });
+
+        it(`should error out with non-existing email`, () => {
+            cy.userLoginError('nonexisting@gmeta.com', adminPassword);
+        });
+
+        it(`should error out with no password`, () => {
+            cy.userLoginError(adminEmail, '');
+        });
+
+        it(`should error out with invalid password`, () => {
+            cy.userLoginError(adminEmail, 'short');
+        });
+
+        it(`should error out with incorrect password`, () => {
+        cy.userLoginError(adminEmail, '123admin');
         });
 
         it(`should login as admin and navigate to /admin/dashboard`, () => {
