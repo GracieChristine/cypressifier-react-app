@@ -98,20 +98,20 @@ const EventForm = () => {
 
     if (!formData.type) newErrors.type = 'Event type is required';
     
-    if (!formData.locationType) newErrors.locationType = 'Event Location type is required';
+    if (!formData.locationType) newErrors.locationType = 'Event location type is required';
 
     const budgetValue = parseInt(parseNumber(formData.budget));
     const minBudget = formData.locationType ? LOCATION_TYPES[formData.locationType].min : 0;
     
     if (!formData.budget || isNaN(budgetValue) || budgetValue <= 0) {
-      newErrors.budget = 'Valid budget is required';
+      newErrors.budget = 'Event budget is required';
     } else if (formData.locationType && budgetValue < minBudget) {
-      newErrors.budget = `Budget must be at least $${minBudget.toLocaleString()} for ${formData.locationType}`;
+      newErrors.budget = `Event budget must be at least $${minBudget.toLocaleString()} for ${formData.locationType}`;
     }
     
     const guestCountValue = parseInt(parseNumber(formData.guestCount));
     if (!formData.guestCount || isNaN(guestCountValue) || guestCountValue <= 0) {
-      newErrors.guestCount = 'Valid guest count is required';
+      newErrors.guestCount = 'Event guest count is required';
     }
 
     if (!formData.description.trim()) newErrors.description = 'Event description is required';

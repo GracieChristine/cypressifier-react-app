@@ -86,11 +86,8 @@ describe(`User Experience Flow`, () => {
       cy.userLogout();
     });
 
-    it(`should navigate to /signup again`, () => {
-      cy.landingToSignup();
-    });
-
     it(`should error out with existing admin email`, () => {
+      cy.landingToSignup();
       cy.userSignupError(adminEmail, userPassword, userPassword);
 
       cy.get('[data-cy="signup-email-error"]')
@@ -171,7 +168,7 @@ describe(`User Experience Flow`, () => {
 
         cy.get('[data-cy="eventform-date-error"]')
           .should('exist')
-          .should('contain', 'Date is required')  // Match actual error message
+          .should('contain', 'Date is required')
           .and('be.visible');
       });
 
@@ -180,7 +177,7 @@ describe(`User Experience Flow`, () => {
 
         cy.get('[data-cy="eventform-location-error"]')
           .should('exist')
-          .should('contain', 'Location type is required')  // Match actual error message
+          .should('contain', 'Event location type is required')
           .and('be.visible');
       });
 
@@ -198,7 +195,7 @@ describe(`User Experience Flow`, () => {
 
         cy.get('[data-cy="eventform-guestCount-error"]')
           .should('exist')
-          .should('contain', 'Valid guest count is required')  // Match actual error message
+          .should('contain', 'Event guest count is required')
           .and('be.visible');
       });
 
@@ -207,16 +204,16 @@ describe(`User Experience Flow`, () => {
 
         cy.get('[data-cy="eventform-budget-error"]')
           .should('exist')
-          .should('contain', 'Valid budget is required')  // Match actual error message
+          .should('contain', 'Event budget is required')
           .and('be.visible');
       });
 
       it(`should error out with invalid budget`, () => {
         cy.userAddNewEventError(event.name, event.date, event.location, event.type, event.guestCount, '10000', event.description);
 
-        cy.get('[data-cy="eventform-budget-error"]')  // Fixed: was date-error
+        cy.get('[data-cy="eventform-budget-error"]')
           .should('exist')
-          .should('contain', 'Budget must be at least')
+          .should('contain', 'Event budget must be at least')
           .and('be.visible');
       });
 
@@ -231,6 +228,7 @@ describe(`User Experience Flow`, () => {
 
       it(`should create new event`, () => {
         cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '');
+
       });
 
       it(`should cancel creating new event`, () => {
@@ -245,9 +243,62 @@ describe(`User Experience Flow`, () => {
         cy.clearCacheLoadLanding();
         cy.landingToSignup();
         cy.userSignup(userEmail, userPassword, userPassword)
+        cy.eventlistToNewEventForm();
+        cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '');
+
+        cy.userLogout();
+
+        cy.landingToLogin();
+        cy.adminLogin(adminEmail, adminPassword);
+
+        cy.adminAcceptNewEvent();
+
+        cy.userLogout();
+
+        cy.landingToLogin();
+        cy.userLogin(userEmail, userPassword);
       });
 
-      it(`FAILED CASES....create event error`, () => {
+      it(`should navigate to /user/events/event_{eventId}/edit`, () => {
+
+        cy.url()
+          .should('contain', '/user/events/event')
+          .and('contain', '/edit');
+
+        cy.get('[data-cy="eventform"]')
+          .should('contain', 'Event Edit')
+          .and('be.visible');
+      });
+
+      it(`should error out with event name removed`, () => {
+
+      });
+
+      it(`should error out with event date removed`, () => {
+
+      });
+
+      it(`should error out with event location removed`, () => {
+
+      });
+
+      it(`should error out with event type removed`, () => {
+
+      });
+
+      it(`should error out with event guest count removed`, () => {
+
+      });
+
+      it(`should error out with event budget removed`, () => {
+
+      });
+
+      it(`should error out with invalid budget update`, () => {
+
+      });
+
+      it(`should error out with event description removed`, () => {
 
       });
 
@@ -281,27 +332,27 @@ describe(`User Experience Flow`, () => {
       });
     });
 
-    // describe(``, () => {
-    //   before(() => {
+    describe(`User Event Mgmt End-to-End`, () => {
+      before(() => {
 
-    //   });
+      });
 
-    //   it(``, () => {
+      it(``, () => {
 
-    //   });
+      });
 
-    //   it(``, () => {
+      it(``, () => {
 
-    //   });
+      });
 
-    //   it(``, () => {
+      it(``, () => {
 
-    //   });
+      });
 
-    //   it(``, () => {
+      it(``, () => {
 
-    //   });
-    // });
+      });
+    });
   });
 
   describe(`User with Mock Event Seeding`, () => {
