@@ -43,10 +43,10 @@ const EventForm = () => {
   
   const [formData, setFormData] = useState({
     name: '',
-    type: 'Anniversary',
+    type: '',
     date: '',
-    locationType: 'Castle',
-    budget: '50000', // Default to Castle minimum
+    locationType: '',
+    budget: '',
     guestCount: '',
     description: ''
   });
@@ -63,16 +63,29 @@ const EventForm = () => {
       if (event) {
         setFormData({
           name: event.name || '',
-          type: event.type || 'Wedding',
+          type: event.type || '',
           date: event.date || '',
-          locationType: event.locationType || 'Castle',
-          budget: event.budget || event.setBudget || event.budgetTotal || '',
-          guestCount: event.guestCount || '',
+          locationType: event.locationType || '',
+          budget: (event.budget || event.setBudget || event.budgetTotal || '').toString(),
+          guestCount: (event.guestCount || '').toString(),
           description: event.description || ''
         });
       }
     }
   }, [id, isEditing]);
+
+  // Format number with thousand separators
+  const formatNumber = (value) => {
+    if (!value) return '';
+    const num = value.replace(/,/g, '');
+    if (isNaN(num)) return value;
+    return parseInt(num).toLocaleString();
+  };
+
+  // Remove formatting to get raw number
+  const parseNumber = (value) => {
+    return value.replace(/,/g, '');
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -80,20 +93,28 @@ const EventForm = () => {
     // Validation
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = 'Event name is required';
+
     if (!formData.date) newErrors.date = 'Date is required';
+
+    if (!formData.type) newErrors.type = 'Event type is required';
     
-    const budgetValue = parseInt(formData.budget);
-    const minBudget = LOCATION_TYPES[formData.locationType].min;
+    if (!formData.locationType) newErrors.locationType = 'Location type is required';
+
+    const budgetValue = parseInt(parseNumber(formData.budget));
+    const minBudget = formData.locationType ? LOCATION_TYPES[formData.locationType].min : 0;
     
     if (!formData.budget || isNaN(budgetValue) || budgetValue <= 0) {
       newErrors.budget = 'Valid budget is required';
-    } else if (budgetValue < minBudget) {
+    } else if (formData.locationType && budgetValue < minBudget) {
       newErrors.budget = `Budget must be at least $${minBudget.toLocaleString()} for ${formData.locationType}`;
     }
     
-    if (!formData.guestCount || formData.guestCount <= 0) {
+    const guestCountValue = parseInt(parseNumber(formData.guestCount));
+    if (!formData.guestCount || isNaN(guestCountValue) || guestCountValue <= 0) {
       newErrors.guestCount = 'Valid guest count is required';
     }
+
+    if (!formData.description.trim()) newErrors.description = 'Description is required';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -109,20 +130,24 @@ const EventForm = () => {
           ? { 
               ...e, 
               ...formData,
-              setBudget: parseInt(formData.budget),
-              budgetTotal: parseInt(formData.budget)
+              budget: budgetValue,
+              guestCount: guestCountValue,
+              setBudget: budgetValue,
+              budgetTotal: budgetValue
             }
           : e
       );
-      saveEventsToStorage(updatedEvents); // Only this line - remove the user-specific save
+      saveEventsToStorage(updatedEvents);
     } else {
       // Create new event
       const newEvent = {
         id: `event_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         ...formData,
+        budget: budgetValue,
+        guestCount: guestCountValue,
         status: 'In Review',
-        setBudget: parseInt(formData.budget),
-        budgetTotal: parseInt(formData.budget),
+        setBudget: budgetValue,
+        budgetTotal: budgetValue,
         budgetSpent: 0,
         userId: user.id,
         userEmail: user.email,
@@ -130,7 +155,7 @@ const EventForm = () => {
       };
       
       const updatedEvents = [...events, newEvent];
-      saveEventsToStorage(updatedEvents); // Only this line - remove the user-specific save
+      saveEventsToStorage(updatedEvents);
     }
 
     navigate('/events');
@@ -144,24 +169,41 @@ const EventForm = () => {
     }
   };
 
-  const handleLocationChange = (e) => {
-    const newLocation = e.target.value;
-    const minBudget = LOCATION_TYPES[newLocation].min;
+  const handleNumberChange = (e) => {
+    const { name, value } = e.target;
+    const rawValue = parseNumber(value);
     
-    setFormData(prev => ({
-      ...prev,
-      locationType: newLocation,
-      budget: minBudget.toString() // Auto-set to minimum
-    }));
-    
-    // Clear budget error if it existed
-    if (errors.budget) {
-      setErrors(prev => ({ ...prev, budget: '' }));
+    // Only allow numbers
+    if (rawValue === '' || !isNaN(rawValue)) {
+      setFormData(prev => ({ ...prev, [name]: rawValue }));
+      if (errors[name]) {
+        setErrors(prev => ({ ...prev, [name]: '' }));
+      }
     }
   };
 
-  const currentMinBudget = LOCATION_TYPES[formData.locationType].min;
-  const currentBudgetValue = parseInt(formData.budget) || 0;
+  const handleLocationChange = (e) => {
+    const newLocation = e.target.value;
+    
+    setFormData(prev => ({
+      ...prev,
+      locationType: newLocation
+    }));
+    
+    // Clear errors
+    if (errors.locationType) {
+      setErrors(prev => ({ ...prev, locationType: '' }));
+    }
+  };
+
+  const getBudgetPlaceholder = () => {
+    if (formData.locationType && LOCATION_TYPES[formData.locationType]) {
+      return LOCATION_TYPES[formData.locationType].min.toLocaleString();
+    }
+    return '10,000';
+  };
+
+  const currentMinBudget = formData.locationType ? LOCATION_TYPES[formData.locationType].min : 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-8" data-cy="eventform">
@@ -209,7 +251,7 @@ const EventForm = () => {
                 data-cy="eventform-date-input"
               />
               {errors.date && (
-                <p className="text-red-500 text-sm mt-1" data-cy="eventform-data-error">{errors.date}</p>
+                <p className="text-red-500 text-sm mt-1" data-cy="eventform-date-error">{errors.date}</p>
               )}
             </div>
 
@@ -221,18 +263,26 @@ const EventForm = () => {
                 name="locationType"
                 value={formData.locationType}
                 onChange={handleLocationChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  errors.locationType ? 'border-red-500' : ''
+                } ${!formData.locationType ? 'text-gray-400' : 'text-gray-900'}`}
                 data-cy="eventform-location-input"
               >
+                <option value="" disabled hidden>Select a location type</option>
                 {Object.entries(LOCATION_TYPES).map(([name, data]) => (
                   <option key={name} value={name}>
                     {data.icon} {name}
                   </option>
                 ))}
               </select>
-              <p className="text-sm text-gray-600 mt-1">
-                {LOCATION_TYPES[formData.locationType].description}
-              </p>
+              {formData.locationType && (
+                <p className="text-sm text-gray-600 mt-1">
+                  {LOCATION_TYPES[formData.locationType].description}
+                </p>
+              )}
+              {errors.locationType && (
+                <p className="text-red-500 text-sm mt-1" data-cy="eventform-location-error">{errors.locationType}</p>
+              )}
             </div>
 
             <div>
@@ -243,9 +293,12 @@ const EventForm = () => {
                 name="type"
                 value={formData.type}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  errors.type ? 'border-red-500' : ''
+                } ${!formData.type ? 'text-gray-400' : 'text-gray-900'}`}
                 data-cy="eventform-type-input"
               >
+                <option value="" disabled hidden>Select an event type</option>
                 <option value="Anniversary">💐 Anniversary</option>
                 <option value="Birthday">🎂 Birthday</option>
                 <option value="Celebration">🎊 Celebration</option>
@@ -255,6 +308,9 @@ const EventForm = () => {
                 <option value="Wedding">💒 Wedding</option>
                 <option value="Other">🎉 Other</option>
               </select>
+              {errors.type && (
+                <p className="text-red-500 text-sm mt-1" data-cy="eventform-type-error">{errors.type}</p>
+              )}
             </div>
 
             <div>
@@ -262,15 +318,14 @@ const EventForm = () => {
                 Guest Count
               </label>
               <input
-                type="number"
+                type="text"
                 name="guestCount"
-                value={formData.guestCount}
-                onChange={handleChange}
+                value={formatNumber(formData.guestCount)}
+                onChange={handleNumberChange}
                 className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                   errors.guestCount ? 'border-red-500' : ''
                 }`}
                 placeholder="150"
-                min="1"
                 data-cy="eventform-guestCount-input"
               />
               {errors.guestCount && (
@@ -283,19 +338,21 @@ const EventForm = () => {
                 Budget ($)
               </label>
               <input
-                type="number"
+                type="text"
                 name="budget"
-                value={formData.budget.toLocaleString()}
-                onChange={handleChange}
+                value={formatNumber(formData.budget)}
+                onChange={handleNumberChange}
                 className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                   errors.budget ? 'border-red-500' : ''
                 }`}
-                placeholder={currentMinBudget.toLocaleString()}
-                min={currentMinBudget.toLocaleString()} data-cy="eventform-budget-input"
+                placeholder={getBudgetPlaceholder()}
+                data-cy="eventform-budget-input"
               />
-              <p className="text-sm text-gray-600 mt-1">
-                Minimum budget for {formData.locationType}: ${currentMinBudget.toLocaleString()}
-              </p>
+              {formData.locationType && (
+                <p className="text-sm text-gray-600 mt-1">
+                  Minimum budget for {formData.locationType}: ${currentMinBudget.toLocaleString()}
+                </p>
+              )}
               {errors.budget && (
                 <p className="text-red-500 text-sm mt-1" data-cy="eventform-budget-error">{errors.budget}</p>
               )}
@@ -309,11 +366,16 @@ const EventForm = () => {
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  errors.description ? 'border-red-500' : ''
+                }`}
                 rows="4"
                 placeholder="Brief description of your event..."
                 data-cy="eventform-description-input"
               />
+              {errors.description && (
+                <p className="text-red-500 text-sm mt-1" data-cy="eventform-description-error">{errors.description}</p>
+              )}
             </div>
 
             {/* Form Buttons */}
