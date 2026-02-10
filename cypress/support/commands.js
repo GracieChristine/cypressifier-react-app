@@ -66,6 +66,12 @@ Cypress.Commands.add(`loginToSignup`, () => {
     cy.get('[data-cy="signup-confirm-password-input"]').should('be.visible');
 });
 
+Cypress.Commands.add(`eventlistToNewEventForm`, () => {
+  cy.get('[data-cy="eventlist-create-event-btn"]').click();
+
+  cy.url().should('contain', '/user/events/new');
+})
+
 // Cypress.Commands.add(``, () => {
 //     // dashboard table entry action button
 //         // there is 1 button
@@ -86,7 +92,7 @@ Cypress.Commands.add(`loginToSignup`, () => {
 
 //     cy.url()
 //     .should('contain','/user/events/new');
-// });
+// });`
 
 // User Auth Related Commands
 Cypress.Commands.add(`userSignup`, (email, password, confirmPass = null) => {
@@ -95,10 +101,12 @@ Cypress.Commands.add(`userSignup`, (email, password, confirmPass = null) => {
     .should('be.visible')
     .clear()
     .type(email);
+    
     cy.get('[data-cy="signup-password-input"]')
     .should('be.visible')
     .clear()
     .type(password);
+    
     cy.get('[data-cy="signup-confirm-password-input"]')
     .should('be.visible')
     .clear()
@@ -113,7 +121,7 @@ Cypress.Commands.add(`userSignup`, (email, password, confirmPass = null) => {
 });
 
 Cypress.Commands.add(`userSignupError`, (email, password, confirmPass) => {
-  // Fill in signup form
+    // Clear all fields first
     cy.get('[data-cy="signup-email-input"]')
     .should('be.visible')
     .clear();
@@ -126,6 +134,7 @@ Cypress.Commands.add(`userSignupError`, (email, password, confirmPass) => {
     .should('be.visible')
     .clear();
 
+    // Fill in only if values provided
     if (email) {
         cy.get('[data-cy="signup-email-input"]')
         .type(email);
@@ -145,10 +154,12 @@ Cypress.Commands.add(`userSignupError`, (email, password, confirmPass) => {
     cy.get('form')
     .submit();
 
+    // Verify error appears
     cy.get('[data-cy="signup-email-error"], [data-cy="signup-password-error"], [data-cy="signup-confirm-password-error"]')
     .should('exist')
     .and('be.visible');
     
+    // Verify still on signup page
     cy.url()
     .should('contain', '/signup');
 });
@@ -159,6 +170,7 @@ Cypress.Commands.add(`userLogin`, (email, password) => {
     .should('be.visible')
     .clear()
     .type(email);
+    
     cy.get('[data-cy="login-password-input"]')
     .should('be.visible')
     .clear()
@@ -173,7 +185,7 @@ Cypress.Commands.add(`userLogin`, (email, password) => {
 });
 
 Cypress.Commands.add(`userLoginError`, (email, password) => {
-    // Fill in login form
+    // Clear all fields first
     cy.get('[data-cy="login-email-input"]')
     .should('be.visible')
     .clear();
@@ -182,6 +194,7 @@ Cypress.Commands.add(`userLoginError`, (email, password) => {
     .should('be.visible')
     .clear();
 
+    // Fill in only if values provided
     if (email) {
         cy.get('[data-cy="login-email-input"]')
         .type(email);
@@ -196,24 +209,26 @@ Cypress.Commands.add(`userLoginError`, (email, password) => {
     cy.get('form')
     .submit();
 
+    // Verify error appears
     cy.get('[data-cy="login-email-error"], [data-cy="login-password-error"]')
     .should('exist')
     .and('be.visible');
     
+    // Verify still on login page
     cy.url()
     .should('contain', '/login');
 });
 
 Cypress.Commands.add(`adminLogin`, (email, password) => {
-    // cy.clearCacheLoadLanding();
-    // cy.landingToLogin();
-
     // Fill in login form
     cy.get('[data-cy="login-email-input"]')
     .should('be.visible')
+    .clear()
     .type(email);
+    
     cy.get('[data-cy="login-password-input"]')
     .should('be.visible')
+    .clear()
     .type(password);
 
     // Submit login form
@@ -226,6 +241,7 @@ Cypress.Commands.add(`adminLogin`, (email, password) => {
 
 Cypress.Commands.add(`userLogout`, () => {
     cy.get('[data-cy="nav-logout-btn"]')
+    .should('be.visible')
     .click();
 
     cy.url()
@@ -308,33 +324,232 @@ Cypress.Commands.add('userGetAllFilterCounts', () => {
   });
 });
 
-Cypress.Commands.add('userAddNewEvent', (eventName = null, eventDate = null, eventLocation = null, eventType = null, eventGuestCount = null, eventbudget = null, eventDescription) => {
+// Cypress.Commands.add('userAddNewEvent', (
+//   eventName = null, eventDate = null, 
+//   eventLocation = null, 
+//   eventType = null, 
+//   eventGuestCount = null, 
+//   eventBudget = null, 
+//   eventDescription = null
+// ) => {
+//   cy.userGetOneFilterCount('[data-cy="eventlist-filter-all"]')
+//   .then((allCount) => {
+
+//     cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-review"]')
+//     .then((inReviewCount) => {
+
+//       cy.get('[data-cy="eventform-name-input"]').clear();
+//       cy.get('[data-cy="eventform-date-input"]').clear();
+//       cy.get('[data-cy="eventform-location-input"]')
+//         .invoke('val', '')
+//         .trigger('change');
+//       cy.get('[data-cy="eventform-type-input"]')
+//         .invoke('val', '')
+//         .trigger('change');
+//       cy.get('[data-cy="eventform-guestCount-input"]').clear();
+//       cy.get('[data-cy="eventform-budget-input"]').clear();
+//       cy.get('[data-cy="eventform-description-input"]').clear();
+
+//       cy.get('[data-cy="eventform-name-input"]')
+//         .type(eventName || `Test Event ${allCount + 1}`);
+//       cy.get('[data-cy="eventform-date-input"]')
+//         .type(eventDate || '2050-06-28');
+//       cy.get('[data-cy="eventform-location-input"]')
+//         .select(eventLocation || 'Garden Estate');
+//       cy.get('[data-cy="eventform-type-input"]')
+//         .select(eventType || 'Birthday');
+//       cy.get('[data-cy="eventform-guestCount-input"]')
+//         .type(eventGuestCount || '50');
+//       cy.get('[data-cy="eventform-budget-input"]')
+//         .type(eventBudget || '75000');
+//       cy.get('[data-cy="eventform-description-input"]')
+//         .type(eventDescription || `This is test event ${allCount + 1}.`);
+
+//       cy.get('form')
+//       .submit();
+
+//       cy.url()
+//       .should('contain', '/user/events');
+
+//       cy.userGetOneFilterCount('[data-cy="eventlist-filter-all"]')
+//         .should('eq', allCount + 1);
+
+//       cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-review"]')
+//         .should('eq', inReviewCount + 1);
+
+//     }); 
+//   });
+// });
+
+Cypress.Commands.add('userAddNewEventError', (
+  eventName = null,
+  eventDate = null,
+  eventLocation = null,
+  eventType = null,
+  eventGuestCount = null,
+  eventBudget = null,
+  eventDescription = null
+) => {
+  cy.get('[data-cy="eventform-name-input"]').clear();
+  cy.get('[data-cy="eventform-date-input"]').clear();
+  cy.get('[data-cy="eventform-location-input"]')
+    .invoke('val', '')
+    .trigger('change');
+  cy.get('[data-cy="eventform-type-input"]')
+    .invoke('val', '')
+    .trigger('change');
+  cy.get('[data-cy="eventform-guestCount-input"]').clear();
+  cy.get('[data-cy="eventform-budget-input"]').clear();
+  cy.get('[data-cy="eventform-description-input"]').clear();
+
+  if (eventName) {
+    cy.get('[data-cy="eventform-name-input"]').type(eventName);
+  }
+
+  if (eventDate) {
+    cy.get('[data-cy="eventform-date-input"]').type(eventDate);
+  }
+
+  if (eventLocation) {
+    cy.get('[data-cy="eventform-location-input"]').select(eventLocation);
+  }
+
+  if (eventType) {
+    cy.get('[data-cy="eventform-type-input"]').select(eventType);
+  }
+
+  if (eventGuestCount) {
+    cy.get('[data-cy="eventform-guestCount-input"]').type(eventGuestCount);
+  }
+
+  if (eventBudget) {
+    cy.get('[data-cy="eventform-budget-input"]').type(eventBudget);
+  }
+
+  if (eventDescription) {
+    cy.get('[data-cy="eventform-description-input"]').type(eventDescription);
+  }
+
+  cy.get('form').submit();
+
+  cy.url().should('contain', '/user/events/new');
+
+  cy.get('[data-cy$="-error"]')
+    .should('exist')
+    .and('be.visible');
+});
+
+// Cypress.Commands.add('userCancelNewEvent', (
+//   eventName = null, 
+//   eventDate = null, 
+//   eventLocation = null, 
+//   eventType = null, 
+//   eventGuestCount = null, 
+//   eventBudget = null, 
+//   eventDescription = null
+
+// ) => {
+//   cy.userGetOneFilterCount('[data-cy="eventlist-filter-all"]')
+//   .then((allCount) => {
+
+//     cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-review"]')
+//     .then((inReviewCount) => {
+
+//       cy.get('[data-cy="eventform-name-input"]').clear();
+//       cy.get('[data-cy="eventform-date-input"]').clear();
+//       cy.get('[data-cy="eventform-location-input"]')
+//         .invoke('val', '')
+//         .trigger('change');
+//       cy.get('[data-cy="eventform-type-input"]')
+//         .invoke('val', '')
+//         .trigger('change');
+//       cy.get('[data-cy="eventform-guestCount-input"]').clear();
+//       cy.get('[data-cy="eventform-budget-input"]').clear();
+//       cy.get('[data-cy="eventform-description-input"]').clear();
+
+//       cy.get('[data-cy="eventform-name-input"]')
+//         .type(eventName || `Test Event ${allCount + 1}`);
+//       cy.get('[data-cy="eventform-date-input"]')
+//         .type(eventDate || '2050-06-28');
+//       cy.get('[data-cy="eventform-location-input"]')
+//         .select(eventLocation || 'Garden Estate');
+//       cy.get('[data-cy="eventform-type-input"]')
+//         .select(eventType || 'Birthday');
+//       cy.get('[data-cy="eventform-guestCount-input"]')
+//         .type(eventGuestCount || '50');
+//       cy.get('[data-cy="eventform-budget-input"]')
+//         .type(eventBudget || '75000');
+//       cy.get('[data-cy="eventform-description-input"]')
+//         .type(eventDescription || `This is test event ${allCount + 1}.`);
+
+//       cy.get('[data-cy="eventform-cancel-btn"]')
+//         .click();
+
+//       cy.url()
+//       .should('contain', '/user/events');
+
+//       cy.userGetOneFilterCount('[data-cy="eventlist-filter-all"]')
+//         .should('eq', allCount);
+
+//       cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-review"]')
+//         .should('eq', inReviewCount);
+
+//     }); 
+//   });
+// });
+
+Cypress.Commands.add('userAddNewEvent', (
+  eventName = null, eventDate = null, 
+  eventLocation = null, 
+  eventType = null, 
+  eventGuestCount = null, 
+  eventBudget = null, 
+  eventDescription = null
+) => {
+  // First, ensure we're on the event list page to get counts
+  cy.url().then((url) => {
+    if (url.includes('/user/events/new')) {
+      cy.get('[data-cy="eventform-cancel-btn"]').click();
+      cy.url().should('contain', '/user/events');
+      cy.url().should('not.contain', '/new');
+    }
+  });
+
   cy.userGetOneFilterCount('[data-cy="eventlist-filter-all"]')
   .then((allCount) => {
 
     cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-review"]')
     .then((inReviewCount) => {
 
-      cy.get('[data-cy="eventlist-create-event-btn"]')
-    .click();
+      // Navigate to form
+      cy.get('[data-cy="eventlist-create-event-btn"]').click();
+      cy.url().should('contain', '/user/events/new');
 
-      cy.url()
-      .should('contain', '/user/events/new');
+      // Clear and fill form
+      cy.get('[data-cy="eventform-name-input"]').clear();
+      cy.get('[data-cy="eventform-date-input"]').clear();
+      cy.get('[data-cy="eventform-location-input"]')
+        .invoke('val', '')
+        .trigger('change');
+      cy.get('[data-cy="eventform-type-input"]')
+        .invoke('val', '')
+        .trigger('change');
+      cy.get('[data-cy="eventform-guestCount-input"]').clear();
+      cy.get('[data-cy="eventform-budget-input"]').clear();
+      cy.get('[data-cy="eventform-description-input"]').clear();
 
       cy.get('[data-cy="eventform-name-input"]')
         .type(eventName || `Test Event ${allCount + 1}`);
-
       cy.get('[data-cy="eventform-date-input"]')
-      .type(eventDate || '2050-06-28');
+        .type(eventDate || '2050-06-28');
       cy.get('[data-cy="eventform-location-input"]')
-      .type(eventLocation || 'Garden Estate');
+        .select(eventLocation || 'Garden Estate');
       cy.get('[data-cy="eventform-type-input"]')
-      .type(eventType || 'Birthday');
+        .select(eventType || 'Birthday');
       cy.get('[data-cy="eventform-guestCount-input"]')
-      .type(eventGuestCount || '50');
+        .type(eventGuestCount || '50');
       cy.get('[data-cy="eventform-budget-input"]')
-      .clear()
-      .type(eventbudget || '75000');
+        .type(eventBudget || '75000');
       cy.get('[data-cy="eventform-description-input"]')
         .type(eventDescription || `This is test event ${allCount + 1}.`);
 
@@ -354,38 +569,64 @@ Cypress.Commands.add('userAddNewEvent', (eventName = null, eventDate = null, eve
   });
 });
 
-Cypress.Commands.add('userCancelNewEvent', (eventName = null, eventDate = null, eventLocation = null, eventType = null, eventGuestCount = null, eventbudget = null, eventDescription) => {
+Cypress.Commands.add('userCancelNewEvent', (
+  eventName = null, 
+  eventDate = null, 
+  eventLocation = null, 
+  eventType = null, 
+  eventGuestCount = null, 
+  eventBudget = null, 
+  eventDescription = null
+) => {
+  // First, ensure we're on the event list page to get counts
+  cy.url().then((url) => {
+    if (url.includes('/user/events/new')) {
+      cy.get('[data-cy="eventform-cancel-btn"]').click();
+      cy.url().should('contain', '/user/events');
+      cy.url().should('not.contain', '/new');
+    }
+  });
+
   cy.userGetOneFilterCount('[data-cy="eventlist-filter-all"]')
   .then((allCount) => {
 
     cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-review"]')
     .then((inReviewCount) => {
 
-      cy.get('[data-cy="eventlist-create-event-btn"]')
-    .click();
+      // Navigate to form
+      cy.get('[data-cy="eventlist-create-event-btn"]').click();
+      cy.url().should('contain', '/user/events/new');
 
-      cy.url()
-      .should('contain', '/user/events/new');
+      // Clear and fill form
+      cy.get('[data-cy="eventform-name-input"]').clear();
+      cy.get('[data-cy="eventform-date-input"]').clear();
+      cy.get('[data-cy="eventform-location-input"]')
+        .invoke('val', '')
+        .trigger('change');
+      cy.get('[data-cy="eventform-type-input"]')
+        .invoke('val', '')
+        .trigger('change');
+      cy.get('[data-cy="eventform-guestCount-input"]').clear();
+      cy.get('[data-cy="eventform-budget-input"]').clear();
+      cy.get('[data-cy="eventform-description-input"]').clear();
 
       cy.get('[data-cy="eventform-name-input"]')
         .type(eventName || `Test Event ${allCount + 1}`);
-
       cy.get('[data-cy="eventform-date-input"]')
-      .type(eventDate || '2050-06-28');
+        .type(eventDate || '2050-06-28');
       cy.get('[data-cy="eventform-location-input"]')
-      .type(eventLocation || 'Garden Estate');
+        .select(eventLocation || 'Garden Estate');
       cy.get('[data-cy="eventform-type-input"]')
-      .type(eventType || 'Birthday');
+        .select(eventType || 'Birthday');
       cy.get('[data-cy="eventform-guestCount-input"]')
-      .type(eventGuestCount || '50');
+        .type(eventGuestCount || '50');
       cy.get('[data-cy="eventform-budget-input"]')
-      .clear()
-      .type(eventbudget || '75000');
+        .type(eventBudget || '75000');
       cy.get('[data-cy="eventform-description-input"]')
         .type(eventDescription || `This is test event ${allCount + 1}.`);
 
       cy.get('[data-cy="eventform-cancel-btn"]')
-      .click();
+        .click();
 
       cy.url()
       .should('contain', '/user/events');

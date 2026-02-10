@@ -94,11 +94,11 @@ const EventForm = () => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = 'Event name is required';
 
-    if (!formData.date) newErrors.date = 'Date is required';
+    if (!formData.date) newErrors.date = 'Event Date is required';
 
     if (!formData.type) newErrors.type = 'Event type is required';
     
-    if (!formData.locationType) newErrors.locationType = 'Location type is required';
+    if (!formData.locationType) newErrors.locationType = 'Event Location type is required';
 
     const budgetValue = parseInt(parseNumber(formData.budget));
     const minBudget = formData.locationType ? LOCATION_TYPES[formData.locationType].min : 0;
@@ -114,7 +114,7 @@ const EventForm = () => {
       newErrors.guestCount = 'Valid guest count is required';
     }
 
-    if (!formData.description.trim()) newErrors.description = 'Description is required';
+    if (!formData.description.trim()) newErrors.description = 'Event description is required';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);

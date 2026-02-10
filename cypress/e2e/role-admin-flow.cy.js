@@ -44,6 +44,7 @@ describe(`Admin Experience Flow`, () => {
 
                 cy.landingToSignup();
                 cy.userSignup(userEmail, userPassword);
+                cy.eventlistToNewEventForm();
                 
                 // create 3 new events
                 Cypress._.times(3, () => {
@@ -75,6 +76,7 @@ describe(`Admin Experience Flow`, () => {
 
                 cy.landingToSignup();
                 cy.userSignup(userEmail, userPassword);
+                cy.eventlistToNewEventForm();
                 
                 // user creates 3 new events
                 Cypress._.times(3, () => {
@@ -128,6 +130,7 @@ describe(`Admin Experience Flow`, () => {
 
                 cy.landingToSignup();
                 cy.userSignup(userEmail, userPassword);
+                cy.eventlistToNewEventForm();
                 
                 // user creates 3 new events
                 Cypress._.times(3, () => {
@@ -180,6 +183,7 @@ describe(`Admin Experience Flow`, () => {
                     cy.userLogout();
                     cy.landingToLogin();
                     cy.userLogin(userEmail, userPassword);
+                    cy.eventlistToNewEventForm();
                     cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
                     cy.userLogout();
 
@@ -228,6 +232,7 @@ describe(`Admin Experience Flow`, () => {
                     cy.userLogout();
                     cy.landingToLogin();
                     cy.userLogin(userEmail, userPassword);
+                    cy.eventlistToNewEventForm();
                     cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
                     cy.userLogout();
 
@@ -286,6 +291,7 @@ describe(`Admin Experience Flow`, () => {
                     cy.userLogout();
                     cy.landingToLogin();
                     cy.userLogin(userEmail, userPassword);
+                    cy.eventlistToNewEventForm();
                     cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
                     cy.userLogout();
 
@@ -338,6 +344,7 @@ describe(`Admin Experience Flow`, () => {
             cy.userLogout();
             cy.landingToLogin();
             cy.userLogin(userEmail, userPassword);
+            cy.eventlistToNewEventForm();
             cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
             cy.userLogout();
 

@@ -6,13 +6,13 @@ describe(`User Experience Flow`, () => {
     const userPassword = 'user123';
 
     const event = {
-      'name': '',
+      'name': 'Just a test event',
       'date': '2026-06-28',
       'location': 'Castle',
       'type': 'Other',
       'guestCount': '15',
       'budget': '125000',
-      'description': ''
+      'description': 'Jsut a description for a test event.'
     };
 
   describe(`User Auth.`, () => {
@@ -86,7 +86,7 @@ describe(`User Experience Flow`, () => {
       cy.userLogout();
     });
 
-    it(`should navigate to /singup again`, () => {
+    it(`should navigate to /signup again`, () => {
       cy.landingToSignup();
     });
 
@@ -153,16 +153,90 @@ describe(`User Experience Flow`, () => {
         cy.userSignup(userEmail, userPassword, userPassword)
       });
 
-      it(`FAILED CASES....create event error`, () => {
+      it(`should navigate to /user/events/new`, () => {
+        cy.eventlistToNewEventForm();
+      });
 
+      it(`should error out with no event name`, () => {
+        cy.userAddNewEventError('', event.date, event.location, event.type, event.guestCount, event.budget, event.description);
+
+        cy.get('[data-cy="eventform-name-error"]')
+          .should('exist')
+          .should('contain', 'Event name is required')
+          .and('be.visible');
+      });
+
+      it(`should error out with no event date`, () => {
+        cy.userAddNewEventError(event.name, '', event.location, event.type, event.guestCount, event.budget, event.description);
+
+        cy.get('[data-cy="eventform-date-error"]')
+          .should('exist')
+          .should('contain', 'Date is required')  // Match actual error message
+          .and('be.visible');
+      });
+
+      it(`should error out with no event location`, () => {
+        cy.userAddNewEventError(event.name, event.date, '', event.type, event.guestCount, event.budget, event.description);
+
+        cy.get('[data-cy="eventform-location-error"]')
+          .should('exist')
+          .should('contain', 'Location type is required')  // Match actual error message
+          .and('be.visible');
+      });
+
+      it(`should error out with no event type`, () => {
+        cy.userAddNewEventError(event.name, event.date, event.location, '', event.guestCount, event.budget, event.description);
+
+        cy.get('[data-cy="eventform-type-error"]')
+          .should('exist')
+          .should('contain', 'Event type is required')
+          .and('be.visible');
+      });
+
+      it(`should error out with no event guest count`, () => {
+        cy.userAddNewEventError(event.name, event.date, event.location, event.type, '', event.budget, event.description);
+
+        cy.get('[data-cy="eventform-guestCount-error"]')
+          .should('exist')
+          .should('contain', 'Valid guest count is required')  // Match actual error message
+          .and('be.visible');
+      });
+
+      it(`should error out with no event budget`, () => {
+        cy.userAddNewEventError(event.name, event.date, event.location, event.type, event.guestCount, '', event.description);
+
+        cy.get('[data-cy="eventform-budget-error"]')
+          .should('exist')
+          .should('contain', 'Valid budget is required')  // Match actual error message
+          .and('be.visible');
+      });
+
+      it(`should error out with invalid budget`, () => {
+        cy.userAddNewEventError(event.name, event.date, event.location, event.type, event.guestCount, '10000', event.description);
+
+        cy.get('[data-cy="eventform-budget-error"]')  // Fixed: was date-error
+          .should('exist')
+          .should('contain', 'Budget must be at least')
+          .and('be.visible');
+      });
+
+      it(`should error out with no event description`, () => {
+        cy.userAddNewEventError(event.name, event.date, event.location, event.type, event.guestCount, event.budget, '');
+
+        cy.get('[data-cy="eventform-description-error"]')
+          .should('exist')
+          .should('contain', 'Event description is required')
+          .and('be.visible');
       });
 
       it(`should create new event`, () => {
-        cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
+        cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '');
       });
 
       it(`should cancel creating new event`, () => {
-        cy.userCancelNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
+        cy.eventlistToNewEventForm();
+
+        cy.userCancelNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '');
       });
     });
 
