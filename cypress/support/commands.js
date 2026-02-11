@@ -72,6 +72,12 @@ Cypress.Commands.add(`eventlistToNewEventForm`, () => {
   cy.url().should('contain', '/user/events/new');
 })
 
+Cypress.Commands.add(`eventlistToEditEventForm`, () => {
+  cy.get('[data-cy="eventlist-create-event-btn"]').click();
+
+  cy.url().should('contain', '/user/events/new');
+})
+
 // Cypress.Commands.add(``, () => {
 //     // dashboard table entry action button
 //         // there is 1 button
@@ -351,7 +357,7 @@ Cypress.Commands.add('userAddNewEvent', (
       cy.get('[data-cy="eventlist-create-event-btn"]').click();
       cy.url().should('contain', '/user/events/new');
 
-      // Clear and fill form
+      // Clear form
       cy.get('[data-cy="eventform-name-input"]').clear();
       cy.get('[data-cy="eventform-date-input"]').clear();
       cy.get('[data-cy="eventform-location-input"]')
@@ -364,6 +370,7 @@ Cypress.Commands.add('userAddNewEvent', (
       cy.get('[data-cy="eventform-budget-input"]').clear();
       cy.get('[data-cy="eventform-description-input"]').clear();
 
+      // Fill form
       cy.get('[data-cy="eventform-name-input"]')
         .type(eventName || `Test Event ${allCount + 1}`);
       cy.get('[data-cy="eventform-date-input"]')
@@ -650,6 +657,337 @@ Cypress.Commands.add('adminConsiderNewEvent', () => {
         }); 
     });
   });
+});
+
+Cypress.Commands.add('userSaveUpdateEvent', (updates = {}) => {
+  cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]')
+    .as('initialCount');
+
+  // Navigate to event edit form
+  cy.get('[data-cy="eventlist-event-list-entry"]').then($entries => {
+    const target = $entries.filter((i, el) => {
+      const $el = Cypress.$(el);
+      return $el.text().includes('In Progress') && !$el.text().includes('Pending');
+    });
+
+    expect(target.length).to.be.greaterThan(0);
+
+    cy.wrap(target.first())
+      .find('[data-cy="eventlist-event-list-entry-edit-btn"]')
+      .click();
+  });
+
+  cy.url().should('contain', '/user/events/event_');
+
+  // Update only provided fields
+  if (updates.name !== undefined) {
+    cy.get('[data-cy="eventform-name-input"]').clear().type(updates.name);
+  }
+  if (updates.date !== undefined) {
+    cy.get('[data-cy="eventform-date-input"]').clear().type(updates.date);
+  }
+  if (updates.location !== undefined) {
+    cy.get('[data-cy="eventform-location-input"]').select(updates.location);
+  }
+  if (updates.type !== undefined) {
+    cy.get('[data-cy="eventform-type-input"]').select(updates.type);
+  }
+  if (updates.guestCount !== undefined) {
+    cy.get('[data-cy="eventform-guestCount-input"]').clear().type(updates.guestCount);
+  }
+  if (updates.budget !== undefined) {
+    cy.get('[data-cy="eventform-budget-input"]').clear().type(updates.budget);
+  }
+  if (updates.description !== undefined) {
+    cy.get('[data-cy="eventform-description-input"]').clear().type(updates.description);
+  }
+
+  // Save
+  cy.get('[data-cy="eventform-save-btn"]').should('be.enabled').click();
+  cy.url().should('contain', '/user/events');
+
+  // Verify count unchanged
+  cy.get('@initialCount').then((count) => {
+    cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]')
+      .should('eq', count);
+  });
+
+  // Navigate BACK to the same event to verify changes were saved
+  cy.get('[data-cy="eventlist-event-list-entry"]').then($entries => {
+    const target = $entries.filter((i, el) => {
+      const $el = Cypress.$(el);
+      return $el.text().includes('In Progress') && !$el.text().includes('Pending');
+    });
+
+    cy.wrap(target.first())
+      .find('[data-cy="eventlist-event-list-entry-edit-btn"]')
+      .click();
+  });
+
+  cy.url().should('contain', '/user/events/event_');
+
+  // Verify each updated field persisted
+  if (updates.name !== undefined) {
+    cy.get('[data-cy="eventform-name-input"]')
+      .should('have.value', updates.name);
+  }
+  
+  if (updates.date !== undefined) {
+    cy.get('[data-cy="eventform-date-input"]')
+      .should('have.value', updates.date);
+  }
+  
+  if (updates.location !== undefined) {
+    cy.get('[data-cy="eventform-location-input"]')
+      .should('have.value', updates.location);
+  }
+  
+  if (updates.type !== undefined) {
+    cy.get('[data-cy="eventform-type-input"]')
+      .should('have.value', updates.type);
+  }
+  
+  if (updates.guestCount !== undefined) {
+    cy.get('[data-cy="eventform-guestCount-input"]')
+      .invoke('val')
+      .then((val) => {
+        // Remove thousand separator formatting for comparison
+        const cleanVal = val.replace(/,/g, '');
+        expect(cleanVal).to.equal(updates.guestCount.toString());
+      });
+  }
+  
+  if (updates.budget !== undefined) {
+    cy.get('[data-cy="eventform-budget-input"]')
+      .invoke('val')
+      .then((val) => {
+        // Remove thousand separator formatting for comparison
+        const cleanVal = val.replace(/,/g, '');
+        expect(cleanVal).to.equal(updates.budget.toString());
+      });
+  }
+  
+  if (updates.description !== undefined) {
+    cy.get('[data-cy="eventform-description-input"]')
+      .should('have.value', updates.description);
+  }
+
+  // Navigate back to event list
+  cy.get('[data-cy="eventform-cancel-btn"]').click();
+  cy.url().should('contain', '/user/events');
+  cy.url().should('not.contain', '/event_');
+});
+
+Cypress.Commands.add('userUpdateEventError', (updates = {}) => {
+  // Check if already on form page, if not navigate to it
+  cy.url().then((url) => {
+    if (!url.includes('/user/events/event_')) {
+      // Navigate to event edit form from event list
+      cy.get('[data-cy="eventlist-event-list-entry"]').then($entries => {
+        const target = $entries.filter((i, el) => {
+          const $el = Cypress.$(el);
+          return $el.text().includes('In Progress') && !$el.text().includes('Pending');
+        });
+
+        expect(target.length).to.be.greaterThan(0);
+
+        cy.wrap(target.first())
+          .find('[data-cy="eventlist-event-list-entry-edit-btn"]')
+          .click();
+      });
+
+      cy.url().should('contain', '/user/events/event_');
+    }
+  });
+
+  // Clear fields if they should be empty
+  if (updates.name === '') {
+    cy.get('[data-cy="eventform-name-input"]').clear();
+  } else if (updates.name !== undefined) {
+    cy.get('[data-cy="eventform-name-input"]').clear().type(updates.name);
+  }
+  
+  if (updates.date === '') {
+    cy.get('[data-cy="eventform-date-input"]').clear();
+  } else if (updates.date !== undefined) {
+    cy.get('[data-cy="eventform-date-input"]').clear().type(updates.date);
+  }
+
+  if (updates.location === '') {
+    cy.get('[data-cy="eventform-location-input"]').select('');
+  } else if (updates.location !== undefined) {
+    cy.get('[data-cy="eventform-location-input"]').select(updates.location);
+  }
+  
+  if (updates.type === '') {
+    cy.get('[data-cy="eventform-type-input"]').select('');
+  } else if (updates.type !== undefined) {
+    cy.get('[data-cy="eventform-type-input"]').select(updates.type);
+  }
+  
+  if (updates.guestCount === '') {
+    cy.get('[data-cy="eventform-guestCount-input"]').clear();
+  } else if (updates.guestCount !== undefined) {
+    cy.get('[data-cy="eventform-guestCount-input"]').clear().type(updates.guestCount);
+  }
+  
+  if (updates.budget === '') {
+    cy.get('[data-cy="eventform-budget-input"]').clear();
+  } else if (updates.budget !== undefined) {
+    cy.get('[data-cy="eventform-budget-input"]').clear().type(updates.budget);
+  }
+  
+  if (updates.description === '') {
+    cy.get('[data-cy="eventform-description-input"]').clear();
+  } else if (updates.description !== undefined) {
+    cy.get('[data-cy="eventform-description-input"]').clear().type(updates.description);
+  }
+
+  // Try to submit (should fail with errors)
+  cy.get('form').submit();
+
+  // Should still be on the form page
+  cy.url().should('contain', '/user/events/event_');
+
+  // At least one error should be visible
+  cy.get('[data-cy$="-error"]')
+    .should('exist')
+    .and('be.visible');
+
+  // Navigate back to event list for next test
+  cy.get('[data-cy="eventform-cancel-btn"]').click();
+  cy.url().should('contain', '/user/events');
+  cy.url().should('not.contain', '/event_');
+});
+
+Cypress.Commands.add('userCancelUpdateEvent', (updates = {}) => {
+  cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]')
+    .as('initialCount');
+
+  // Navigate to event edit form
+  cy.get('[data-cy="eventlist-event-list-entry"]').then($entries => {
+    const target = $entries.filter((i, el) => {
+      const $el = Cypress.$(el);
+      return $el.text().includes('In Progress') && !$el.text().includes('Pending');
+    });
+
+    expect(target.length).to.be.greaterThan(0);
+
+    cy.wrap(target.first())
+      .find('[data-cy="eventlist-event-list-entry-edit-btn"]')
+      .click();
+  });
+
+  cy.url().should('contain', '/user/events/event_');
+
+  // Capture original values before any changes
+  const originalValues = {};
+  
+  cy.get('[data-cy="eventform-name-input"]')
+    .invoke('val')
+    .then((val) => { originalValues.name = val; });
+  
+  cy.get('[data-cy="eventform-date-input"]')
+    .invoke('val')
+    .then((val) => { originalValues.date = val; });
+  
+  cy.get('[data-cy="eventform-location-input"]')
+    .invoke('val')
+    .then((val) => { originalValues.location = val; });
+  
+  cy.get('[data-cy="eventform-type-input"]')
+    .invoke('val')
+    .then((val) => { originalValues.type = val; });
+  
+  cy.get('[data-cy="eventform-guestCount-input"]')
+    .invoke('val')
+    .then((val) => { originalValues.guestCount = val; });
+  
+  cy.get('[data-cy="eventform-budget-input"]')
+    .invoke('val')
+    .then((val) => { originalValues.budget = val; });
+  
+  cy.get('[data-cy="eventform-description-input"]')
+    .invoke('val')
+    .then((val) => {
+      originalValues.description = val;
+
+      // Now make changes (inside last .then() to ensure all values captured)
+      if (updates.name !== undefined) {
+        cy.get('[data-cy="eventform-name-input"]').clear().type(updates.name);
+      }
+      if (updates.date !== undefined) {
+        cy.get('[data-cy="eventform-date-input"]').clear().type(updates.date);
+      }
+      if (updates.location !== undefined) {
+        cy.get('[data-cy="eventform-location-input"]').select(updates.location);
+      }
+      if (updates.type !== undefined) {
+        cy.get('[data-cy="eventform-type-input"]').select(updates.type);
+      }
+      if (updates.guestCount !== undefined) {
+        cy.get('[data-cy="eventform-guestCount-input"]').clear().type(updates.guestCount);
+      }
+      if (updates.budget !== undefined) {
+        cy.get('[data-cy="eventform-budget-input"]').clear().type(updates.budget);
+      }
+      if (updates.description !== undefined) {
+        cy.get('[data-cy="eventform-description-input"]').clear().type(updates.description);
+      }
+
+      // Cancel instead of save
+      cy.get('[data-cy="eventform-cancel-btn"]').click();
+      cy.url().should('contain', '/user/events');
+      cy.url().should('not.contain', '/event_');
+
+      // Verify count unchanged
+      cy.get('@initialCount').then((count) => {
+        cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]')
+          .should('eq', count);
+      });
+
+      // Navigate back to verify changes were NOT saved (original values remain)
+      cy.get('[data-cy="eventlist-event-list-entry"]').then($entries => {
+        const target = $entries.filter((i, el) => {
+          const $el = Cypress.$(el);
+          return $el.text().includes('In Progress') && !$el.text().includes('Pending');
+        });
+
+        cy.wrap(target.first())
+          .find('[data-cy="eventlist-event-list-entry-edit-btn"]')
+          .click();
+      });
+
+      cy.url().should('contain', '/user/events/event_');
+
+      // Verify original values are still there
+      cy.get('[data-cy="eventform-name-input"]')
+        .should('have.value', originalValues.name);
+      
+      cy.get('[data-cy="eventform-date-input"]')
+        .should('have.value', originalValues.date);
+      
+      cy.get('[data-cy="eventform-location-input"]')
+        .should('have.value', originalValues.location);
+      
+      cy.get('[data-cy="eventform-type-input"]')
+        .should('have.value', originalValues.type);
+      
+      cy.get('[data-cy="eventform-guestCount-input"]')
+        .invoke('val')
+        .should('equal', originalValues.guestCount);
+      
+      cy.get('[data-cy="eventform-budget-input"]')
+        .invoke('val')
+        .should('equal', originalValues.budget);
+      
+      cy.get('[data-cy="eventform-description-input"]')
+        .should('have.value', originalValues.description);
+
+      // Go back to event list
+      cy.get('[data-cy="eventform-cancel-btn"]').click();
+      cy.url().should('contain', '/user/events');
+    });
 });
 
 Cypress.Commands.add('userSendCancellationRequest', () => {

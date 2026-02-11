@@ -168,7 +168,16 @@ describe(`User Experience Flow`, () => {
 
         cy.get('[data-cy="eventform-date-error"]')
           .should('exist')
-          .should('contain', 'Date is required')
+          .should('contain', 'date is required')
+          .and('be.visible');
+      });
+
+      it(`should error out with event date that already passed`, () => {
+        cy.userAddNewEventError(event.name, '2025-01-01', event.location, event.type, event.guestCount, event.budget, event.description);
+
+        cy.get('[data-cy="eventform-date-error"]')
+          .should('exist')
+          .should('contain', 'Event date cannot be in the past')
           .and('be.visible');
       });
 
@@ -259,54 +268,76 @@ describe(`User Experience Flow`, () => {
         cy.userLogin(userEmail, userPassword);
       });
 
-      it(`should navigate to /user/events/event_{eventId}/edit`, () => {
-
-        cy.url()
-          .should('contain', '/user/events/event')
-          .and('contain', '/edit');
-
-        cy.get('[data-cy="eventform"]')
-          .should('contain', 'Event Edit')
-          .and('be.visible');
-      });
-
       it(`should error out with event name removed`, () => {
-
+        cy.userUpdateEventError({
+          name: '',
+        });
       });
 
       it(`should error out with event date removed`, () => {
-
+        cy.userUpdateEventError({
+          date: '',
+        });
       });
 
-      it(`should error out with event location removed`, () => {
-
-      });
-
-      it(`should error out with event type removed`, () => {
-
+      it(`should error out with event date that already passed`, () => {
+        cy.userUpdateEventError({
+          date: '2025-01-01',
+        });
       });
 
       it(`should error out with event guest count removed`, () => {
+        cy.userUpdateEventError({
+          guestCount: '',
+        });
+      });
 
+      it(`should error out with event guest count is zero`, () => {
+        cy.userUpdateEventError({
+          guestCount: '0',
+        });
       });
 
       it(`should error out with event budget removed`, () => {
-
+        cy.userUpdateEventError({
+          budget: '',
+        });
       });
 
       it(`should error out with invalid budget update`, () => {
-
+        cy.userUpdateEventError({
+          budget: '49999',
+        });
       });
 
       it(`should error out with event description removed`, () => {
-
+        cy.userUpdateEventError({
+          description: ''
+        });
       });
 
       it(`should update existing event`, () => {
+        cy.userSaveUpdateEvent({
+          name: 'This event title is updated',
+          date: '2026-12-31',
+          location: 'Garden Estate',
+          type: 'Birthday',
+          guestCount: '175',
+          budget: '125000',
+          description: 'Scrap the previous note. Here is the updated version of it. Let me know if you got any question.'
+        });
       });
 
       it(`should cancel upddating existing event`, () => {
-
+        cy.userCancelUpdateEvent({
+          name: 'This event title is updated for the 2nd time',
+          date: '2026-05-23',
+          location: 'Historic Abbey',
+          type: 'Anniversary',
+          guestCount: '65',
+          budget: '250000',
+          description: 'Scrap the previous note. Here is the updated version of it. Let me know if you got any question.'
+        });
       });
     });
 

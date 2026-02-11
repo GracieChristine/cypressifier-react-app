@@ -94,7 +94,20 @@ const EventForm = () => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = 'Event name is required';
 
-    if (!formData.date) newErrors.date = 'Event Date is required';
+    if (!formData.date) {
+      newErrors.date = 'Event date is required';
+    } else {
+      const selectedDate = new Date(formData.date);
+      const today = new Date();
+
+      // Normalize time to avoid timezone edge cases
+      selectedDate.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+
+      if (selectedDate < today) {
+        newErrors.date = 'Event date cannot be in the past';
+      }
+    }
 
     if (!formData.type) newErrors.type = 'Event type is required';
     
