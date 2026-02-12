@@ -990,37 +990,134 @@ Cypress.Commands.add('userCancelUpdateEvent', (updates = {}) => {
     });
 });
 
-Cypress.Commands.add('userSendCancellationRequest', () => {
-  cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]').then((inProgressCount) => {
+Cypress.Commands.add('userSubmitEventCancelRequest', () => {
+  cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]')
+    .then((inProgressCount) => {
 
-    cy.get('[data-cy="eventlist-event-list-entry"]').then($entries => {
-      const target = $entries.filter((i, el) => {
-        const $el = Cypress.$(el);
-        return $el.text().includes('In Progress') && !$el.text().includes('Pending');
+      cy.get('[data-cy="eventlist-event-list-entry"]').then($entries => {
+
+        const target = $entries.filter((i, el) => {
+          const $el = Cypress.$(el);
+          return $el.text().includes('In Progress') &&
+                 !$el.text().includes('Pending');
+        });
+
+        expect(target.length).to.be.greaterThan(0);
+
+        const eventId = Cypress.$(target.first()).attr('data-event-id');
+        cy.log('Requesting cancellation for event:', eventId);
+
+        cy.wrap(target.first())
+          .find('[data-cy="eventlist-event-list-entry-cancel-btn"]')
+          .click();
+
+        // Everything that depends on eventId stays inside here
+
+        cy.url().should('contain', '/user/events/event_');
+
+        cy.get('[data-cy="cancel-event-comment-input"]')
+          .type('I need to cancel this event due to family reasons.');
+
+        cy.get('[data-cy="cancel-event-submit-btn"]')
+          .should('be.enabled')
+          .click();
+
+        cy.url().should('contain', '/user/events');
+
+        cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]')
+          .should('eq', inProgressCount);
+
+        cy.get(`[data-event-id="${eventId}"]`)
+          .should('contain', 'In Progress')
+          .and('contain', 'Pending');
       });
-
-      expect(target.length).to.be.greaterThan(0);
-
-      cy.wrap(target.first())
-        .find('[data-cy="eventlist-event-list-entry-cancel-btn"]')
-        .click();
     });
+});
 
-    cy.url()
-    .should('contain', '/user/events/event_');
+Cypress.Commands.add('userSubmitEventCancelRequestError', () => {
+  cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]')
+    .then((inProgressCount) => {
 
-    cy.get('[data-cy="cancel-event-comment-input"]')
-      .type('I need to cancel this event due to family reasons.');
+      cy.get('[data-cy="eventlist-event-list-entry"]').then($entries => {
 
-    cy.get('[data-cy="cancel-event-submit-btn"]')
-    .should('be.enabled')
-    .click();
+        const target = $entries.filter((i, el) => {
+          const $el = Cypress.$(el);
+          return $el.text().includes('In Progress') &&
+                 !$el.text().includes('Pending');
+        });
 
-    cy.url().should('contain', '/user/events');
+        expect(target.length).to.be.greaterThan(0);
 
-    cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]')
-      .should('eq', inProgressCount);
-  });
+        const eventId = Cypress.$(target.first()).attr('data-event-id');
+        cy.log('Requesting cancellation for event:', eventId);
+
+        cy.wrap(target.first())
+          .find('[data-cy="eventlist-event-list-entry-cancel-btn"]')
+          .click();
+
+        cy.url().should('contain', '/user/events/event_');
+
+        cy.get('[data-cy="cancel-event-comment-input"]').clear();
+
+        cy.get('[data-cy="cancel-event-submit-btn"]')
+          .should('be.disabled');
+
+        cy.get('[data-cy="cancel-event-cancel-btn"]')
+          .should('be.enabled')
+          .click();
+
+        cy.url().should('contain', '/user/events');
+
+        cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]')
+          .should('eq', inProgressCount);
+
+        cy.get(`[data-event-id="${eventId}"]`)
+          .should('contain', 'In Progress')
+          .and('not.contain', 'Pending');
+      });
+    });
+});
+
+Cypress.Commands.add('userCancelEventCancelRequest', () => {
+  cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]')
+    .then((inProgressCount) => {
+
+      cy.get('[data-cy="eventlist-event-list-entry"]').then($entries => {
+
+        const target = $entries.filter((i, el) => {
+          const $el = Cypress.$(el);
+          return $el.text().includes('In Progress') &&
+                 !$el.text().includes('Pending');
+        });
+
+        expect(target.length).to.be.greaterThan(0);
+
+        const eventId = Cypress.$(target.first()).attr('data-event-id');
+        cy.log('Requesting cancellation for event:', eventId);
+
+        cy.wrap(target.first())
+          .find('[data-cy="eventlist-event-list-entry-cancel-btn"]')
+          .click();
+
+        cy.url().should('contain', '/user/events/event_');
+
+        cy.get('[data-cy="cancel-event-comment-input"]')
+          .type('I need to cancel this event due to family reasons.');
+
+        cy.get('[data-cy="cancel-event-cancel-btn"]')
+          .should('be.enabled')
+          .click();
+
+        cy.url().should('contain', '/user/events');
+
+        cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]')
+          .should('eq', inProgressCount);
+
+        cy.get(`[data-event-id="${eventId}"]`)
+          .should('contain', 'In Progress')
+          .and('not.contain', 'Pending');
+      });
+    });
 });
 
 Cypress.Commands.add('adminAcceptEventCancelRequest', () => {

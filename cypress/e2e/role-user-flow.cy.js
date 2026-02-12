@@ -343,23 +343,41 @@ describe(`User Experience Flow`, () => {
 
     describe(`User Submitting Event Cancellation Request`, () => {
       before(() => {
+        cy.clearCacheLoadLanding();
+        cy.landingToSignup();
+        cy.userSignup(userEmail, userPassword, userPassword)
+        cy.eventlistToNewEventForm();
+        
+        // create 3 new events
+        Cypress._.times(3, () => {
+          cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
+        });
 
+        cy.userLogout();
+
+        cy.landingToLogin();
+        cy.adminLogin(adminEmail, adminPassword);
+
+        Cypress._.times(3, () => {
+          cy.adminAcceptNewEvent()
+        });
+
+        cy.userLogout();
+
+        cy.landingToLogin();
+        cy.userLogin(userEmail, userPassword);
       });
 
-      it(`FAILED CASES....cancel request submission error`, () => {
-
+      it(`should error out with no comment`, () => {
+        cy.userSubmitEventCancelRequestError();
       });
 
       it(`should submit event cancel request`, () => {
-
+        cy.userSubmitEventCancelRequest();
       });
 
-      it(``, () => {
-
-      });
-
-      it(``, () => {
-
+      it(`should cancel submiting event cancel request`, () => {
+        cy.userCancelEventCancelRequest();
       });
     });
 

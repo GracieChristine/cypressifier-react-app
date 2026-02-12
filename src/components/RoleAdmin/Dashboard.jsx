@@ -189,7 +189,7 @@ const AdminDashboard = () => {
                   </tr>
                 ) : (
                   events.map(event => (
-                    <tr key={event.id} className="hover:bg-gray-50 transition" data-cy="dashboard-table-entry">
+                    <tr key={event.id} className="hover:bg-gray-50 transition" data-cy="dashboard-table-entry" data-event-id={event.id}>
                       <td className="px-6 py-4">
                         <div className="font-semibold text-gray-900"> 
                           {event.name}

@@ -119,6 +119,7 @@ const EventsList = () => {
           isUpcoming ? 'border-2 border-purple-300' : ''
         }`}
         data-cy="eventlist-upcoming-event-card"
+        data-event-id={event.id}
       >
         <div className="p-6 flex flex-col flex-1">
           <div className="flex items-start justify-between mb-3">
@@ -273,6 +274,7 @@ const EventsList = () => {
                     key={event.id}
                     className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition"
                     data-cy="eventlist-event-list-entry"
+                    data-event-id={event.id}
                   >
                     <div className="p-4 grid grid-cols-12 gap-4 items-center">
                       <div className="col-span-12 sm:col-span-3">

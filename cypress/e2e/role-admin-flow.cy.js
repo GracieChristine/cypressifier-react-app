@@ -120,7 +120,7 @@ describe(`Admin Experience Flow`, () => {
 
                 // user requests 3 event cancellations
                 Cypress._.times(3, () => {
-                    cy.userSendCancellationRequest();
+                    cy.userSubmitEventCancelRequest();
                 });
 
                 cy.userLogout();
@@ -273,7 +273,7 @@ describe(`Admin Experience Flow`, () => {
                     cy.userLogout();
                     cy.landingToLogin();
                     cy.userLogin(userEmail, userPassword);
-                    cy.userSendCancellationRequest();
+                    cy.userSubmitEventCancelRequest();
                     cy.userLogout();
 
                     // Step 5: Admin approves cancellation
