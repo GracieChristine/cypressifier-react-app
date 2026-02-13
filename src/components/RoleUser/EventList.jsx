@@ -11,7 +11,6 @@ const EventsList = () => {
   const [events, setEvents] = useState([]);
   const [filter, setFilter] = useState('all');
 
-  // Load events on mount
   useEffect(() => {
     if (!user) {
       setEvents([]);
@@ -20,14 +19,12 @@ const EventsList = () => {
 
     const allEvents = loadEventsFromStorage();
     
-    // Filter to only show current user's events (unless admin)
     const userEvents = user.isAdmin
       ? allEvents
       : allEvents.filter(e => e.userId === user.id);
     setEvents(userEvents);
   }, [user]);
 
-  // Calculate stats
   const totalBudget = events
     .filter(e => e.status !== 'Cancelled')
     .reduce((sum, e) => sum + parseInt(e.budget || e.setBudget || e.budgetTotal || 0), 0);
@@ -36,7 +33,6 @@ const EventsList = () => {
     .filter(e => e.status === 'Completed')
     .reduce((sum, e) => sum + parseInt(e.budget || e.setBudget || e.budgetTotal || 0), 0);
 
-  // Get upcoming events for this week and next week
   const today = new Date();
   const nextWeek = new Date(today);
   nextWeek.setDate(today.getDate() + 7);
@@ -55,19 +51,21 @@ const EventsList = () => {
            e.status !== 'Completed' && e.status !== 'Cancelled';
   }).sort((a, b) => new Date(a.date) - new Date(b.date));
 
-  // Filter events by status
   const filteredEvents = events.filter(event => {
     if (filter === 'all') return true;
     return event.status === filter;
   });
 
-  // Count events by status
   const statusCounts = {
     all: events.length,
     'In Review': events.filter(e => e.status === 'In Review').length,
     'In Progress': events.filter(e => e.status === 'In Progress').length,
     'Completed': events.filter(e => e.status === 'Completed').length,
     'Cancelled': events.filter(e => e.status === 'Cancelled').length
+  };
+
+  const getPendingBadgeStyle = () => {
+    return 'border border-orange-500 text-orange-600 bg-transparent';
   };
 
   const getEventIcon = (type) => {
@@ -108,11 +106,9 @@ const EventsList = () => {
 
   const renderEventCard = (event, isUpcoming = false) => {
     const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
-    const canCancel = event.status === 'In Progress' && !event.cancellationRequest;
+    const canCancel = event.status === 'In Progress' && !event.cancellationRequest && !event.completionRequest;
     
     return (
-
-      // Upcoming Event Card
       <div
         key={event.id}
         className={`bg-white rounded-lg shadow-md hover:shadow-xl transition overflow-hidden h-full flex flex-col ${
@@ -143,7 +139,6 @@ const EventsList = () => {
             </div>
           </div>
 
-
           {event.description && (
             <p className="text-sm text-gray-500 mb-4 line-clamp-2">{event.description}</p>
           )}
@@ -158,7 +153,15 @@ const EventsList = () => {
             </div>
           )}
 
-          {isReadOnly || event.cancellationRequest ? (
+          {event.completionRequest && (
+            <div className="bg-green-50 border border-green-200 rounded p-2 mb-4">
+              <p className="text-xs text-green-800 font-semibold">
+                ✅ Completion confirmation requested
+              </p>
+            </div>
+          )}
+
+          {isReadOnly || event.cancellationRequest || event.completionRequest ? (
             <button
               onClick={() => navigate(`/user/events/${event.id}`)}
               className="w-full py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded transition text-sm" data-cy="eventlist-upcoming-event-view-btn"
@@ -207,7 +210,6 @@ const EventsList = () => {
             <p className="text-gray-600">Manage and track all your events</p>
           </div>
 
-          {/* Create New Event Button */}
           <button
             onClick={() => navigate('/user/events/new')}
             className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition shadow-lg" data-cy="eventlist-create-event-btn"
@@ -254,20 +256,16 @@ const EventsList = () => {
 
           {/* Event Lists */}
           {filteredEvents.length === 0 ? (
-
-            // No Events
             <div className="bg-white rounded-lg shadow-md p-12 text-center" data-cy="eventlist-event-list-no-entry">
               <div className="text-6xl mb-4">🎉</div>
               <h3 className="text-xl font-semibold mb-2">No events yet</h3>
               <p className="text-gray-600 mb-4">Create your first event to get started!</p>
             </div>
           ) : (
-
-            // Got Events
             <div className="space-y-3" data-cy="eventlist-event-list">
               {filteredEvents.map(event => {
                 const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
-                const canCancel = event.status === 'In Progress' && !event.cancellationRequest;
+                const canCancel = event.status === 'In Progress' && !event.cancellationRequest && !event.completionRequest;
                 
                 return (
                   <div
@@ -304,16 +302,25 @@ const EventsList = () => {
 
                         {event.cancellationRequest && (
                           <span 
-                            className="px-3 py-1 rounded text-xs font-medium bg-orange-100 text-orange-700 whitespace-nowrap text-center"
+                            className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getPendingBadgeStyle()}`}
                             title="Cancellation pending"
                           >
-                            Pending
+                            Pending Cancellation
+                          </span>
+                        )}
+                        
+                        {event.completionRequest && (
+                          <span 
+                            className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getPendingBadgeStyle()}`}
+                            title="Completion confirmation pending"
+                          >
+                            Reviewing Completion
                           </span>
                         )}
                       </div>
 
                       <div className="col-span-6 sm:col-span-4 md:col-span-3 lg:col-span-3 flex justify-end gap-2">
-                        {isReadOnly || event.cancellationRequest ? (
+                        {isReadOnly || event.cancellationRequest || event.completionRequest ? (
                           <button
                             onClick={() => navigate(`/user/events/${event.id}`)}
                             className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-medium transition whitespace-nowrap"

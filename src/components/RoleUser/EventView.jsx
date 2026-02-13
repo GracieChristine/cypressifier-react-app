@@ -12,6 +12,8 @@ const EventView = () => {
   const [event, setEvent] = useState(null);
   const [cancelReason, setCancelReason] = useState('');
   const [cancelError, setCancelError] = useState('');
+  const [confirmNotes, setConfirmNotes] = useState('');
+  const [confirmError, setConfirmError] = useState('');
 
   useEffect(() => {
     const events = loadEventsFromStorage();
@@ -20,7 +22,6 @@ const EventView = () => {
     if (foundEvent) {
       setEvent(foundEvent);
     } else {
-      // Event not found, redirect to events list
       navigate('/events');
     }
   }, [id, navigate]);
@@ -73,7 +74,8 @@ const EventView = () => {
   };
 
   const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
-  const canCancel = event.status === 'In Progress' && !event.cancellationRequest;
+  const canCancel = event.status === 'In Progress' && !event.cancellationRequest && !event.completionRequest;
+  const canConfirmCompletion = event.status === 'In Progress' && event.completionRequest;
 
   const handleCancelRequest = () => {
     if (!cancelReason.trim()) {
@@ -91,6 +93,75 @@ const EventView = () => {
             cancellationReason: cancelReason,
             cancellationRequestDate: new Date().toISOString(),
             userId: user.id
+          }
+        : e
+    );
+    
+    saveEventsToStorage(updated);
+    navigate('/events');
+  };
+
+  const handleConfirmCompletion = () => {
+    if (!confirmNotes.trim()) {
+      setConfirmError('Please provide your feedback');
+      return;
+    }
+
+    const allEvents = loadEventsFromStorage();
+    
+    const activityLog = event.activityLog || [];
+    activityLog.push({
+      timestamp: new Date().toISOString(),
+      actor: user.email,
+      action: 'Completion Confirmed',
+      note: confirmNotes
+    });
+
+    const updated = allEvents.map(e => 
+      e.id === event.id 
+        ? { 
+            ...e, 
+            status: 'Completed',
+            completionRequest: false,
+            completionConfirmed: true,
+            completionConfirmDate: new Date().toISOString(),
+            completionConfirmNotes: confirmNotes,
+            activityLog,
+            completedBy: user.email,
+            completedAt: new Date().toISOString()
+          }
+        : e
+    );
+    
+    saveEventsToStorage(updated);
+    navigate('/events');
+  };
+
+  const handleDeclineCompletion = () => {
+    if (!confirmNotes.trim()) {
+      setConfirmError('Please provide a reason for declining');
+      return;
+    }
+
+    const allEvents = loadEventsFromStorage();
+    
+    const activityLog = event.activityLog || [];
+    activityLog.push({
+      timestamp: new Date().toISOString(),
+      actor: user.email,
+      action: 'Completion Declined',
+      note: confirmNotes
+    });
+
+    const updated = allEvents.map(e => 
+      e.id === event.id 
+        ? { 
+            ...e, 
+            completionRequest: false,
+            completionDeclined: true,
+            completionDeclineDate: new Date().toISOString(),
+            completionDeclineNotes: confirmNotes,
+            activityLog
           }
         : e
     );
@@ -119,7 +190,6 @@ const EventView = () => {
                   </span>
                 </div>
               </div>
-              
             </div>
           </div>
 
@@ -138,6 +208,22 @@ const EventView = () => {
                 </p>
                 <p className="text-xs text-orange-600 ml-9 mt-1">
                   Requested on: {formatDate(event.cancellationRequestDate)}
+                </p>
+              </div>
+            )}
+
+            {/* Completion Request Alert */}
+            {event.completionRequest && (
+              <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                <div className="flex items-center mb-2">
+                  <span className="text-2xl mr-2">✅</span>
+                  <p className="font-semibold text-green-800">Completion Confirmation Requested</p>
+                </div>
+                <p className="text-sm text-green-700 ml-9">
+                  Admin Note: {event.completionNotes}
+                </p>
+                <p className="text-xs text-green-600 ml-9 mt-1">
+                  Requested on: {formatDate(event.completionRequestDate)}
                 </p>
               </div>
             )}
@@ -219,8 +305,8 @@ const EventView = () => {
               </div>
             )}
 
-            {/* Return to Event */}
-            {!canCancel && (
+            {/* Return to Event List */}
+            {!canCancel && !canConfirmCompletion && (
               <div className="flex gap-3">
                 <button
                   onClick={() => navigate('/events')}
@@ -233,6 +319,60 @@ const EventView = () => {
             )}
           </div>
         </div>
+
+        {/* Completion Confirmation Section */}
+        {canConfirmCompletion && (
+          <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="confirm-completion-section">
+            <h2 className="text-3xl font-display mb-2">Confirm Event Completion</h2>
+            <p className="text-gray-600 mb-6">Please review and confirm all tasks are completed and the event is to your satisfaction
+            </p>
+
+            <div className="space-y-6">
+              <div className="bg-gray-50 border rounded-lg p-6">
+                <div className="mb-4">
+                  <label className="block text-gray-700 mb-2 font-semibold">
+                    Your Feedback <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    value={confirmNotes}
+                    onChange={(e) => {
+                      setConfirmNotes(e.target.value);
+                      if (confirmError) setConfirmError('');
+                    }}
+                    className={`w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                      confirmError ? 'border-red-500' : ''
+                    }`}
+                    rows="4"
+                    placeholder="Share your thoughts about the event and confirm everything was completed satisfactorily..."
+                    data-cy="confirm-completion-comment-input"
+                  />
+                  {confirmError && (
+                    <p className="text-red-500 text-sm mt-1">{confirmError}</p>
+                  )}
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleConfirmCompletion}
+                    disabled={!confirmNotes.trim()}
+                    className="flex-1 px-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    data-cy="confirm-completion-submit-btn"
+                  >
+                    Confirm
+                  </button>
+                  <button
+                    onClick={handleDeclineCompletion}
+                    disabled={!confirmNotes.trim()}
+                    className="flex-1 px-6 bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    data-cy="decline-completion-submit-btn"
+                  >
+                    Decline - Needs More Work
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Cancellation Request Section */}
         {canCancel && (

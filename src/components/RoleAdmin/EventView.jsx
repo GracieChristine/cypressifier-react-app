@@ -38,7 +38,7 @@ const AdminEventView = () => {
 
   const isNewSubmission = selectedEvent.status === 'In Review' && !selectedEvent.cancellationRequest;
   const isCancellationRequest = selectedEvent.cancellationRequest && selectedEvent.status !== 'Cancelled';
-  const isInProgress = selectedEvent.status === 'In Progress' && !selectedEvent.cancellationRequest;
+  const isInProgress = selectedEvent.status === 'In Progress' && !selectedEvent.cancellationRequest && !selectedEvent.completionRequest;
   const isReadOnly = selectedEvent.status === 'Completed' || selectedEvent.status === 'Cancelled';
   
   // Additional checks for combined states
@@ -155,29 +155,26 @@ const AdminEventView = () => {
     navigate('/admin/dashboard');
   };
 
-  const handleSaveProgress = () => {
-    if (markAsCompleted) {
-      handleMarkCompleted();
-    } else {
-      navigate('/admin/dashboard');
+  const handleRequestCompletion = () => {
+    if (!completionNotes.trim()) {
+      return;
     }
-  };
 
-  const handleMarkCompleted = () => {
     const activityLog = selectedEvent.activityLog || [];
     activityLog.push({
       timestamp: new Date().toISOString(),
       actor: currentAdmin,
-      action: 'Event Completed',
-      note: completionNotes || 'Event marked as completed'
+      action: 'Completion Requested',
+      note: completionNotes
     });
 
     const updatedEvent = {
       ...selectedEvent,
-      status: 'Completed',
-      activityLog,
-      completedBy: currentAdmin,
-      completedAt: new Date().toISOString()
+      completionRequest: true,
+      completionNotes: completionNotes,
+      completionRequestDate: new Date().toISOString(),
+      completionRequestedBy: currentAdmin,
+      activityLog
     };
     
     updateEvent(updatedEvent);
@@ -378,7 +375,7 @@ const AdminEventView = () => {
                           data-cy="complete-event-checkbox"
                         />
                         <label htmlFor="mark-completed" className="cursor-pointer">
-                          <div className="font-semibold text-gray-800">All Task Completed</div>
+                          <div className="font-semibold text-gray-800">All Tasks Completed</div>
                           <div className="text-sm text-gray-600">
                             Check this box when all tasks have been successfully completed
                           </div>
@@ -405,12 +402,12 @@ const AdminEventView = () => {
                       {markAsCompleted && (
                         <div className="flex gap-3 mb-3">
                           <button
-                            onClick={handleSaveProgress}
+                            onClick={handleRequestCompletion}
                             disabled={markAsCompleted && !completionNotes.trim()}
                             className="flex-1 px-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
-                            data-cy="save-event-update-btn"
+                            data-cy="request-event-completion-btn"
                           >
-                            Event is Completed
+                             Completion & Send to Review
                           </button>
                         </div>
                       )}
@@ -541,6 +538,5 @@ const AdminEventView = () => {
     </div>
   );
 };
-
 
 export default AdminEventView;
