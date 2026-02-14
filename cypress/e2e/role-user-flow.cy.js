@@ -416,27 +416,141 @@ describe(`User Experience Flow`, () => {
 
   describe(`User with Mock Event Seeding`, () => {
     before(() => {
-
+      cy.clearCacheLoadLanding();
+        cy.landingToSignup();
+        cy.userSignup(userEmail, userPassword);
     });
 
     it(`should display 1 event from user`, () => {
+      // Step 1: Start with clean slate
+      cy.userGetAllFilterCounts().then((initial) => {
+        expect(initial['All']).to.equal(0);
+        expect(initial['In Review']).to.equal(0);
+        expect(initial['In Progress']).to.equal(0);
+        expect(initial['Completed']).to.equal(0);
+        expect(initial['Cancelled']).to.equal(0);
+      });
 
+      // Step 2: User creates event
+      cy.eventlistToNewEventForm();
+      cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '')
+
+      // Step 3: Verify In Review
+      cy.userGetAllFilterCounts().then((afterCreate) => {
+        expect(afterCreate['All']).to.equal(1, 'All should be 1 after event created');
+        expect(afterCreate['In Review']).to.equal(1, 'In Review should be 1');
+        expect(afterCreate['In Progress']).to.equal(0, 'In Progress should be 0');
+        expect(afterCreate['Completed']).to.equal(0, 'Completed should be 0');
+        expect(afterCreate['Cancelled']).to.equal(0, 'Cancelled should be 0');
+      });
     });
 
     it(`should display 30 mock events from user`, () => {
+      // Step 1: Verify user view first
+      cy.userGetAllFilterCounts().then((initial) => {
+        expect(initial['All']).to.equal(1);
+        expect(initial['In Review']).to.equal(1);
+        expect(initial['In Progress']).to.equal(0);         
+        expect(initial['Completed']).to.equal(0);
+        expect(initial['Cancelled']).to.equal(0);
+      });
+      
+      // Step 2: User seeds 30 mock events
+      cy.devAddMockEvents();
+      cy.wait(500);
 
+      // Step 3: Verify user view updated correctly
+      cy.userGetAllFilterCounts().then((afterCreate) => {
+        expect(afterCreate['All']).to.equal(31, 'Admin should see 31 total events');
+        expect(afterCreate['In Review']).to.equal(9, 'Admin should see 9 in review');
+        expect(afterCreate['In Progress']).to.equal(12, 'Admin should see 12 in progress');
+        expect(afterCreate['Completed']).to.equal(6, 'Admin should see 6 completed');
+        expect(afterCreate['Cancelled']).to.equal(4, 'Admin should see 4 cancelled');
+      });
     });
 
-    it(`sbould not display 30 mock events from admin`, () => {
+    it(`should not display 30 mock events from admin`, () => {
+      // Step 1: Verify user view first
+      cy.userGetAllFilterCounts().then((initial) => {
+        expect(initial['All']).to.equal(31);
+        expect(initial['In Review']).to.equal(9);
+        expect(initial['In Progress']).to.equal(12);
+        expect(initial['Completed']).to.equal(6);
+        expect(initial['Cancelled']).to.equal(4);
+      });
 
+      // Step 2: Admin seeds 30 mock events
+      cy.userLogout();
+      cy.landingToLogin();
+      cy.adminLogin(adminEmail, adminPassword);
+
+      cy.devAddMockEvents();
+      cy.wait(500);
+
+      cy.userLogout();
+      cy.landingToLogin();
+      cy.userLogin(userEmail, userPassword);
+
+      // Step 3: Verify user view not update
+      cy.userGetAllFilterCounts().then((afterCreate) => {
+        expect(afterCreate['All']).to.equal(31, 'Admin should see 31 total events');
+        expect(afterCreate['In Review']).to.equal(9, 'Admin should see 9 in review');
+        expect(afterCreate['In Progress']).to.equal(12, 'Admin should see 12 in progress');
+        expect(afterCreate['Completed']).to.equal(6, 'Admin should see 6 completed');
+        expect(afterCreate['Cancelled']).to.equal(4, 'Admin should see 4 cancelled');
+      });
     });
 
     it(`should clear user's mock events, leaving the 1 event created by the user`, () => {
+      // Step 1: Verify user view first
+      cy.userGetAllFilterCounts().then((initial) => {
+        expect(initial['All']).to.equal(31);
+        expect(initial['In Review']).to.equal(9);
+        expect(initial['In Progress']).to.equal(12);
+        expect(initial['Completed']).to.equal(6);
+        expect(initial['Cancelled']).to.equal(4);
+      });
 
+      // Step 2: User clears 30 mock events
+      cy.devClearMockEvents();
+      cy.wait(500);
+      
+      // Step 3: Verify user view updated correctly
+      cy.userGetAllFilterCounts().then((afterCreate) => {
+        expect(afterCreate['All']).to.equal(1, 'All should be 1 after admin clears the mock events.');
+        expect(afterCreate['In Review']).to.equal(1, 'In Review should be 1 after admin clears the mock events.');
+        expect(afterCreate['In Progress']).to.equal(0, 'In Progress should be 0 after admin clears the mock events.');
+        expect(afterCreate['Completed']).to.equal(0, 'Completed should be 0 after admin clears the mock events.');
+        expect(afterCreate['Cancelled']).to.equal(0, 'Cancelled should be 0 after admin clears the mock events.');
+      });
     });
 
     it(`should still display 30 mock events from admin if login as admin`, () => {
+      // Step 1: Verify admin view first
+      cy.userLogout();
+      cy.landingToLogin();
+      cy.adminLogin(adminEmail, adminPassword);
 
+      cy.adminGetAllStatusCounts().then((initial) => {
+        expect(initial['All']).to.equal(31);
+        expect(initial['In Review']).to.equal(9);
+        expect(initial['In Progress']).to.equal(12);
+        expect(initial['Completed']).to.equal(6);
+        expect(initial['Cancelled']).to.equal(4);
+      });
+
+      // Step 2: Admin clears 30 mock events
+      cy.devClearMockEvents();
+      cy.wait(500);
+
+      // Step 3: Verify admin view updated correctly
+      cy.adminGetAllStatusCounts().then((afterCreate) => {
+        expect(afterCreate['All']).to.equal(1, 'All should be 1 after admin clears the mock events.');
+        expect(afterCreate['In Review']).to.equal(1, 'In Review should be 1 after admin clears the mock events.');
+        expect(afterCreate['In Progress']).to.equal(0, 'In Progress should be 0 after admin clears the mock events.');
+        expect(afterCreate['Completed']).to.equal(0, 'Completed should be 0 after admin clears the mock events.');
+        expect(afterCreate['Cancelled']).to.equal(0, 'Cancelled should be 0 after admin clears the mock events.');
+      });
     });
   });
 
