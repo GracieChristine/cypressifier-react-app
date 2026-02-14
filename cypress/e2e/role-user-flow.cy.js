@@ -155,7 +155,7 @@ describe(`User Experience Flow`, () => {
       });
 
       it(`should error out with no event name`, () => {
-        cy.userAddNewEventError('', event.date, event.location, event.type, event.guestCount, event.budget, event.description);
+        cy.userCreateEventNewError('', event.date, event.location, event.type, event.guestCount, event.budget, event.description);
 
         cy.get('[data-cy="eventform-name-error"]')
           .should('exist')
@@ -164,7 +164,7 @@ describe(`User Experience Flow`, () => {
       });
 
       it(`should error out with no event date`, () => {
-        cy.userAddNewEventError(event.name, '', event.location, event.type, event.guestCount, event.budget, event.description);
+        cy.userCreateEventNewError(event.name, '', event.location, event.type, event.guestCount, event.budget, event.description);
 
         cy.get('[data-cy="eventform-date-error"]')
           .should('exist')
@@ -173,7 +173,7 @@ describe(`User Experience Flow`, () => {
       });
 
       it(`should error out with event date that already passed`, () => {
-        cy.userAddNewEventError(event.name, '2025-01-01', event.location, event.type, event.guestCount, event.budget, event.description);
+        cy.userCreateEventNewError(event.name, '2025-01-01', event.location, event.type, event.guestCount, event.budget, event.description);
 
         cy.get('[data-cy="eventform-date-error"]')
           .should('exist')
@@ -182,7 +182,7 @@ describe(`User Experience Flow`, () => {
       });
 
       it(`should error out with no event location`, () => {
-        cy.userAddNewEventError(event.name, event.date, '', event.type, event.guestCount, event.budget, event.description);
+        cy.userCreateEventNewError(event.name, event.date, '', event.type, event.guestCount, event.budget, event.description);
 
         cy.get('[data-cy="eventform-location-error"]')
           .should('exist')
@@ -191,7 +191,7 @@ describe(`User Experience Flow`, () => {
       });
 
       it(`should error out with no event type`, () => {
-        cy.userAddNewEventError(event.name, event.date, event.location, '', event.guestCount, event.budget, event.description);
+        cy.userCreateEventNewError(event.name, event.date, event.location, '', event.guestCount, event.budget, event.description);
 
         cy.get('[data-cy="eventform-type-error"]')
           .should('exist')
@@ -200,7 +200,7 @@ describe(`User Experience Flow`, () => {
       });
 
       it(`should error out with no event guest count`, () => {
-        cy.userAddNewEventError(event.name, event.date, event.location, event.type, '', event.budget, event.description);
+        cy.userCreateEventNewError(event.name, event.date, event.location, event.type, '', event.budget, event.description);
 
         cy.get('[data-cy="eventform-guestCount-error"]')
           .should('exist')
@@ -209,7 +209,7 @@ describe(`User Experience Flow`, () => {
       });
 
       it(`should error out with no event budget`, () => {
-        cy.userAddNewEventError(event.name, event.date, event.location, event.type, event.guestCount, '', event.description);
+        cy.userCreateEventNewError(event.name, event.date, event.location, event.type, event.guestCount, '', event.description);
 
         cy.get('[data-cy="eventform-budget-error"]')
           .should('exist')
@@ -218,7 +218,7 @@ describe(`User Experience Flow`, () => {
       });
 
       it(`should error out with invalid budget`, () => {
-        cy.userAddNewEventError(event.name, event.date, event.location, event.type, event.guestCount, '10000', event.description);
+        cy.userCreateEventNewError(event.name, event.date, event.location, event.type, event.guestCount, '10000', event.description);
 
         cy.get('[data-cy="eventform-budget-error"]')
           .should('exist')
@@ -227,7 +227,7 @@ describe(`User Experience Flow`, () => {
       });
 
       it(`should error out with no event description`, () => {
-        cy.userAddNewEventError(event.name, event.date, event.location, event.type, event.guestCount, event.budget, '');
+        cy.userCreateEventNewError(event.name, event.date, event.location, event.type, event.guestCount, event.budget, '');
 
         cy.get('[data-cy="eventform-description-error"]')
           .should('exist')
@@ -236,14 +236,14 @@ describe(`User Experience Flow`, () => {
       });
 
       it(`should create new event`, () => {
-        cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '');
+        cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '');
 
       });
 
       it(`should cancel creating new event`, () => {
         cy.eventlistToNewEventForm();
 
-        cy.userCancelNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '');
+        cy.userCancelEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '');
       });
     });
 
@@ -253,14 +253,14 @@ describe(`User Experience Flow`, () => {
         cy.landingToSignup();
         cy.userSignup(userEmail, userPassword, userPassword)
         cy.eventlistToNewEventForm();
-        cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '');
+        cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '');
 
         cy.userLogout();
 
         cy.landingToLogin();
         cy.adminLogin(adminEmail, adminPassword);
 
-        cy.adminAcceptNewEvent();
+        cy.adminAcceptEventNew();
 
         cy.userLogout();
 
@@ -269,55 +269,55 @@ describe(`User Experience Flow`, () => {
       });
 
       it(`should error out with event name removed`, () => {
-        cy.userUpdateEventError({
+        cy.userSaveEventUpdateError({
           name: '',
         });
       });
 
       it(`should error out with event date removed`, () => {
-        cy.userUpdateEventError({
+        cy.userSaveEventUpdateError({
           date: '',
         });
       });
 
       it(`should error out with event date that already passed`, () => {
-        cy.userUpdateEventError({
+        cy.userSaveEventUpdateError({
           date: '2025-01-01',
         });
       });
 
       it(`should error out with event guest count removed`, () => {
-        cy.userUpdateEventError({
+        cy.userSaveEventUpdateError({
           guestCount: '',
         });
       });
 
       it(`should error out with event guest count is zero`, () => {
-        cy.userUpdateEventError({
+        cy.userSaveEventUpdateError({
           guestCount: '0',
         });
       });
 
       it(`should error out with event budget removed`, () => {
-        cy.userUpdateEventError({
+        cy.userSaveEventUpdateError({
           budget: '',
         });
       });
 
       it(`should error out with invalid budget update`, () => {
-        cy.userUpdateEventError({
+        cy.userSaveEventUpdateError({
           budget: '49999',
         });
       });
 
       it(`should error out with event description removed`, () => {
-        cy.userUpdateEventError({
+        cy.userSaveEventUpdateError({
           description: ''
         });
       });
 
       it(`should update existing event`, () => {
-        cy.userSaveUpdateEvent({
+        cy.userSaveEventUpdate({
           name: 'This event title is updated',
           date: '2026-12-31',
           location: 'Garden Estate',
@@ -329,7 +329,7 @@ describe(`User Experience Flow`, () => {
       });
 
       it(`should cancel upddating existing event`, () => {
-        cy.userCancelUpdateEvent({
+        cy.userCancelEventUpdate({
           name: 'This event title is updated for the 2nd time',
           date: '2026-05-23',
           location: 'Historic Abbey',
@@ -350,7 +350,7 @@ describe(`User Experience Flow`, () => {
         
         // create 3 new events
         Cypress._.times(3, () => {
-          cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
+          cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '')
         });
 
         cy.userLogout();
@@ -359,7 +359,7 @@ describe(`User Experience Flow`, () => {
         cy.adminLogin(adminEmail, adminPassword);
 
         Cypress._.times(3, () => {
-          cy.adminAcceptNewEvent()
+          cy.adminAcceptEventNew()
         });
 
         cy.userLogout();
@@ -369,39 +369,49 @@ describe(`User Experience Flow`, () => {
       });
 
       it(`should error out with no comment`, () => {
-        cy.userSubmitEventCancelRequestError();
+        cy.userSubmitEventCancelError();
       });
 
       it(`should submit event cancel request`, () => {
-        cy.userSubmitEventCancelRequest();
+        cy.userSubmitEventCancel();
       });
 
       it(`should cancel submiting event cancel request`, () => {
-        cy.userCancelEventCancelRequest();
+        cy.userCancelEventCancel();
       });
     });
 
-    describe(`User Event Mgmt End-to-End`, () => {
-      before(() => {
+    // describe(`User Event Mgmt End-to-End`, () => {
+    //   describe(`Event Lifecycle - Complete Event Path`, () => {
+    //     before(() => {
 
-      });
+    //     });
 
-      it(``, () => {
+    //     it(``, () => {
 
-      });
+    //     });
 
-      it(``, () => {
+    //     it(``, () => {
 
-      });
+    //     });
 
-      it(``, () => {
+    //   });
 
-      });
+    //   describe(`Event Lifecycle - Complete Event Path`, () => {
+    //     before(() => {
 
-      it(``, () => {
+    //     });
 
-      });
-    });
+    //     it(``, () => {
+
+    //     });
+
+    //     it(``, () => {
+
+    //     });
+
+    //   });
+    // });
   });
 
   describe(`User with Mock Event Seeding`, () => {

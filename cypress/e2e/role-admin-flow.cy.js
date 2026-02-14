@@ -58,7 +58,7 @@ describe(`Admin Experience Flow`, () => {
     });
 
     describe(`Admin Event Mgmt.`, () => {
-        describe(`Admin Reviewing New Events`, () => {
+        describe(`Admin Reviews New Events`, () => {
             before(() => {
                 cy.clearCacheLoadLanding();
 
@@ -68,7 +68,7 @@ describe(`Admin Experience Flow`, () => {
                 
                 // create 3 new events
                 Cypress._.times(3, () => {
-                    cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
+                    cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '')
                 });
 
                 cy.userLogout();
@@ -78,19 +78,19 @@ describe(`Admin Experience Flow`, () => {
             });
 
             it(`should accept new event`, () => {
-                cy.adminAcceptNewEvent();
+                cy.adminAcceptEventNew();
             });
 
             it(`should decline new event`, () => {
-                cy.adminDeclineNewEvent();
+                cy.adminRejectEventNew();
             });
 
             it(`should return with no action`, () => {
-                cy.adminConsiderNewEvent();
+                cy.adminConsiderEventNew();
             });
         });
 
-        describe(`Admin Reviews Cancellation Requests`, () => {
+        describe(`Admin Reviews Cancel Event`, () => {
             before(() => {
                 cy.clearCacheLoadLanding();
 
@@ -100,7 +100,7 @@ describe(`Admin Experience Flow`, () => {
                 
                 // user creates 3 new events
                 Cypress._.times(3, () => {
-                    cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
+                    cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '')
                 });
 
                 cy.userLogout();
@@ -110,7 +110,7 @@ describe(`Admin Experience Flow`, () => {
 
                 // admin accepts 3 new events
                 Cypress._.times(3, () => {
-                    cy.adminAcceptNewEvent();
+                    cy.adminAcceptEventNew();
                 });
 
                 cy.userLogout();
@@ -120,7 +120,7 @@ describe(`Admin Experience Flow`, () => {
 
                 // user requests 3 event cancellations
                 Cypress._.times(3, () => {
-                    cy.userSubmitEventCancelRequest();
+                    cy.userSubmitEventCancel();
                 });
 
                 cy.userLogout();
@@ -131,20 +131,20 @@ describe(`Admin Experience Flow`, () => {
             });
 
             it(`should approve cancellation request`, () => {
-                cy.adminAcceptEventCancelRequest();
+                cy.adminAceeptEventCancel();
             });
 
             it(`should deny cancellation request`, () => {
-                cy.adminDeclineEventCancelRequest();
+                cy.adminRejectEventCancel();
             });
 
             it(`should return with no action`, () => {
-                cy.adminConsiderEventCancelRequest();
+                cy.adminConsiderEventCancel();
             });
             
         });
 
-        describe(`Admin Reviews Event Completion`, () => {
+        describe(`Admin Submits Event Complete`, () => {
             before(() => {
                 cy.clearCacheLoadLanding();
 
@@ -154,7 +154,7 @@ describe(`Admin Experience Flow`, () => {
                 
                 // user creates 3 new events
                 Cypress._.times(3, () => {
-                    cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
+                    cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '')
                 });
 
                 cy.userLogout();
@@ -164,17 +164,22 @@ describe(`Admin Experience Flow`, () => {
 
                 // admin accepts 3 new events
                 Cypress._.times(3, () => {
-                    cy.adminAcceptNewEvent();
+                    cy.adminAcceptEventNew();
                 });
             });
 
+            it(`should error out with no commen`, () => {
+                cy.adminSubmitEventCompleteError();
+            });
+
             it(`should confirm event completion`, () => {
-                cy.adminSetEventAsCompleted();
+                cy.adminSubmitEventComplete();
             });
 
             it(`should return with no action`, () => {
-                cy.adminConsiderEventAsCompleted();
+                cy.adminCancelEventComplete();
             });
+
         });
 
         describe(`Admin Event Mgmt End-to-End`, () => {
@@ -204,7 +209,7 @@ describe(`Admin Experience Flow`, () => {
                     cy.landingToLogin();
                     cy.userLogin(userEmail, userPassword);
                     cy.eventlistToNewEventForm();
-                    cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
+                    cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '')
                     cy.userLogout();
 
                     // Step 3: Verify In Review
@@ -219,7 +224,7 @@ describe(`Admin Experience Flow`, () => {
                     });
 
                     // Step 4: Admin declines
-                    cy.adminDeclineNewEvent();
+                    cy.adminRejectEventNew();
 
                     // Step 5: Verify Cancelled
                     cy.adminGetAllStatusCounts().then((afterDecline) => {
@@ -253,13 +258,13 @@ describe(`Admin Experience Flow`, () => {
                     cy.landingToLogin();
                     cy.userLogin(userEmail, userPassword);
                     cy.eventlistToNewEventForm();
-                    cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
+                    cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '')
                     cy.userLogout();
 
                     // Step 3: Admin accepts
                     cy.landingToLogin();
                     cy.adminLogin(adminEmail, adminPassword);
-                    cy.adminAcceptNewEvent();
+                    cy.adminAcceptEventNew();
 
                     cy.adminGetAllStatusCounts().then((afterAccept) => {
                         expect(afterAccept['All']).to.equal(1, 'All should be 1');
@@ -273,13 +278,13 @@ describe(`Admin Experience Flow`, () => {
                     cy.userLogout();
                     cy.landingToLogin();
                     cy.userLogin(userEmail, userPassword);
-                    cy.userSubmitEventCancelRequest();
+                    cy.userSubmitEventCancel();
                     cy.userLogout();
 
                     // Step 5: Admin approves cancellation
                     cy.landingToLogin();
                     cy.adminLogin(adminEmail, adminPassword);
-                    cy.adminAcceptEventCancelRequest();
+                    cy.adminAceeptEventCancel();
 
                     cy.adminGetAllStatusCounts().then((afterCancel) => {
                         expect(afterCancel['All']).to.equal(1, 'All should still be 1');
@@ -312,28 +317,46 @@ describe(`Admin Experience Flow`, () => {
                     cy.landingToLogin();
                     cy.userLogin(userEmail, userPassword);
                     cy.eventlistToNewEventForm();
-                    cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
+                    cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '')
                     cy.userLogout();
 
                     // Step 3: Admin accepts
                     cy.landingToLogin();
                     cy.adminLogin(adminEmail, adminPassword);
-                    cy.adminAcceptNewEvent();
+                    cy.adminAcceptEventNew();
 
                     cy.adminGetAllStatusCounts().then((afterAccept) => {
                         expect(afterAccept['All']).to.equal(1);
                         expect(afterAccept['In Progress']).to.equal(1);
                     });
 
-                    // Step 4: Admin completes event
-                    cy.adminSetEventAsCompleted();
+                    // Step 4: Admin submit event complete
+                    cy.adminSubmitEventComplete();
 
                     cy.adminGetAllStatusCounts().then((afterComplete) => {
                         expect(afterComplete['All']).to.equal(1, 'All should still be 1');
                         expect(afterComplete['In Review']).to.equal(0, 'In Review should be 0');
-                        expect(afterComplete['In Progress']).to.equal(0, 'In Progress should be 0 after completion');
-                        expect(afterComplete['Completed']).to.equal(1, 'Completed should be 1 after completion');
+                        expect(afterComplete['In Progress']).to.equal(1, 'In Progress should be 1 after sending complete request');
+                        expect(afterComplete['Completed']).to.equal(0, 'Completed should be 0 after sending complete request');
                         expect(afterComplete['Cancelled']).to.equal(0, 'Cancelled should be 0');
+                    });
+
+                    // Step 5: User accepts event completion
+                    cy.userLogout();
+                    cy.landingToLogin();
+                    cy.userLogin(userEmail, userPassword);
+                    cy.userAcceptEventComplete();
+                    cy.userLogout();
+
+                    // Step 6: Verify Completed count unchanged
+                    cy.landingToLogin();
+                    cy.adminLogin(adminEmail, adminPassword);
+                    cy.adminGetAllStatusCounts().then((afterUserAcceptComplete) => {
+                        expect(afterUserAcceptComplete['All']).to.equal(1, 'All should still be 1');
+                        expect(afterUserAcceptComplete['In Review']).to.equal(0, 'In Review should be 0');
+                        expect(afterUserAcceptComplete['In Progress']).to.equal(0, 'In Progress should be 0');
+                        expect(afterUserAcceptComplete['Completed']).to.equal(1, 'Completed should still be 1 after user accepts completion');
+                        expect(afterUserAcceptComplete['Cancelled']).to.equal(0, 'Cancelled should be 0');
                     });
                 });
             });
@@ -365,7 +388,7 @@ describe(`Admin Experience Flow`, () => {
             cy.landingToLogin();
             cy.userLogin(userEmail, userPassword);
             cy.eventlistToNewEventForm();
-            cy.userAddNewEvent('', event.date, event.location, event.type, event.guestCount, event.budget, '')
+            cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '')
             cy.userLogout();
 
             // Step 3: Verify In Review
