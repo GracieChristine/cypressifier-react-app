@@ -131,7 +131,7 @@ describe(`Admin Experience Flow`, () => {
             });
 
             it(`should approve cancellation request`, () => {
-                cy.adminAceeptEventCancel();
+                cy.adminAcceptEventCancel();
             });
 
             it(`should deny cancellation request`, () => {
@@ -284,7 +284,7 @@ describe(`Admin Experience Flow`, () => {
                     // Step 5: Admin approves cancellation
                     cy.landingToLogin();
                     cy.adminLogin(adminEmail, adminPassword);
-                    cy.adminAceeptEventCancel();
+                    cy.adminAcceptEventCancel();
 
                     cy.adminGetAllStatusCounts().then((afterCancel) => {
                         expect(afterCancel['All']).to.equal(1, 'All should still be 1');

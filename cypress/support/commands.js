@@ -267,7 +267,7 @@ Cypress.Commands.add('userGetOneFilterCount', (filter) => {
   return cy.get(filter).invoke('text').then(getCountFromText);
 });
 
-// Get 1 specific  admin event status count
+// Get 1 specific admin event status count
 Cypress.Commands.add('adminGetOneStatusCount', (status) => {
   return cy.contains('[data-cy="dashboard-status-box"]', status)
     .invoke('text')
@@ -292,10 +292,9 @@ Cypress.Commands.add('adminGetAllStatusCounts', () => {
     });
   });
   
-  // DON'T return counts directly - wrap it properly
   return chain.then(() => {
     cy.log('Admin Status Counts:', JSON.stringify(counts, null, 2));
-    return cy.wrap(counts);  // ← Use cy.wrap() instead of returning directly
+    return cy.wrap(counts);
   });
 });
 
@@ -323,14 +322,11 @@ Cypress.Commands.add('userGetAllFilterCounts', () => {
     });
   });
   
-  // DON'T return counts directly - wrap it properly
   return chain.then(() => {
     cy.log('User Filter Counts:', JSON.stringify(counts, null, 2));
-    return cy.wrap(counts);  // ← Use cy.wrap() instead of returning directly
+    return cy.wrap(counts);
   });
 });
-
-
 
 // Create New Event
 Cypress.Commands.add('userCreateEventNew', (
@@ -342,7 +338,6 @@ Cypress.Commands.add('userCreateEventNew', (
   eventBudget = null, 
   eventDescription = null
 ) => {
-  // First, ensure we're on the event list page to get counts
   cy.url().then((url) => {
     if (url.includes('/user/events/new')) {
       cy.get('[data-cy="eventform-cancel-btn"]').click();
@@ -357,11 +352,9 @@ Cypress.Commands.add('userCreateEventNew', (
     cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-review"]')
       .then((inReviewCount) => {
 
-      // Navigate to form
       cy.get('[data-cy="eventlist-create-event-btn"]').click();
       cy.url().should('contain', '/user/events/new');
 
-      // Clear form
       cy.get('[data-cy="eventform-name-input"]').clear();
       cy.get('[data-cy="eventform-date-input"]').clear();
       cy.get('[data-cy="eventform-location-input"]')
@@ -374,7 +367,6 @@ Cypress.Commands.add('userCreateEventNew', (
       cy.get('[data-cy="eventform-budget-input"]').clear();
       cy.get('[data-cy="eventform-description-input"]').clear();
 
-      // Fill form
       cy.get('[data-cy="eventform-name-input"]')
         .type(eventName || `Test Event ${allCount + 1}`);
       cy.get('[data-cy="eventform-date-input"]')
@@ -472,7 +464,6 @@ Cypress.Commands.add('userCancelEventNew', (
   eventBudget = null, 
   eventDescription = null
 ) => {
-  // First, ensure we're on the event list page to get counts
   cy.url().then((url) => {
     if (url.includes('/user/events/new')) {
       cy.get('[data-cy="eventform-cancel-btn"]').click();
@@ -487,11 +478,9 @@ Cypress.Commands.add('userCancelEventNew', (
     cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-review"]')
     .then((inReviewCount) => {
 
-      // Navigate to form
       cy.get('[data-cy="eventlist-create-event-btn"]').click();
       cy.url().should('contain', '/user/events/new');
 
-      // Clear and fill form
       cy.get('[data-cy="eventform-name-input"]').clear();
       cy.get('[data-cy="eventform-date-input"]').clear();
       cy.get('[data-cy="eventform-location-input"]')
@@ -540,37 +529,50 @@ Cypress.Commands.add('adminAcceptEventNew', () => {
   .then((allCount) => {
     cy.adminGetOneStatusCount('In Review')
     .then((inReviewCount) => {
-        cy.adminGetOneStatusCount('In Progress')
-        .then((inProgressCount) => {
+      cy.adminGetOneStatusCount('In Progress')
+      .then((inProgressCount) => {
 
-        cy.contains('[data-cy="dashboard-table-entry"]', 'In Review')
-            .first()
-            .within(() => {
-                cy.get('[data-cy="dashboard-table-entry-action"]')
-                .click();
-            });
+        cy.get('[data-cy="dashboard-table-entry"]').then($entries => {
+          const target = $entries.filter((i, el) => {
+            const $el = Cypress.$(el);
+            return $el.text().includes('In Review');
+          });
 
-        cy.url()
-        .should('include', '/admin/events/')
-        .and('contain', '/edit');
+          expect(target.length).to.be.greaterThan(0, 'Should have at least one event in review');
 
-        cy.get('[data-cy="review-new-comment-input"]')
-        .should('be.visible')
-        .type('After reviewing, we have accepted this request. We will  reach out shortly via email.');
+          const eventId = Cypress.$(target.first()).attr('data-event-id');
+          cy.log('Accepting event:', eventId);
 
-        cy.get('[data-cy="accept-new-event-btn"]')
-        .should('be.enabled')
-        .click();
+          cy.wrap(target.first())
+            .find('[data-cy="dashboard-table-entry-action"]')
+            .click();
 
-        cy.url()
-        .should('contain', '/admin/dashboard');
+          cy.url()
+          .should('include', '/admin/events/')
+          .and('contain', '/edit');
 
-        cy.adminGetOneStatusCount('All')
-        .should('eq', allCount);
-        cy.adminGetOneStatusCount('In Review')
-        .should('eq', inReviewCount - 1);
-        cy.adminGetOneStatusCount('In Progress')
-        .should('eq', inProgressCount + 1);
+          cy.get('[data-cy="review-new-comment-input"]')
+          .should('be.visible')
+          .type('After reviewing, we have accepted this request. We will reach out shortly via email.');
+
+          cy.get('[data-cy="accept-new-event-btn"]')
+          .should('be.enabled')
+          .click();
+
+          cy.url()
+          .should('contain', '/admin/dashboard');
+
+          cy.get(`[data-event-id="${eventId}"]`)
+            .should('contain', 'In Progress')
+            .and('not.contain', 'In Review');
+
+          cy.adminGetOneStatusCount('All')
+          .should('eq', allCount);
+          cy.adminGetOneStatusCount('In Review')
+          .should('eq', inReviewCount - 1);
+          cy.adminGetOneStatusCount('In Progress')
+          .should('eq', inProgressCount + 1);
+        });
       });
     });
   });
@@ -583,36 +585,48 @@ Cypress.Commands.add('adminRejectEventNew', () => {
   .then((allCount) => {
     cy.adminGetOneStatusCount('In Review')
     .then((reviewCount) => {
-        cy.adminGetOneStatusCount('Cancelled')
-        .then((cancelledCount) => {
+      cy.adminGetOneStatusCount('Cancelled')
+      .then((cancelledCount) => {
 
-        cy.contains('[data-cy="dashboard-table-entry"]', 'In Review')
-            .first()
-            .within(() => {
-                cy.get('[data-cy="dashboard-table-entry-action"]')
-                .click();
-            });
+        cy.get('[data-cy="dashboard-table-entry"]').then($entries => {
+          const target = $entries.filter((i, el) => {
+            const $el = Cypress.$(el);
+            return $el.text().includes('In Review');
+          });
 
-        cy.url()
-        .should('contain', '/admin/events/')
-        .and('contain', '/edit');
+          expect(target.length).to.be.greaterThan(0, 'Should have at least one event in review');
 
-        cy.get('[data-cy="review-new-comment-input"]')
+          const eventId = Cypress.$(target.first()).attr('data-event-id');
+          cy.log('Rejecting event:', eventId);
+
+          cy.wrap(target.first())
+            .find('[data-cy="dashboard-table-entry-action"]')
+            .click();
+
+          cy.url()
+          .should('contain', '/admin/events/')
+          .and('contain', '/edit');
+
+          cy.get('[data-cy="review-new-comment-input"]')
             .type('After much consideration, we decided to decline this request.');
 
-        cy.get('[data-cy="decline-new-event-btn"]')
-        .should('be.enabled')
-        .click();
+          cy.get('[data-cy="decline-new-event-btn"]')
+          .should('be.enabled')
+          .click();
 
-        cy.url()
-        .should('contain', '/admin/dashboard');
+          cy.url()
+          .should('contain', '/admin/dashboard');
 
-        cy.adminGetOneStatusCount('All')
-        .should('eq', allCount);
-        cy.adminGetOneStatusCount('In Review')
-        .should('eq', reviewCount - 1);
-        cy.adminGetOneStatusCount('Cancelled')
-        .should('eq', cancelledCount + 1);
+          cy.get(`[data-event-id="${eventId}"]`)
+            .should('contain', 'Cancelled');
+
+          cy.adminGetOneStatusCount('All')
+          .should('eq', allCount);
+          cy.adminGetOneStatusCount('In Review')
+          .should('eq', reviewCount - 1);
+          cy.adminGetOneStatusCount('Cancelled')
+          .should('eq', cancelledCount + 1);
+        });
       });
     });
   });
@@ -623,18 +637,25 @@ Cypress.Commands.add('adminConsiderEventNew', () => {
   .then((allCount) => {
     cy.adminGetOneStatusCount('In Review')
     .then((inReviewCount) => {
-        cy.adminGetOneStatusCount('In Progress')
-        .then((inProgressCount) => {
+      cy.adminGetOneStatusCount('In Progress')
+      .then((inProgressCount) => {
+        cy.adminGetOneStatusCount('Cancelled')
+        .then((cancelledCount) => {
 
-          cy.adminGetOneStatusCount('Cancelled')
-          .then((cancelledCount) => {
-
-            cy.contains('[data-cy="dashboard-table-entry"]', 'In Review')
-            .first()
-            .within(() => {
-                cy.get('[data-cy="dashboard-table-entry-action"]')
-                .click();
+          cy.get('[data-cy="dashboard-table-entry"]').then($entries => {
+            const target = $entries.filter((i, el) => {
+              const $el = Cypress.$(el);
+              return $el.text().includes('In Review');
             });
+
+            expect(target.length).to.be.greaterThan(0, 'Should have at least one event in review');
+
+            const eventId = Cypress.$(target.first()).attr('data-event-id');
+            cy.log('Viewing event without action:', eventId);
+
+            cy.wrap(target.first())
+              .find('[data-cy="dashboard-table-entry-action"]')
+              .click();
 
             cy.url()
             .should('include', '/admin/events/')
@@ -647,6 +668,9 @@ Cypress.Commands.add('adminConsiderEventNew', () => {
             cy.url()
             .should('contain', '/admin/dashboard');
 
+            cy.get(`[data-event-id="${eventId}"]`)
+              .should('contain', 'In Review');
+
             cy.adminGetOneStatusCount('All')
             .should('eq', allCount);
             cy.adminGetOneStatusCount('In Review')
@@ -655,9 +679,9 @@ Cypress.Commands.add('adminConsiderEventNew', () => {
             .should('eq', inProgressCount);
             cy.adminGetOneStatusCount('Cancelled')
             .should('eq', cancelledCount);
-            });
-            
+          });
         }); 
+      });
     });
   });
 });
@@ -671,7 +695,6 @@ Cypress.Commands.add('userSaveEventUpdate', (updates = {}) => {
   cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]')
     .as('initialCount');
 
-  // Navigate to event edit form
   cy.get('[data-cy="eventlist-event-list-entry"]').then($entries => {
     const target = $entries.filter((i, el) => {
       const $el = Cypress.$(el);
@@ -687,7 +710,6 @@ Cypress.Commands.add('userSaveEventUpdate', (updates = {}) => {
 
   cy.url().should('contain', '/user/events/event_');
 
-  // Update only provided fields
   if (updates.name !== undefined) {
     cy.get('[data-cy="eventform-name-input"]').clear().type(updates.name);
   }
@@ -710,17 +732,14 @@ Cypress.Commands.add('userSaveEventUpdate', (updates = {}) => {
     cy.get('[data-cy="eventform-description-input"]').clear().type(updates.description);
   }
 
-  // Save
   cy.get('[data-cy="eventform-save-btn"]').should('be.enabled').click();
   cy.url().should('contain', '/user/events');
 
-  // Verify count unchanged
   cy.get('@initialCount').then((count) => {
     cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]')
       .should('eq', count);
   });
 
-  // Navigate BACK to the same event to verify changes were saved
   cy.get('[data-cy="eventlist-event-list-entry"]').then($entries => {
     const target = $entries.filter((i, el) => {
       const $el = Cypress.$(el);
@@ -734,7 +753,6 @@ Cypress.Commands.add('userSaveEventUpdate', (updates = {}) => {
 
   cy.url().should('contain', '/user/events/event_');
 
-  // Verify each updated field persisted
   if (updates.name !== undefined) {
     cy.get('[data-cy="eventform-name-input"]')
       .should('have.value', updates.name);
@@ -759,7 +777,6 @@ Cypress.Commands.add('userSaveEventUpdate', (updates = {}) => {
     cy.get('[data-cy="eventform-guestCount-input"]')
       .invoke('val')
       .then((val) => {
-        // Remove thousand separator formatting for comparison
         const cleanVal = val.replace(/,/g, '');
         expect(cleanVal).to.equal(updates.guestCount.toString());
       });
@@ -769,7 +786,6 @@ Cypress.Commands.add('userSaveEventUpdate', (updates = {}) => {
     cy.get('[data-cy="eventform-budget-input"]')
       .invoke('val')
       .then((val) => {
-        // Remove thousand separator formatting for comparison
         const cleanVal = val.replace(/,/g, '');
         expect(cleanVal).to.equal(updates.budget.toString());
       });
@@ -780,17 +796,14 @@ Cypress.Commands.add('userSaveEventUpdate', (updates = {}) => {
       .should('have.value', updates.description);
   }
 
-  // Navigate back to event list
   cy.get('[data-cy="eventform-cancel-btn"]').click();
   cy.url().should('contain', '/user/events');
   cy.url().should('not.contain', '/event_');
 });
 
 Cypress.Commands.add('userSaveEventUpdateError', (updates = {}) => {
-  // Check if already on form page, if not navigate to it
   cy.url().then((url) => {
     if (!url.includes('/user/events/event_')) {
-      // Navigate to event edit form from event list
       cy.get('[data-cy="eventlist-event-list-entry"]').then($entries => {
         const target = $entries.filter((i, el) => {
           const $el = Cypress.$(el);
@@ -808,7 +821,6 @@ Cypress.Commands.add('userSaveEventUpdateError', (updates = {}) => {
     }
   });
 
-  // Clear fields if they should be empty
   if (updates.name === '') {
     cy.get('[data-cy="eventform-name-input"]').clear();
   } else if (updates.name !== undefined) {
@@ -851,18 +863,14 @@ Cypress.Commands.add('userSaveEventUpdateError', (updates = {}) => {
     cy.get('[data-cy="eventform-description-input"]').clear().type(updates.description);
   }
 
-  // Try to submit (should fail with errors)
   cy.get('form').submit();
 
-  // Should still be on the form page
   cy.url().should('contain', '/user/events/event_');
 
-  // At least one error should be visible
   cy.get('[data-cy$="-error"]')
     .should('exist')
     .and('be.visible');
 
-  // Navigate back to event list for next test
   cy.get('[data-cy="eventform-cancel-btn"]').click();
   cy.url().should('contain', '/user/events');
   cy.url().should('not.contain', '/event_');
@@ -872,7 +880,6 @@ Cypress.Commands.add('userCancelEventUpdate', (updates = {}) => {
   cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]')
     .as('initialCount');
 
-  // Navigate to event edit form
   cy.get('[data-cy="eventlist-event-list-entry"]').then($entries => {
     const target = $entries.filter((i, el) => {
       const $el = Cypress.$(el);
@@ -888,7 +895,6 @@ Cypress.Commands.add('userCancelEventUpdate', (updates = {}) => {
 
   cy.url().should('contain', '/user/events/event_');
 
-  // Capture original values before any changes
   const originalValues = {};
   
   cy.get('[data-cy="eventform-name-input"]')
@@ -920,7 +926,6 @@ Cypress.Commands.add('userCancelEventUpdate', (updates = {}) => {
     .then((val) => {
       originalValues.description = val;
 
-      // Now make changes (inside last .then() to ensure all values captured)
       if (updates.name !== undefined) {
         cy.get('[data-cy="eventform-name-input"]').clear().type(updates.name);
       }
@@ -943,18 +948,15 @@ Cypress.Commands.add('userCancelEventUpdate', (updates = {}) => {
         cy.get('[data-cy="eventform-description-input"]').clear().type(updates.description);
       }
 
-      // Cancel instead of save
       cy.get('[data-cy="eventform-cancel-btn"]').click();
       cy.url().should('contain', '/user/events');
       cy.url().should('not.contain', '/event_');
 
-      // Verify count unchanged
       cy.get('@initialCount').then((count) => {
         cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]')
           .should('eq', count);
       });
 
-      // Navigate back to verify changes were NOT saved (original values remain)
       cy.get('[data-cy="eventlist-event-list-entry"]').then($entries => {
         const target = $entries.filter((i, el) => {
           const $el = Cypress.$(el);
@@ -968,7 +970,6 @@ Cypress.Commands.add('userCancelEventUpdate', (updates = {}) => {
 
       cy.url().should('contain', '/user/events/event_');
 
-      // Verify original values are still there
       cy.get('[data-cy="eventform-name-input"]')
         .should('have.value', originalValues.name);
       
@@ -992,13 +993,12 @@ Cypress.Commands.add('userCancelEventUpdate', (updates = {}) => {
       cy.get('[data-cy="eventform-description-input"]')
         .should('have.value', originalValues.description);
 
-      // Go back to event list
       cy.get('[data-cy="eventform-cancel-btn"]').click();
       cy.url().should('contain', '/user/events');
     });
 });
 
-// Submit Cancell Event
+// Submit Cancel Event
 Cypress.Commands.add('userSubmitEventCancel', () => {
   cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]')
     .then((inProgressCount) => {
@@ -1020,7 +1020,6 @@ Cypress.Commands.add('userSubmitEventCancel', () => {
           .find('[data-cy="eventlist-event-list-entry-cancel-btn"]')
           .click();
 
-        // Everything that depends on eventId stays inside here
         cy.url().should('contain', '/user/events/event_');
 
         cy.get('[data-cy="cancel-event-comment-input"]')
@@ -1129,70 +1128,104 @@ Cypress.Commands.add('userCancelEventCancel', () => {
 });
 
 // Review Cancel Event
-Cypress.Commands.add('adminAceeptEventCancel', () => {
+Cypress.Commands.add('adminAcceptEventCancel', () => {
   cy.adminGetOneStatusCount('All')
   .then((allCount) => {
     cy.adminGetOneStatusCount('In Progress')
     .then((inProgressCount) => {
-        cy.adminGetOneStatusCount('Cancelled')
-        .then((cancelledCount) => {
+      cy.adminGetOneStatusCount('Cancelled')
+      .then((cancelledCount) => {
 
-        cy.contains('[data-cy="dashboard-table-entry"]', 'Reviewing Cancellation')
-            .first()
-            .within(() => {
-            cy.get('[data-cy="dashboard-table-entry-action"]').click();
-            });
+        cy.get('[data-cy="dashboard-table-entry"]').then($entries => {
+          const target = $entries.filter((i, el) => {
+            const $el = Cypress.$(el);
+            return $el.text().includes('Reviewing Cancellation');
+          });
 
-        cy.get('[data-cy="review-cancel-comment-input"]')
+          expect(target.length).to.be.greaterThan(0, 'Should have at least one event reviewing cancellation');
+
+          const eventId = Cypress.$(target.first()).attr('data-event-id');
+          cy.log('Accepting cancellation for event:', eventId);
+
+          cy.wrap(target.first())
+            .find('[data-cy="dashboard-table-entry-action"]')
+            .click();
+
+          cy.get('[data-cy="review-cancel-comment-input"]')
             .scrollIntoView()
-            .type('After much consideration, we\'re unable to cancel this event at this moment.');
+            .type('After much consideration, we have approved the cancellation request.');
 
-        cy.get('[data-cy="accept-cancel-event-btn"]')
-        .should('be.enabled')
-        .click();
+          cy.get('[data-cy="accept-cancel-event-btn"]')
+          .should('be.enabled')
+          .click();
 
-        cy.adminGetOneStatusCount('All')
-        .should('eq', allCount);
-        cy.adminGetOneStatusCount('In Progress')
-        .should('eq', inProgressCount - 1);
-        cy.adminGetOneStatusCount('Cancelled')
-        .should('eq', cancelledCount + 1);
+          cy.url()
+          .should('contain', '/admin/dashboard');
+
+          cy.get(`[data-event-id="${eventId}"]`)
+            .should('contain', 'Cancelled')
+            .and('not.contain', 'Reviewing Cancellation');
+
+          cy.adminGetOneStatusCount('All')
+          .should('eq', allCount);
+          cy.adminGetOneStatusCount('In Progress')
+          .should('eq', inProgressCount - 1);
+          cy.adminGetOneStatusCount('Cancelled')
+          .should('eq', cancelledCount + 1);
         });
+      });
     });
   });
 });
 
-Cypress.Commands.add('adminAceeptEventCancelError', () => {});
+Cypress.Commands.add('adminAcceptEventCancelError', () => {});
 
 Cypress.Commands.add('adminRejectEventCancel', () => {
   cy.adminGetOneStatusCount('All')
   .then((allCount) => {
     cy.adminGetOneStatusCount('In Progress')
     .then((inProgressCount) => {
-        cy.adminGetOneStatusCount('Cancelled')
-        .then((cancelledCount) => {
+      cy.adminGetOneStatusCount('Cancelled')
+      .then((cancelledCount) => {
 
-        cy.contains('[data-cy="dashboard-table-entry"]', 'Reviewing Cancellation')
-            .first()
-            .within(() => {
-            cy.get('[data-cy="dashboard-table-entry-action"]').click();
-            });
+        cy.get('[data-cy="dashboard-table-entry"]').then($entries => {
+          const target = $entries.filter((i, el) => {
+            const $el = Cypress.$(el);
+            return $el.text().includes('Reviewing Cancellation');
+          });
 
-        cy.get('[data-cy="review-cancel-comment-input"]')
+          expect(target.length).to.be.greaterThan(0, 'Should have at least one event reviewing cancellation');
+
+          const eventId = Cypress.$(target.first()).attr('data-event-id');
+          cy.log('Rejecting cancellation for event:', eventId);
+
+          cy.wrap(target.first())
+            .find('[data-cy="dashboard-table-entry-action"]')
+            .click();
+
+          cy.get('[data-cy="review-cancel-comment-input"]')
             .scrollIntoView()
             .type('After much consideration, we\'re unable to cancel this event at this moment.');
 
-        cy.get('[data-cy="decline-cancel-event-btn"]')
-        .should('be.enabled')
-        .click();
+          cy.get('[data-cy="decline-cancel-event-btn"]')
+          .should('be.enabled')
+          .click();
 
-        cy.adminGetOneStatusCount('All')
-        .should('eq', allCount);
-        cy.adminGetOneStatusCount('In Progress')
-        .should('eq', inProgressCount);
-        cy.adminGetOneStatusCount('Cancelled')
-        .should('eq', cancelledCount);
+          cy.url()
+          .should('contain', '/admin/dashboard');
+
+          cy.get(`[data-event-id="${eventId}"]`)
+            .should('contain', 'In Progress')
+            .and('not.contain', 'Reviewing Cancellation');
+
+          cy.adminGetOneStatusCount('All')
+          .should('eq', allCount);
+          cy.adminGetOneStatusCount('In Progress')
+          .should('eq', inProgressCount);
+          cy.adminGetOneStatusCount('Cancelled')
+          .should('eq', cancelledCount);
         });
+      });
     });
   });
 });
@@ -1202,27 +1235,43 @@ Cypress.Commands.add('adminConsiderEventCancel', () => {
   .then((allCount) => {
     cy.adminGetOneStatusCount('In Progress')
     .then((inProgressCount) => {
-        cy.adminGetOneStatusCount('Cancelled')
-        .then((cancelledCount) => {
+      cy.adminGetOneStatusCount('Cancelled')
+      .then((cancelledCount) => {
 
-        cy.contains('[data-cy="dashboard-table-entry"]', 'Reviewing Cancellation')
-            .first()
-            .within(() => {
-            cy.get('[data-cy="dashboard-table-entry-action"]').click();
-            });
+        cy.get('[data-cy="dashboard-table-entry"]').then($entries => {
+          const target = $entries.filter((i, el) => {
+            const $el = Cypress.$(el);
+            return $el.text().includes('Reviewing Cancellation');
+          });
 
-        cy.get('[data-cy="return-dashboard-btn"]')
-        .last()
-        .scrollIntoView()
-        .click();
+          expect(target.length).to.be.greaterThan(0, 'Should have at least one event reviewing cancellation');
 
-        cy.adminGetOneStatusCount('All')
-        .should('eq', allCount);
-        cy.adminGetOneStatusCount('In Progress')
-        .should('eq', inProgressCount);
-        cy.adminGetOneStatusCount('Cancelled')
-        .should('eq', cancelledCount);
+          const eventId = Cypress.$(target.first()).attr('data-event-id');
+          cy.log('Viewing cancellation request without action:', eventId);
+
+          cy.wrap(target.first())
+            .find('[data-cy="dashboard-table-entry-action"]')
+            .click();
+
+          cy.get('[data-cy="return-dashboard-btn"]')
+          .last()
+          .scrollIntoView()
+          .click();
+
+          cy.url()
+          .should('contain', '/admin/dashboard');
+
+          cy.get(`[data-event-id="${eventId}"]`)
+            .should('contain', 'Reviewing Cancellation');
+
+          cy.adminGetOneStatusCount('All')
+          .should('eq', allCount);
+          cy.adminGetOneStatusCount('In Progress')
+          .should('eq', inProgressCount);
+          cy.adminGetOneStatusCount('Cancelled')
+          .should('eq', cancelledCount);
         });
+      });
     });
   });
 });
@@ -1265,7 +1314,6 @@ Cypress.Commands.add('adminSubmitEventComplete', () => {
 
     cy.url().should('include', '/admin/dashboard');
 
-    // Verify this specific event now shows "Pending Completion"
     cy.get(`[data-event-id="${eventId}"]`)
       .should('contain', 'In Progress')
       .and('contain', 'Pending Completion');
@@ -1296,7 +1344,6 @@ Cypress.Commands.add('adminSubmitEventCompleteError', () => {
 
     cy.get('[data-cy="complete-event-checkbox"]').check();
 
-    // Do NOT enter comment - button should be disabled
     cy.get('[data-cy="save-event-update-btn"]')
       .should('be.disabled');
 
@@ -1304,7 +1351,6 @@ Cypress.Commands.add('adminSubmitEventCompleteError', () => {
 
     cy.url().should('include', '/admin/dashboard');
 
-    // Verify this specific event does NOT show "Pending Completion"
     cy.get(`[data-event-id="${eventId}"]`)
       .should('contain', 'In Progress')
       .and('not.contain', 'Pending Completion');
@@ -1342,7 +1388,6 @@ Cypress.Commands.add('adminCancelEventComplete', () => {
 
     cy.url().should('include', '/admin/dashboard');
 
-    // Verify this specific event does NOT show "Pending Completion"
     cy.get(`[data-event-id="${eventId}"]`)
       .should('contain', 'In Progress')
       .and('not.contain', 'Pending Completion');
@@ -1379,7 +1424,6 @@ Cypress.Commands.add('userAcceptEventComplete', () => {
 
     cy.url().should('include', '/user/events');
 
-    // Verify this specific event is now Completed
     cy.get(`[data-event-id="${eventId}"]`)
       .should('contain', 'Completed')
       .and('not.contain', 'Reviewing Completion');
@@ -1406,14 +1450,11 @@ Cypress.Commands.add('userAcceptEventCompleteError', () => {
 
     cy.get('[data-cy="confirm-completion-section"]').should('exist');
 
-    // Do NOT enter feedback
     cy.get('[data-cy="confirm-completion-submit-btn"]')
       .should('be.disabled');
 
-    // Navigate back manually
     cy.visit('/user/events');
 
-    // Verify this specific event still shows Reviewing Completion
     cy.get(`[data-event-id="${eventId}"]`)
       .should('contain', 'Reviewing Completion');
   });
@@ -1448,7 +1489,6 @@ Cypress.Commands.add('userRejectEventComplete', () => {
 
     cy.url().should('include', '/user/events');
 
-    // Verify this specific event is back to In Progress
     cy.get(`[data-event-id="${eventId}"]`)
       .should('contain', 'In Progress')
       .and('not.contain', 'Reviewing Completion');
@@ -1475,10 +1515,8 @@ Cypress.Commands.add('userConsiderEventComplete', () => {
 
     cy.get('[data-cy="confirm-completion-section"]').should('exist');
 
-    // Do nothing - just navigate back
     cy.visit('/user/events');
 
-    // Verify this specific event still shows Reviewing Completion
     cy.get(`[data-event-id="${eventId}"]`)
       .should('contain', 'Reviewing Completion');
   });
