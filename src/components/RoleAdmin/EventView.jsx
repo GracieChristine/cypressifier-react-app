@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { formatDateShort } from '../../utils/dateHelpers';
 import { loadEventsFromStorage, saveEventsToStorage } from '../../utils/seedData';
 
 const AdminEventView = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const location = useLocation();
   
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [markAsCompleted, setMarkAsCompleted] = useState(false);
   const [completionNotes, setCompletionNotes] = useState('');
   const [adminComment, setAdminComment] = useState('');
 
   const currentAdmin = 'Admin';
+
+  // Get mode from URL query parameter
+  const queryParams = new URLSearchParams(location.search);
+  const mode = queryParams.get('mode') || 'view';
 
   useEffect(() => {
     const events = loadEventsFromStorage();
@@ -36,12 +40,14 @@ const AdminEventView = () => {
     );
   }
 
+  const isUpdateMode = mode === 'update';
+  const isCompleteMode = mode === 'complete';
+  const isViewMode = mode === 'view';
+
   const isNewSubmission = selectedEvent.status === 'In Review' && !selectedEvent.cancellationRequest;
   const isCancellationRequest = selectedEvent.cancellationRequest && selectedEvent.status !== 'Cancelled';
-  const isInProgress = selectedEvent.status === 'In Progress' && !selectedEvent.cancellationRequest && !selectedEvent.completionRequest;
   const isReadOnly = selectedEvent.status === 'Completed' || selectedEvent.status === 'Cancelled';
   
-  // Additional checks for combined states
   const isInReviewWithCancellation = selectedEvent.status === 'In Review' && selectedEvent.cancellationRequest;
   const isInProgressWithCancellation = selectedEvent.status === 'In Progress' && selectedEvent.cancellationRequest;
 
@@ -181,7 +187,6 @@ const AdminEventView = () => {
     navigate('/admin/dashboard');
   };
 
-  // Format timestamp for display
   const formatTimestamp = (timestamp) => {
     const date = new Date(timestamp);
     return date.toLocaleString('en-US', {
@@ -202,12 +207,14 @@ const AdminEventView = () => {
         <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="eventview-details">
           <h2 className="text-3xl font-display mb-2">{selectedEvent.name}</h2>
           <p className="text-gray-600 mb-6 font-serif">
-            {isNewSubmission && 'New Event Submission - Review Required'}
-            {isInReviewWithCancellation && 'New Event Submission with Cancellation Request - Review Required'}
-            {isCancellationRequest && !isInReviewWithCancellation && 'Cancellation Request - Review Required'}
-            {isInProgress && 'Event In Progress - Admin Management'}
-            {isInProgressWithCancellation && 'Event In Progress with Cancellation Request - Review Required'}
-            {isReadOnly && `Event ${selectedEvent.status}`}
+            {isUpdateMode && 'Manage Event - Planning & Updates'}
+            {isCompleteMode && 'Complete Event - Send for Client Review'}
+            {isViewMode && isNewSubmission && 'New Event Submission - Review Required'}
+            {isViewMode && isInReviewWithCancellation && 'New Event Submission with Cancellation Request - Review Required'}
+            {isViewMode && isCancellationRequest && !isInReviewWithCancellation && 'Cancellation Request - Review Required'}
+            {isViewMode && isInProgressWithCancellation && 'Event In Progress with Cancellation Request - Review Required'}
+            {isViewMode && isReadOnly && `Event ${selectedEvent.status}`}
+            {isViewMode && selectedEvent.completionRequest && 'Event Completion Pending Client Review'}
           </p>
 
           <div className="space-y-6">
@@ -268,8 +275,8 @@ const AdminEventView = () => {
               )}
             </div>
 
-            {/* Return to Dashboard */}
-            {isReadOnly && (
+            {/* Return to Dashboard for read-only */}
+            {isViewMode && isReadOnly && (
               <div className="flex gap-3">
                 <button
                   onClick={() => navigate('/admin/dashboard')}
@@ -284,14 +291,97 @@ const AdminEventView = () => {
           </div>
         </div>
 
-        {/* Event View Select Entry Action */}
-        {!isReadOnly && (
+        {/* UPDATE MODE - Show planning features only */}
+        {isUpdateMode && (
+          <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="eventview-action">
+            <h2 className="text-3xl font-display mb-2">Event Management</h2>
+            <p className="text-gray-600 mb-6 font-serif">
+              Plan and manage event details
+            </p>
+
+            <div className="space-y-6">
+              <div className="bg-gray-50 border rounded-lg p-6">
+                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-6" data-cy="eventview-action-plan">
+                  <div className="text-4xl mb-3 text-center">📋</div>
+                  <h3 className="text-lg font-semibold mb-2 text-center">Planning Features</h3>
+                  <p className="text-gray-600 text-center text-sm">
+                    To-do lists, vendor management, and detailed planning tools will be added here.
+                  </p>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => navigate('/admin/dashboard')}
+                    className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                    data-cy="return-dashboard-btn"
+                  >
+                    Return to Dashboard
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* COMPLETE MODE - Show completion form only (NO CHECKBOX) */}
+        {isCompleteMode && (
+          <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="eventview-action">
+            <h2 className="text-3xl font-display mb-2">Mark Event as Complete</h2>
+            <p className="text-gray-600 mb-6 font-serif">
+              Submit completion request for client review
+            </p>
+
+            <div className="space-y-6">
+              <div className="bg-gray-50 border rounded-lg p-6" data-cy="eventview-action-complete">
+                <div className="mb-4">
+                  <label className="block text-sm text-gray-700 mb-2 font-semibold">
+                    Comment to Client <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    value={completionNotes}
+                    onChange={(e) => setCompletionNotes(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                    rows="4"
+                    placeholder="Add any final notes about how the event went and what was completed..."
+                    data-cy="complete-event-comment-input"
+                  />
+                </div>
+
+                <div className="flex gap-3 mb-3">
+                  <button
+                    onClick={handleRequestCompletion}
+                    disabled={!completionNotes.trim()}
+                    className="flex-1 px-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    data-cy="save-event-update-btn"
+                  >
+                    Send Completion for Review
+                  </button>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => navigate('/admin/dashboard')}
+                    className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                    data-cy="return-dashboard-btn"
+                  >
+                    Return to Dashboard
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* VIEW MODE - Show review/action sections */}
+        {isViewMode && !isReadOnly && (
           <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="eventview-action">
             <h2 className="text-3xl font-display mb-2">Admin Actions</h2>
             <p className="text-gray-600 mb-6 font-serif">
               {(isNewSubmission || isInReviewWithCancellation) && 'Review and respond to new event submission'}
               {isCancellationRequest && !isInReviewWithCancellation && !isInProgressWithCancellation && 'Review and respond to cancellation request'}
-              {(isInProgress || isInProgressWithCancellation) && 'Manage event and update status'}
+              {isInProgressWithCancellation && 'Review cancellation request'}
+              {selectedEvent.completionRequest && 'Event completion pending client review'}
             </p>
 
             <div className="space-y-6">
@@ -336,7 +426,6 @@ const AdminEventView = () => {
                       </button>
                     </div>
 
-                    {/* Always show Return to Dashboard button */}
                     <div className="flex gap-3 mt-3">
                       <button
                         onClick={() => navigate('/admin/dashboard')}
@@ -348,78 +437,6 @@ const AdminEventView = () => {
                     </div>
 
                   </div>
-                </div>
-              )}
-
-              {/* WIP - Existing Event - Planning Features (shown for In Progress, even with cancellation) */}
-              {(isInProgress || isInProgressWithCancellation) && (
-                <div className="bg-gray-50 border rounded-lg p-6">
-                  <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-6" data-cy="eventview-action-plan">
-                    <div className="text-4xl mb-3 text-center">📋</div>
-                    <h3 className="text-lg font-semibold mb-2 text-center">Planning Features</h3>
-                    <p className="text-gray-600 text-center text-sm">
-                      To-do lists, vendor management, and detailed planning tools will be added here.
-                    </p>
-                  </div>
-
-                  {/* Existing Event Mark As Complete - ONLY show if NO cancellation request */}
-                  {!isInProgressWithCancellation && (
-                    <div className="border-t pt-6" data-cy="eventview-action-complete">
-                      <div className="flex items-start gap-3 mb-4">
-                        <input
-                          type="checkbox"
-                          id="mark-completed"
-                          checked={markAsCompleted}
-                          onChange={(e) => setMarkAsCompleted(e.target.checked)}
-                          className="mt-3 w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500"
-                          data-cy="complete-event-checkbox"
-                        />
-                        <label htmlFor="mark-completed" className="cursor-pointer">
-                          <div className="font-semibold text-gray-800">All Tasks Completed</div>
-                          <div className="text-sm text-gray-600">
-                            Check this box when all tasks have been successfully completed
-                          </div>
-                        </label>
-                      </div>
-
-                      <div className="mb-4">
-                        <label className="block text-sm text-gray-700 mb-2 font-semibold">
-                          Comment to Client <span className="text-red-500">*</span>
-                        </label>
-                        <textarea
-                          value={completionNotes}
-                          onChange={(e) => setCompletionNotes(e.target.value)}
-                          required
-                          className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
-                          rows="3"
-                          placeholder="Add any final notes about how the event went..."
-                          data-cy="complete-event-comment-input"
-                        />
-                      </div>
-
-                      <div className="flex gap-3 mb-3">
-                        <button
-                          onClick={handleRequestCompletion}
-                          disabled={!markAsCompleted || !completionNotes.trim()}
-                          className="flex-1 px-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
-                          data-cy="save-event-update-btn"
-                        >
-                           Complete & Send to Review
-                        </button>
-                      </div>
-
-                      {/* Return to Dashboard button - only shown when no cancellation */}
-                      <div className="flex gap-3">
-                        <button
-                          onClick={() => navigate('/admin/dashboard')}
-                          className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
-                          data-cy="return-dashboard-btn"
-                        >
-                          Return to Dashboard
-                        </button>
-                      </div>
-                    </div>
-                  )}
                 </div>
               )}
 
@@ -470,7 +487,6 @@ const AdminEventView = () => {
                       </button>
                     </div>
 
-                    {/* Always show Return to Dashboard button */}
                     <div className="flex gap-3 mt-3">
                       <button
                         onClick={() => navigate('/admin/dashboard')}
@@ -480,6 +496,35 @@ const AdminEventView = () => {
                         Return to Dashboard
                       </button>
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Completion Request - Just show info, no actions */}
+              {selectedEvent.completionRequest && (
+                <div className="bg-gray-50 border rounded-lg p-6">
+                  <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6">
+                    <div className="text-4xl mb-3 text-center">✅</div>
+                    <h3 className="text-lg font-semibold mb-2 text-center">Completion Pending Client Review</h3>
+                    <p className="text-gray-600 text-center text-sm mb-4">
+                      Waiting for client to review and approve event completion.
+                    </p>
+                    {selectedEvent.completionNotes && (
+                      <div className="bg-white border rounded p-3 text-sm">
+                        <p className="font-semibold mb-1">Your completion notes:</p>
+                        <p className="text-gray-700">{selectedEvent.completionNotes}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex gap-3 mt-3">
+                    <button
+                      onClick={() => navigate('/admin/dashboard')}
+                      className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                      data-cy="return-dashboard-btn"
+                    >
+                      Return to Dashboard
+                    </button>
                   </div>
                 </div>
               )}

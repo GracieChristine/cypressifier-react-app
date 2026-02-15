@@ -64,10 +64,6 @@ const EventsList = () => {
     'Cancelled': events.filter(e => e.status === 'Cancelled').length
   };
 
-  const getPendingBadgeStyle = () => {
-    return 'border border-orange-500 text-orange-600 bg-transparent';
-  };
-
   const getEventIcon = (type) => {
     const icons = {
       'Anniversary': '💐',
@@ -92,6 +88,10 @@ const EventsList = () => {
     return colors[status] || 'bg-gray-100 text-gray-700';
   };
 
+  const getPendingBadgeStyle = () => {
+    return 'border border-orange-500 text-orange-600 bg-transparent';
+  };
+
   const getLocationIcon = (locationType) => {
     const icons = {
       'Castle': '🏰',
@@ -106,6 +106,7 @@ const EventsList = () => {
 
   const renderEventCard = (event, isUpcoming = false) => {
     const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
+    const isInReview = event.status === 'In Review';
     const canCancel = event.status === 'In Progress' && !event.cancellationRequest && !event.completionRequest;
     
     return (
@@ -145,10 +146,18 @@ const EventsList = () => {
           
           <div className="flex-grow"></div>
 
+          {isInReview && (
+            <div className="bg-blue-50 border border-blue-200 rounded p-2 mb-4">
+              <p className="text-xs text-blue-800 font-semibold">
+                ⏳ New Event Submit Pending Review
+              </p>
+            </div>
+          )}
+
           {event.cancellationRequest && (
             <div className="bg-orange-50 border border-orange-200 rounded p-2 mb-4">
               <p className="text-xs text-orange-800 font-semibold">
-                ⏳ Cancellation request pending review
+                ⏳ Event Cancel Request Pending Review
               </p>
             </div>
           )}
@@ -156,15 +165,16 @@ const EventsList = () => {
           {event.completionRequest && (
             <div className="bg-green-50 border border-green-200 rounded p-2 mb-4">
               <p className="text-xs text-green-800 font-semibold">
-                ✅ Completion confirmation requested
+                ✅ Event Complete Request Requires Review
               </p>
             </div>
           )}
 
-          {isReadOnly || event.cancellationRequest || event.completionRequest ? (
+          {isReadOnly || isInReview || event.cancellationRequest || event.completionRequest ? (
             <button
               onClick={() => navigate(`/user/events/${event.id}`)}
-              className="w-full py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded transition text-sm" data-cy="eventlist-upcoming-event-view-btn"
+              className="w-full py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded transition text-sm" 
+              data-cy="eventlist-upcoming-event-view-btn"
             >
               View Detail
             </button>
@@ -179,7 +189,7 @@ const EventsList = () => {
               </button>
               <button
                 onClick={() => navigate(`/user/events/${event.id}`)}
-                className="px-4 py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded transition text-sm"
+                className={`px-3 py-1.5 rounded text-sm font-medium transition whitespace-nowrap ${getPendingBadgeStyle} border border-orange-500 hover:border-orange-600 hover:text-orange-700 hover:bg-orange-50`}
                 data-cy="eventlist-upcoming-event-cancel-btn"
               >
                 Cancel Event
@@ -197,7 +207,7 @@ const EventsList = () => {
         </div>
       </div>
     );
-  };
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-8" data-cy="eventlist">
@@ -265,6 +275,7 @@ const EventsList = () => {
             <div className="space-y-3" data-cy="eventlist-event-list">
               {filteredEvents.map(event => {
                 const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
+                const isInReview = event.status === 'In Review';
                 const canCancel = event.status === 'In Progress' && !event.cancellationRequest && !event.completionRequest;
                 
                 return (
@@ -300,6 +311,16 @@ const EventsList = () => {
                           {event.status}
                         </span>
 
+                        {/* ADD THIS: Pending Submission badge for In Review */}
+                        {isInReview && (
+                          <span 
+                            className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getPendingBadgeStyle()}`}
+                            title="Event submission pending review"
+                          >
+                            Pending Review
+                          </span>
+                        )}
+
                         {event.cancellationRequest && (
                           <span 
                             className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getPendingBadgeStyle()}`}
@@ -320,7 +341,8 @@ const EventsList = () => {
                       </div>
 
                       <div className="col-span-6 sm:col-span-4 md:col-span-3 lg:col-span-3 flex justify-end gap-2">
-                        {isReadOnly || event.cancellationRequest || event.completionRequest ? (
+                        {/* UPDATED: Add isInReview to conditions */}
+                        {isReadOnly || isInReview || event.cancellationRequest || event.completionRequest ? (
                           <button
                             onClick={() => navigate(`/user/events/${event.id}`)}
                             className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-medium transition whitespace-nowrap"
@@ -339,7 +361,7 @@ const EventsList = () => {
                             </button>
                             <button
                               onClick={() => navigate(`/user/events/${event.id}`)}
-                              className="px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded text-sm font-medium transition whitespace-nowrap"
+                              className={`px-3 py-1.5 rounded text-sm font-medium transition whitespace-nowrap ${getPendingBadgeStyle} border border-orange-500 hover:border-orange-600 hover:text-orange-700 hover:bg-orange-50`}
                               data-cy="eventlist-event-list-entry-cancel-btn"
                             >
                               Cancel

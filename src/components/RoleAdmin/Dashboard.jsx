@@ -85,7 +85,6 @@ const AdminDashboard = () => {
     return 'border border-orange-500 text-orange-600 bg-transparent';
   };
 
-
   const getLocationIcon = (locationType) => {
     const icons = {
       'Castle': '🏰',
@@ -117,10 +116,10 @@ const AdminDashboard = () => {
           {statusCounts.submissionRequests > 0 && (
             <div className={`border-l-4 p-4 mb-6 rounded ${getPendingBadgeStyle()}`} data-cy="dashboard-alert-box">
               <div className="flex items-center">
-                <span className="text-2xl mr-3"></span>
+                <span className="text-2xl mr-3">⚠️</span>
                 <div>
                   <p className="font-semibold text-orange-800">
-                     {statusCounts.submissionRequests} New Event{statusCounts.submissionRequests > 1 ? 's' : ''} Require{statusCounts.cancellationRequests > 1 ? '' : 's'} Attention
+                     {statusCounts.submissionRequests} New Event{statusCounts.submissionRequests > 1 ? 's' : ''} Require{statusCounts.submissionRequests > 1 ? '' : 's'} Attention
                   </p>
                   <p className="text-sm text-orange-700">Review and accept/decline</p>
                 </div>
@@ -132,7 +131,7 @@ const AdminDashboard = () => {
           {statusCounts.cancellationRequests > 0 && (
             <div className={`border-l-4 p-4 mb-6 rounded ${getPendingBadgeStyle()}`} data-cy="dashboard-alert-box">
               <div className="flex items-center">
-                <span className="text-2xl mr-3"></span>
+                <span className="text-2xl mr-3">⚠️</span>
                 <div>
                   <p className="font-semibold text-orange-800">
                     {statusCounts.cancellationRequests} Cancel Event{statusCounts.cancellationRequests > 1 ? 's' : ''} Require{statusCounts.cancellationRequests > 1 ? '' : 's'} Attention
@@ -188,80 +187,107 @@ const AdminDashboard = () => {
                     </td>
                   </tr>
                 ) : (
-                  events.map(event => (
-                    <tr key={event.id} className="hover:bg-gray-50 transition" data-cy="dashboard-table-entry" data-event-id={event.id}>
-                      <td className="px-6 py-4">
-                        <div className="font-semibold text-gray-900"> 
-                          {event.name}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-700">
-                          {formatDateShort(event.date)}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-700">
-                          {event.userId ? `User #${event.userId.toString().slice(-4)}` : 'Unknown'}
-                        </div>
-                        <div className="text-xs text-gray-500">{event.userEmail || 'No email'}</div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-700">
-                          {event.type}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-700">
-                          ${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}
-                        </div>
-                      </td>
-                      
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col gap-2">
-                          <span className={`px-3 py-1 rounded text-xs font-semibold inline-flex 
-                              items-center justify-center text-center whitespace-nowrap
-                              max-w-[140px] truncate ${getStatusColor(event.status)}`}
-                            title={event.status}
-                          >
-                            {event.status}
-                          </span>
-                          {event.cancellationRequest && (
-                            <span className={`px-3 py-1 rounded text-xs font-semibold inline-flex items-center justify-center max-w-[140px] truncate ${getPendingBadgeStyle()}`}>
-                              Reviewing Cancellation
+                  events.map(event => {
+                    const isActiveInProgress = event.status === 'In Progress' && 
+                                               !event.cancellationRequest && 
+                                               !event.completionRequest;
+                    
+                    return (
+                      <tr key={event.id} className="hover:bg-gray-50 transition" data-cy="dashboard-table-entry" data-event-id={event.id}>
+                        <td className="px-6 py-4">
+                          <div className="font-semibold text-gray-900"> 
+                            {event.name}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-700">
+                            {formatDateShort(event.date)}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-700">
+                            {event.userId ? `User #${event.userId.toString().slice(-4)}` : 'Unknown'}
+                          </div>
+                          <div className="text-xs text-gray-500">{event.userEmail || 'No email'}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-700">
+                            {event.type}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-700">
+                            ${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}
+                          </div>
+                        </td>
+                        
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col gap-2">
+                            <span className={`px-3 py-1 rounded text-xs font-semibold inline-flex 
+                                items-center justify-center text-center whitespace-nowrap
+                                max-w-[140px] truncate ${getStatusColor(event.status)}`}
+                              title={event.status}
+                            >
+                              {event.status}
                             </span>
-                          )}
-                          {event.completionRequest && (
-                            <span className={`px-3 py-1 rounded text-xs font-semibold inline-flex items-center justify-center max-w-[140px] truncate ${getPendingBadgeStyle()}`}>
-                              Pending Completion
-                            </span>
-                          )}
-                          {event.autoCancelled && (
-                            <span className="px-2 py-1 rounded text-xs inline-flex items-center justify-center max-w-[140px] truncate bg-gray-100 text-gray-600">
-                              Auto-cancelled
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      
-                      <td className="px-6 py-4">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => navigate(`/admin/events/${event.id}/edit`)}
-                            className={`min-w-[72px] h-8 px-3 text-white rounded text-sm 
-                              flex items-center justify-center whitespace-nowrap transition ${
-                                event.status === 'In Progress' && !event.cancellationRequest && !event.completionRequest
-                                  ? 'bg-blue-500 hover:bg-blue-600'
-                                  : 'bg-royal-600 hover:bg-royal-700'
-                              }`}
-                            data-cy="dashboard-table-entry-action"
-                          >
-                            {event.status === 'In Progress' && !event.cancellationRequest && !event.completionRequest ? 'Update' : 'View'}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                            {event.status === 'In Review' && (
+                              <span className={`px-3 py-1 rounded text-xs font-semibold inline-flex items-center justify-center max-w-[140px] truncate ${getPendingBadgeStyle()}`}>
+                                Reviewing Submission
+                              </span>
+                            )}
+                            {event.cancellationRequest && (
+                              <span className={`px-3 py-1 rounded text-xs font-semibold inline-flex items-center justify-center max-w-[140px] truncate ${getPendingBadgeStyle()}`}>
+                                Reviewing Cancellation
+                              </span>
+                            )}
+                            {event.completionRequest && (
+                              <span className={`px-3 py-1 rounded text-xs font-semibold inline-flex items-center justify-center max-w-[140px] truncate ${getPendingBadgeStyle()}`}>
+                                Pending Completion
+                              </span>
+                            )}
+                            {event.autoCancelled && (
+                              <span className="px-2 py-1 rounded text-xs inline-flex items-center justify-center max-w-[140px] truncate bg-gray-100 text-gray-600">
+                                Auto-cancelled
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        
+                        <td className="px-6 py-4">
+                          <div className="flex gap-2 justify-end"> {/* ADD justify-end here */}
+                            {isActiveInProgress ? (
+                              // In Progress with no tags - Show Update and Complete buttons
+                              <>
+                                <button
+                                  onClick={() => navigate(`/admin/events/${event.id}/edit?mode=update`)}
+                                  className="min-w-[90px] h-8 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded text-sm font-medium transition whitespace-nowrap flex items-center justify-center"
+                                  data-cy="dashboard-table-entry-update-btn"
+                                >
+                                  Update
+                                </button>
+                                <button
+                                  onClick={() => navigate(`/admin/events/${event.id}/edit?mode=complete`)}
+                                  className="min-w-[90px] h-8 py-1.5 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded text-sm font-medium transition whitespace-nowrap flex items-center justify-center"
+                                  data-cy="dashboard-table-entry-complete-btn"
+                                >
+                                  Complete
+                                </button>
+                              </>
+                            ) : (
+                              // Everything else - Show View button only
+                              <button
+                                onClick={() => navigate(`/admin/events/${event.id}/edit`)}
+                                className="min-w-[90px] h-8 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-medium transition whitespace-nowrap flex items-center justify-center"
+                                data-cy="dashboard-table-entry-view-btn"
+                              >
+                                View
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>

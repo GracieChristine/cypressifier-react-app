@@ -200,13 +200,31 @@ const EventView = () => {
           {/* Detail */}
           <div className="p-6 space-y-6">
 
+            {/* Submission Pending Alert */}
+            {event.status === 'In Review' && (
+              <div className={`border-l-4 p-4 mb-6 rounded ${getPendingBadgeStyle()}`}>
+                <div className="flex items-center mb-2">
+                  <span className="text-2xl mr-2"></span>
+                  <p className="font-semibold text-orange-800">
+                    Event Submission In Review
+                  </p>
+                </div>
+                <p className="text-sm text-orange-700 ml-2">
+                  Your event submission is currently being reviewed by the Cypressifier team. We'll notify you once a decision has been made.
+                </p>
+                <p className="text-xs text-orange-600 ml-2 mt-1">
+                  Submitted on {formatDate(event.createdAt || event.date)}
+                </p>
+              </div>
+            )}
+
             {/* Cancellation Request Alert */}
             {event.cancellationRequest && (
               <div className={`border-l-4 p-4 mb-6 rounded ${getPendingBadgeStyle()}`}>
                 <div className="flex items-center mb-2">
                   <span className="text-2xl mr-2"></span>
                   <p className="font-semibold text-orange-800">
-                    Cancellation Request In Review
+                    Event Cancellation Request In Review
                   </p>
                 </div>
                 <p className="text-sm text-orange-700 ml-2">
@@ -224,7 +242,7 @@ const EventView = () => {
               <div className={`border-l-4 p-4 mb-6 rounded ${getPendingBadgeStyle()}`}>
                 <div className="flex items-center mb-2">
                   <span className="text-2xl mr-2"></span>
-                  <p className="font-semibold text-orange-800">Completion Request Needs Review</p>
+                  <p className="font-semibold text-orange-800">Event Completion Request Needs Review</p>
                 </div>
                 <p className="text-sm text-orange-700 ml-2 mt-1">
                   Request note: {event.completionNotes}

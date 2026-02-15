@@ -544,7 +544,7 @@ Cypress.Commands.add('adminAcceptEventNew', () => {
           cy.log('Accepting event:', eventId);
 
           cy.wrap(target.first())
-            .find('[data-cy="dashboard-table-entry-action"]')
+            .find('[data-cy="dashboard-table-entry-view-btn"]')
             .click();
 
           cy.url()
@@ -600,7 +600,7 @@ Cypress.Commands.add('adminRejectEventNew', () => {
           cy.log('Rejecting event:', eventId);
 
           cy.wrap(target.first())
-            .find('[data-cy="dashboard-table-entry-action"]')
+            .find('[data-cy="dashboard-table-entry-view-btn"]')
             .click();
 
           cy.url()
@@ -654,7 +654,7 @@ Cypress.Commands.add('adminConsiderEventNew', () => {
             cy.log('Viewing event without action:', eventId);
 
             cy.wrap(target.first())
-              .find('[data-cy="dashboard-table-entry-action"]')
+              .find('[data-cy="dashboard-table-entry-view-btn"]')
               .click();
 
             cy.url()
@@ -1144,7 +1144,7 @@ Cypress.Commands.add('adminAcceptEventCancel', () => {
           cy.log('Accepting cancellation for event:', eventId);
 
           cy.wrap(target.first())
-            .find('[data-cy="dashboard-table-entry-action"]')
+            .find('[data-cy="dashboard-table-entry-view-btn"]')
             .click();
 
           cy.get('[data-cy="review-cancel-comment-input"]')
@@ -1196,7 +1196,7 @@ Cypress.Commands.add('adminRejectEventCancel', () => {
           cy.log('Rejecting cancellation for event:', eventId);
 
           cy.wrap(target.first())
-            .find('[data-cy="dashboard-table-entry-action"]')
+            .find('[data-cy="dashboard-table-entry-view-btn"]')
             .click();
 
           cy.get('[data-cy="review-cancel-comment-input"]')
@@ -1246,7 +1246,7 @@ Cypress.Commands.add('adminConsiderEventCancel', () => {
           cy.log('Viewing cancellation request without action:', eventId);
 
           cy.wrap(target.first())
-            .find('[data-cy="dashboard-table-entry-action"]')
+            .find('[data-cy="dashboard-table-entry-view-btn"]')
             .click();
 
           cy.get('[data-cy="return-dashboard-btn"]')
@@ -1287,16 +1287,17 @@ Cypress.Commands.add('adminSubmitEventComplete', () => {
     const eventId = Cypress.$(target.first()).attr('data-event-id');
     cy.log('Submitting completion for event:', eventId);
 
+    // Click the Complete button (not Update)
     cy.wrap(target.first())
-      .find('[data-cy="dashboard-table-entry-action"]')
+      .find('[data-cy="dashboard-table-entry-complete-btn"]')
       .click();
 
     cy.url().should('include', '/admin/events/event_');
+    cy.url().should('include', 'mode=complete');
 
     cy.get('[data-cy="eventview-action-complete"]').should('exist');
 
-    cy.get('[data-cy="complete-event-checkbox"]').check();
-
+    // NO CHECKBOX - just fill in the comment
     cy.get('[data-cy="complete-event-comment-input"]')
       .type('All tasks completed successfully.');
 
@@ -1306,6 +1307,7 @@ Cypress.Commands.add('adminSubmitEventComplete', () => {
 
     cy.url().should('include', '/admin/dashboard');
 
+    // Verify this specific event now shows "Pending Completion"
     cy.get(`[data-event-id="${eventId}"]`)
       .should('contain', 'In Progress')
       .and('contain', 'Pending Completion');
@@ -1326,16 +1328,18 @@ Cypress.Commands.add('adminSubmitEventCompleteError', () => {
     const eventId = Cypress.$(target.first()).attr('data-event-id');
     cy.log('Testing completion error for event:', eventId);
 
+    // Click the Complete button (not Update)
     cy.wrap(target.first())
-      .find('[data-cy="dashboard-table-entry-action"]')
+      .find('[data-cy="dashboard-table-entry-complete-btn"]')
       .click();
 
     cy.url().should('include', '/admin/events/event_');
+    cy.url().should('include', 'mode=complete');
 
     cy.get('[data-cy="eventview-action-complete"]').should('exist');
 
-    cy.get('[data-cy="complete-event-checkbox"]').check();
-
+    // Do NOT enter comment - button should be disabled
+    // NO CHECKBOX - button is disabled when textarea is empty
     cy.get('[data-cy="save-event-update-btn"]')
       .should('be.disabled');
 
@@ -1343,6 +1347,7 @@ Cypress.Commands.add('adminSubmitEventCompleteError', () => {
 
     cy.url().should('include', '/admin/dashboard');
 
+    // Verify this specific event does NOT show "Pending Completion"
     cy.get(`[data-event-id="${eventId}"]`)
       .should('contain', 'In Progress')
       .and('not.contain', 'Pending Completion');
@@ -1363,16 +1368,17 @@ Cypress.Commands.add('adminCancelEventComplete', () => {
     const eventId = Cypress.$(target.first()).attr('data-event-id');
     cy.log('Testing cancel completion for event:', eventId);
 
+    // Click the Complete button (not Update)
     cy.wrap(target.first())
-      .find('[data-cy="dashboard-table-entry-action"]')
+      .find('[data-cy="dashboard-table-entry-complete-btn"]')
       .click();
 
     cy.url().should('include', '/admin/events/event_');
+    cy.url().should('include', 'mode=complete');
 
     cy.get('[data-cy="eventview-action-complete"]').should('exist');
 
-    cy.get('[data-cy="complete-event-checkbox"]').check();
-
+    // Fill in comment but then cancel
     cy.get('[data-cy="complete-event-comment-input"]')
       .type('Testing cancel flow.');
 
@@ -1380,6 +1386,7 @@ Cypress.Commands.add('adminCancelEventComplete', () => {
 
     cy.url().should('include', '/admin/dashboard');
 
+    // Verify this specific event does NOT show "Pending Completion"
     cy.get(`[data-event-id="${eventId}"]`)
       .should('contain', 'In Progress')
       .and('not.contain', 'Pending Completion');
@@ -1530,46 +1537,73 @@ Cypress.Commands.add('userConsiderEventComplete', () => {
 
 // View Event
 Cypress.Commands.add('userViewEvent', () => {
-  cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]')
-    .then((inProgressCount) => {
-
-      cy.get('[data-cy="eventlist-event-list-entry"]').then($entries => {
-
-        const target = $entries.filter((i, el) => {
-          const $el = Cypress.$(el);
-          return (
-            $el.text().includes('In Progress') &&
-              (
-                $el.text().includes('Pending Cancellation') || 
-                $el.text().includes('Reviewing Completion')
-              )
-                ) || 
-                $el.text().includes('Completed') || 
-                $el.text().includes('Cancelled');
-        });
-
-        expect(target.length).to.be.greaterThan(0);
-
-        const eventId = Cypress.$(target.first()).attr('data-event-id');
-
-        cy.wrap(target.first())
-          .find('[data-cy="eventlist-event-list-entry-view-btn"]')
-          .click();
-
-        cy.url().should('contain', '/user/events/event_').and('not.contain', '/edit');
-
-        cy.get('[data-cy="return-eventlist-btn"]')
-        .click();
-
-        cy.url().should('contain', '/user/events');
-
-        cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-progress"]')
-          .should('eq', inProgressCount);
-
-        cy.get(`[data-event-id="${eventId}"]`)
-          .should('contain', 'In Progress')
-      });
+  cy.get('[data-cy="eventlist-event-list-entry"]').then($entries => {
+    const target = $entries.filter((i, el) => {
+      const $el = Cypress.$(el);
+      return (
+        $el.text().includes('In Progress') &&
+          (
+            $el.text().includes('Pending Cancellation') || 
+            $el.text().includes('Reviewing Completion')
+          )
+            ) || 
+            $el.text().includes('Completed') || 
+            $el.text().includes('Cancelled');
     });
+
+    expect(target.length).to.be.greaterThan(0, 'Should have at least one viewable event');
+
+    const eventId = Cypress.$(target.first()).attr('data-event-id');
+    const eventText = Cypress.$(target.first()).text();
+    
+    // Determine the status from the event text
+    let expectedStatus;
+    let hasPendingState = false;
+    
+    if (eventText.includes('Completed')) {
+      expectedStatus = 'Completed';
+    } else if (eventText.includes('Cancelled')) {
+      expectedStatus = 'Cancelled';
+    } else if (eventText.includes('In Progress')) {
+      expectedStatus = 'In Progress';
+      // Check if it has a pending/reviewing state
+      if (eventText.includes('Pending Cancellation') || eventText.includes('Reviewing Completion')) {
+        hasPendingState = true;
+      }
+    }
+
+    cy.log(`Viewing event ${eventId} with status: ${expectedStatus}${hasPendingState ? ' (with pending state)' : ''}`);
+
+    cy.wrap(target.first())
+      .find('[data-cy="eventlist-event-list-entry-view-btn"]')
+      .click();
+
+    cy.url().should('contain', '/user/events/event_').and('not.contain', '/edit');
+
+    cy.get('[data-cy="eventview-detail"]').should('exist');
+
+    cy.get('[data-cy="return-eventlist-btn"]')
+      .should('be.enabled')
+      .click();
+
+    cy.url().should('contain', '/user/events');
+    cy.url().should('not.contain', '/event_');
+
+    // Verify the event status hasn't changed
+    cy.get(`[data-event-id="${eventId}"]`).then($event => {
+      const updatedText = $event.text();
+      
+      // Verify status remains the same
+      expect(updatedText).to.contain(expectedStatus);
+      
+      // If it had a pending state, verify it still has it
+      if (hasPendingState) {
+        const stillHasPending = updatedText.includes('Pending Cancellation') || 
+                                updatedText.includes('Reviewing Completion');
+        expect(stillHasPending).to.be.true;
+      }
+    });
+  });
 });
 
 

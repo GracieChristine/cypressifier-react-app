@@ -468,7 +468,19 @@ describe(`User Experience Flow`, () => {
             expect(afterSubmit['Completed']).to.equal(0);
             expect(afterSubmit['Cancelled']).to.equal(0);
           });
-          // Step 5: Admin accepts cancel request
+
+          // Step 5: User views event with pending request
+          cy.userViewEvent();
+
+          cy.userGetAllFilterCounts().then((afterSubmit) => {
+            expect(afterSubmit['All']).to.equal(1);
+            expect(afterSubmit['In Review']).to.equal(0);
+            expect(afterSubmit['In Progress']).to.equal(1);
+            expect(afterSubmit['Completed']).to.equal(0);
+            expect(afterSubmit['Cancelled']).to.equal(0);
+          });
+
+          // Step 6: Admin accepts cancel request
           cy.userLogout();
           cy.landingToLogin();
           cy.adminLogin(adminEmail, adminPassword);
@@ -478,6 +490,16 @@ describe(`User Experience Flow`, () => {
           cy.landingToLogin();
           cy.userLogin(userEmail, userPassword);
 
+          cy.userGetAllFilterCounts().then((afterAccept) => {
+            expect(afterAccept['All']).to.equal(1);
+            expect(afterAccept['In Review']).to.equal(0);
+            expect(afterAccept['In Progress']).to.equal(0);
+            expect(afterAccept['Completed']).to.equal(0);
+            expect(afterAccept['Cancelled']).to.equal(1);
+          });
+
+          // Step 7: User views event cancelled
+          cy.userViewEvent();
           cy.userGetAllFilterCounts().then((afterAccept) => {
             expect(afterAccept['All']).to.equal(1);
             expect(afterAccept['In Review']).to.equal(0);
@@ -571,8 +593,30 @@ describe(`User Experience Flow`, () => {
             expect(afterSubmit['Cancelled']).to.equal(0);
           });
 
-          // Steps 6: User accepts compelte request
+          // Step 6: User views event with pending request
+          cy.userViewEvent();
+
+          cy.userGetAllFilterCounts().then((afterSubmit) => {
+            expect(afterSubmit['All']).to.equal(1);
+            expect(afterSubmit['In Review']).to.equal(0);
+            expect(afterSubmit['In Progress']).to.equal(1);
+            expect(afterSubmit['Completed']).to.equal(0);
+            expect(afterSubmit['Cancelled']).to.equal(0);
+          });
+
+          // Steps 7: User accepts compelte request
           cy.userAcceptEventComplete();
+
+          cy.userGetAllFilterCounts().then((afterComplete) => {
+            expect(afterComplete['All']).to.equal(1);
+            expect(afterComplete['In Review']).to.equal(0);
+            expect(afterComplete['In Progress']).to.equal(0);
+            expect(afterComplete['Completed']).to.equal(1);
+            expect(afterComplete['Cancelled']).to.equal(0);
+          });
+
+          // Step 8: User views event completed
+          cy.userViewEvent();
 
           cy.userGetAllFilterCounts().then((afterComplete) => {
             expect(afterComplete['All']).to.equal(1);
