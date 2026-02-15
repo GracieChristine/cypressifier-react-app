@@ -232,7 +232,7 @@ const AdminDashboard = () => {
                             </span>
                             {event.status === 'Submitted' && (
                               <span className={`px-3 py-1 rounded text-xs font-semibold inline-flex items-center justify-center max-w-[140px] truncate ${getPendingBadgeStyle()}`}>
-                                Reviewing Submission
+                                Reviewing Event
                               </span>
                             )}
                             {event.cancellationRequest && (

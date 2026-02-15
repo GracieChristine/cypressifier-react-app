@@ -1,19 +1,24 @@
 describe(`User Experience Flow`, () => {
   // Setup variables
-    const adminEmail = 'admin@cypressifier.com';
-    const adminPassword = 'admin123';
-    const userEmail = 'jane.doe@example.com';
-    const userPassword = 'user123';
+  const admin = {
+    'email': 'admin@cypressifier.com',
+    'password': 'admin123'
+  };
 
-    const event = {
-      'name': 'Just a test event',
-      'date': '2026-06-28',
-      'location': 'Castle',
-      'type': 'Other',
-      'guestCount': '15',
-      'budget': '125000',
-      'description': 'Jsut a description for a test event.'
-    };
+  const user = {
+    'email': 'jane.doe@example.com',
+    'password': 'user123'
+  };
+
+  const event = {
+    'name': 'Just a test event',
+    'date': '2026-06-28',
+    'location': 'Castle',
+    'type': 'Other',
+    'guestCount': '15',
+    'budget': '125000',
+    'description': 'Jsut a description for a test event.'
+  };
 
   describe(`User Auth.`, () => {
     before(() => {
@@ -25,61 +30,61 @@ describe(`User Experience Flow`, () => {
     });
 
     it(`should error out with no email`, () => {
-      cy.userSignupError('', userPassword, userPassword);
+      cy.userSignupError('', user.password, user.password);
 
       cy.get('[data-cy="signup-email-error"]')
-      .should('exist')
-      .should('contain', 'Email is required')
-      .and('be.visible');
+        .should('exist')
+        .should('contain', 'Email is required')
+        .and('be.visible');
     });
 
     it(`should error out with an invalid email`, () => {
-      cy.userSignupError('invalid@email', userPassword, userPassword);
+      cy.userSignupError('invalid@email', user.password, user.password);
 
       cy.get('[data-cy="signup-email-error"]')
-      .should('exist')
-      .should('contain', 'Please enter a valid email address')
-      .and('be.visible');
+        .should('exist')
+        .should('contain', 'Please enter a valid email address')
+        .and('be.visible');
     });
 
     it(`should error out with no password`, () => {
-      cy.userSignupError(userEmail, '', '');
+      cy.userSignupError(user.email, '', '');
 
       cy.get('[data-cy="signup-password-error"]')
-      .should('exist')
-      .should('contain', 'Password is required')
-      .and('be.visible');
+        .should('exist')
+        .should('contain', 'Password is required')
+        .and('be.visible');
     });
 
     it(`should error out with an invalid password`, () => {
-      cy.userSignupError(userEmail, 'short', 'short');
+      cy.userSignupError(user.email, 'short', 'short');
 
       cy.get('[data-cy="signup-password-error"]')
-      .should('exist')
-      .should('contain', 'Password must be at least 6 characters')
-      .and('be.visible');
+        .should('exist')
+        .should('contain', 'Password must be at least 6 characters')
+        .and('be.visible');
     });
 
     it(`should error out with no confirm password`, () => {
-      cy.userSignupError(userEmail, userPassword, '');
+      cy.userSignupError(user.email, user.password, '');
 
       cy.get('[data-cy="signup-confirm-password-error"]')
-      .should('exist')
-      .should('contain', 'Please confirm your password')
-      .and('be.visible');
+        .should('exist')
+        .should('contain', 'Please confirm your password')
+        .and('be.visible');
     });
 
     it(`should error out with no matching confirm password`, () => {
-      cy.userSignupError(userEmail, userPassword, '123user');
+      cy.userSignupError(user.email, user.password, '123user');
 
       cy.get('[data-cy="signup-confirm-password-error"]')
-      .should('exist')
-      .should('contain', 'Passwords do not match')
-      .and('be.visible');
+        .should('exist')
+        .should('contain', 'Passwords do not match')
+        .and('be.visible');
     });
 
     it(`should signup as user and navigate to /user/events`, () => {
-      cy.userSignup(userEmail, userPassword, userPassword);
+      cy.userSignup(user.email, user.password, user.password);
     });
 
     it(`should logout as user and navigate back to /`, () => {
@@ -88,21 +93,21 @@ describe(`User Experience Flow`, () => {
 
     it(`should error out with existing admin email`, () => {
       cy.landingToSignup();
-      cy.userSignupError(adminEmail, userPassword, userPassword);
+      cy.userSignupError(admin.email, user.password, user.password);
 
       cy.get('[data-cy="signup-email-error"]')
-      .should('exist')
-      .should('contain', 'User already exists. Please login.')
-      .and('be.visible');
+        .should('exist')
+        .should('contain', 'User already exists. Please login.')
+        .and('be.visible');
     });
 
     it(`should error out with existing user email`, () => {
-      cy.userSignupError(adminEmail, userPassword, userPassword);
+      cy.userSignupError(admin.email, user.password, user.password);
 
       cy.get('[data-cy="signup-email-error"]')
-      .should('exist')
-      .should('contain', 'User already exists. Please login.')
-      .and('be.visible');
+        .should('exist')
+        .should('contain', 'User already exists. Please login.')
+        .and('be.visible');
     });
 
     it(`should navigate to /login`, () => {
@@ -110,31 +115,31 @@ describe(`User Experience Flow`, () => {
     });
 
     it(`should error out with no email`, () => {
-      cy.userLoginError('', userPassword);
+      cy.userLoginError('', user.password);
     });
 
     it(`should error out with invalid email`, () => {
-      cy.userLoginError('invalid@email', userPassword);
+      cy.userLoginError('invalid@email', user.password);
     });
 
     it(`should error out with non-existing email`, () => {
-      cy.userLoginError('nonexisting@gmeta.com', userPassword);
+      cy.userLoginError('nonexisting@gmeta.com', user.password);
     });
 
     it(`should error out with no password`, () => {
-      cy.userLoginError(userEmail, '');
+      cy.userLoginError(user.email, '');
     });
 
     it(`should error out with invalid password`, () => {
-      cy.userLoginError(userEmail, 'short');
+      cy.userLoginError(user.email, 'short');
     });
 
     it(`should error out with incorrect password`, () => {
-      cy.userLoginError(userEmail, '123user');
+      cy.userLoginError(user.email, '123user');
     });
 
     it(`should login as user and navigate to /user/events`, () => {
-      cy.userLogin(userEmail, userPassword);
+      cy.userLogin(user.email, user.password);
     });
 
     it(`should logout as user and navigate back to /`, () => {
@@ -147,7 +152,7 @@ describe(`User Experience Flow`, () => {
       before(() => {
         cy.clearCacheLoadLanding();
         cy.landingToSignup();
-        cy.userSignup(userEmail, userPassword, userPassword)
+        cy.userSignup(user.email, user.password, user.password)
       });
 
       it(`should navigate to /user/events/new`, () => {
@@ -251,21 +256,21 @@ describe(`User Experience Flow`, () => {
       before(() => {
         cy.clearCacheLoadLanding();
         cy.landingToSignup();
-        cy.userSignup(userEmail, userPassword, userPassword)
+        cy.userSignup(user.email, user.password, user.password)
         cy.eventlistToNewEventForm();
         cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '');
 
         cy.userLogout();
 
         cy.landingToLogin();
-        cy.adminLogin(adminEmail, adminPassword);
+        cy.adminLogin(admin.email, admin.password);
 
         cy.adminAcceptEventNew();
 
         cy.userLogout();
 
         cy.landingToLogin();
-        cy.userLogin(userEmail, userPassword);
+        cy.userLogin(user.email, user.password);
       });
 
       it(`should error out with event name removed`, () => {
@@ -345,7 +350,7 @@ describe(`User Experience Flow`, () => {
       before(() => {
         cy.clearCacheLoadLanding();
         cy.landingToSignup();
-        cy.userSignup(userEmail, userPassword, userPassword)
+        cy.userSignup(user.email, user.password, user.password)
         cy.eventlistToNewEventForm();
         
         // create 3 new events
@@ -356,7 +361,7 @@ describe(`User Experience Flow`, () => {
         cy.userLogout();
 
         cy.landingToLogin();
-        cy.adminLogin(adminEmail, adminPassword);
+        cy.adminLogin(admin.email, admin.password);
 
         Cypress._.times(3, () => {
           cy.adminAcceptEventNew()
@@ -365,7 +370,7 @@ describe(`User Experience Flow`, () => {
         cy.userLogout();
 
         cy.landingToLogin();
-        cy.userLogin(userEmail, userPassword);
+        cy.userLogin(user.email, user.password);
       });
 
       it(`should error out with no comment`, () => {
@@ -381,12 +386,12 @@ describe(`User Experience Flow`, () => {
       });
     });
 
-    describe(`User Event Mgmt End-to-End`, () => {
+    describe(`User Event Mgmt. End-to-End`, () => {
       describe(`Event Lifecycle - Cancel New Event Creation Path`, () => {
         before(() => {
           cy.clearCacheLoadLanding();
           cy.landingToSignup();
-          cy.userSignup(userEmail, userPassword);
+          cy.userSignup(user.email, user.password);
         });
 
         it(`should track counts through user cancels creating event flow`, () => {
@@ -416,7 +421,7 @@ describe(`User Experience Flow`, () => {
         before(() => {
           cy.clearCacheLoadLanding();
           cy.landingToSignup();
-          cy.userSignup(userEmail, userPassword);
+          cy.userSignup(user.email, user.password);
         });
 
         it(`should track counts through user creates event -> admin accepts -> user submits cancel request -> admin approve flow`, () => {
@@ -443,12 +448,12 @@ describe(`User Experience Flow`, () => {
           // Step 3: Admin accepts event
           cy.userLogout();
           cy.landingToLogin();
-          cy.adminLogin(adminEmail, adminPassword);
+          cy.adminLogin(admin.email, admin.password);
           cy.adminAcceptEventNew();
 
           cy.userLogout();
           cy.landingToLogin();
-          cy.userLogin(userEmail, userPassword);
+          cy.userLogin(user.email, user.password);
 
           cy.userGetAllFilterCounts().then((afterAccept) => {
             expect(afterAccept['All']).to.equal(1);
@@ -483,12 +488,12 @@ describe(`User Experience Flow`, () => {
           // Step 6: Admin accepts cancel request
           cy.userLogout();
           cy.landingToLogin();
-          cy.adminLogin(adminEmail, adminPassword);
+          cy.adminLogin(admin.email, admin.password);
 
           cy.adminAcceptEventCancel();
           cy.userLogout();
           cy.landingToLogin();
-          cy.userLogin(userEmail, userPassword);
+          cy.userLogin(user.email, user.password);
 
           cy.userGetAllFilterCounts().then((afterAccept) => {
             expect(afterAccept['All']).to.equal(1);
@@ -514,7 +519,7 @@ describe(`User Experience Flow`, () => {
         before(() => {
           cy.clearCacheLoadLanding();
           cy.landingToSignup();
-          cy.userSignup(userEmail, userPassword);
+          cy.userSignup(user.email, user.password);
         });
 
         it(`should track counts through user creates event -> admin accepts -> user updates event -> admin submits complete request -> user approves complete flow`, () => {
@@ -541,12 +546,12 @@ describe(`User Experience Flow`, () => {
           // Step 3: Admin accepts event
           cy.userLogout();
           cy.landingToLogin();
-          cy.adminLogin(adminEmail, adminPassword);
+          cy.adminLogin(admin.email, admin.password);
           cy.adminAcceptEventNew();
 
           cy.userLogout();
           cy.landingToLogin();
-          cy.userLogin(userEmail, userPassword);
+          cy.userLogin(user.email, user.password);
 
           cy.userGetAllFilterCounts().then((afterAccept) => {
             expect(afterAccept['All']).to.equal(1);
@@ -578,12 +583,12 @@ describe(`User Experience Flow`, () => {
           // Step 5: Admin submits complete request
           cy.userLogout();
           cy.landingToLogin();
-          cy.adminLogin(adminEmail, adminPassword);
+          cy.adminLogin(admin.email, admin.password);
           cy.adminSubmitEventComplete();
 
           cy.userLogout();
           cy.landingToLogin();
-          cy.userLogin(userEmail, userPassword);
+          cy.userLogin(user.email, user.password);
 
           cy.userGetAllFilterCounts().then((afterSubmit) => {
             expect(afterSubmit['All']).to.equal(1);
@@ -634,7 +639,7 @@ describe(`User Experience Flow`, () => {
     before(() => {
       cy.clearCacheLoadLanding();
         cy.landingToSignup();
-        cy.userSignup(userEmail, userPassword);
+        cy.userSignup(user.email, user.password);
     });
 
     it(`should display 1 event from user`, () => {
@@ -698,14 +703,14 @@ describe(`User Experience Flow`, () => {
       // Step 2: Admin seeds 30 mock events
       cy.userLogout();
       cy.landingToLogin();
-      cy.adminLogin(adminEmail, adminPassword);
+      cy.adminLogin(admin.email, admin.password);
 
       cy.devAddMockEvents();
       cy.wait(500);
 
       cy.userLogout();
       cy.landingToLogin();
-      cy.userLogin(userEmail, userPassword);
+      cy.userLogin(user.email, user.password);
 
       // Step 3: Verify user view not update
       cy.userGetAllFilterCounts().then((afterCreate) => {
@@ -745,7 +750,7 @@ describe(`User Experience Flow`, () => {
       // Step 1: Verify admin view first
       cy.userLogout();
       cy.landingToLogin();
-      cy.adminLogin(adminEmail, adminPassword);
+      cy.adminLogin(admin.email, admin.password);
 
       cy.adminGetAllStatusCounts().then((initial) => {
         expect(initial['All']).to.equal(31);
@@ -769,5 +774,4 @@ describe(`User Experience Flow`, () => {
       });
     });
   });
-
 });
