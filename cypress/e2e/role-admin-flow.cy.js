@@ -194,7 +194,7 @@ describe(`Admin Experience Flow`, () => {
                     cy.adminLogin(adminEmail, adminPassword);
                 });
 
-                it('should track counts through new event -> decline flow', () => {
+                it('should track counts through user creates event -> admin declines flow', () => {
                     // Step 1: Start with clean slate
                     cy.adminGetAllStatusCounts().then((initial) => {
                         expect(initial['All']).to.equal(0);
@@ -237,7 +237,7 @@ describe(`Admin Experience Flow`, () => {
                 });
             });
 
-            describe(`Event Lifecycle - Accept Event Cancellation Request Path`, () => {
+            describe(`Event Lifecycle - Accept Event Cancel Path`, () => {
                 before(() => {
                     cy.clearCacheLoadLanding();
                     cy.landingToSignup();
@@ -247,7 +247,7 @@ describe(`Admin Experience Flow`, () => {
                     cy.adminLogin(adminEmail, adminPassword);
                 });
 
-                it('should track counts through new event -> accept -> cancel request -> approve flow', () => {
+                it('should track counts through user creates event -> admin accepts -> user submits cancel requests -> admin approves flow', () => {
                     // Step 1: Start clean
                     cy.adminGetAllStatusCounts().then((initial) => {
                         expect(initial['All']).to.equal(0);
@@ -296,7 +296,7 @@ describe(`Admin Experience Flow`, () => {
                 });
             });
 
-            describe(`Event Lifecycle - Complete Event Path`, () => {
+            describe(`Event Lifecycle - Submit Complete Event Path`, () => {
                 before(() => {
                     cy.clearCacheLoadLanding();
                     cy.landingToSignup();
@@ -306,7 +306,7 @@ describe(`Admin Experience Flow`, () => {
                     cy.adminLogin(adminEmail, adminPassword);
                 });
 
-                it('should track counts through new event -> accept -> complete flow', () => {
+                it('should track counts through user creates event -> admin accepts -> user updates event -> admin sees update -> admin submits complete request -> user approves complete flow', () => {
                     // Step 1: Start clean
                     cy.adminGetAllStatusCounts().then((initial) => {
                         expect(initial['All']).to.equal(0);

@@ -381,37 +381,209 @@ describe(`User Experience Flow`, () => {
       });
     });
 
-    // describe(`User Event Mgmt End-to-End`, () => {
-    //   describe(`Event Lifecycle - Complete Event Path`, () => {
-    //     before(() => {
+    describe(`User Event Mgmt End-to-End`, () => {
+      describe(`Event Lifecycle - Cancel New Event Creation Path`, () => {
+        before(() => {
+          cy.clearCacheLoadLanding();
+          cy.landingToSignup();
+          cy.userSignup(userEmail, userPassword);
+        });
 
-    //     });
+        it(`should track counts through user cancels creating event flow`, () => {
+          // Step 1: Start with clean slate
+          cy.userGetAllFilterCounts().then((initial) => {
+            expect(initial['All']).to.equal(0);
+            expect(initial['In Review']).to.equal(0);
+            expect(initial['In Progress']).to.equal(0);
+            expect(initial['Completed']).to.equal(0);
+            expect(initial['Cancelled']).to.equal(0);
+          });
 
-    //     it(``, () => {
+          // Step 2: User cancels creating event
+          cy.userCancelEventNew();
 
-    //     });
+          cy.userGetAllFilterCounts().then((afterCancelCreating) => {
+            expect(afterCancelCreating['All']).to.equal(0, 'All should be 0 after event was not created');
+            expect(afterCancelCreating['In Review']).to.equal(0, 'In Review should be 0 after event was not created');
+            expect(afterCancelCreating['In Progress']).to.equal(0, 'In Progress should be 0');
+            expect(afterCancelCreating['Completed']).to.equal(0, 'Completed should be 0');
+            expect(afterCancelCreating['Cancelled']).to.equal(0, 'Cancelled should be 0');
+          });
+        });
+      });
 
-    //     it(``, () => {
+      describe(`Event Lifecycle - Submit Cancel Event Path`, () => {
+        before(() => {
+          cy.clearCacheLoadLanding();
+          cy.landingToSignup();
+          cy.userSignup(userEmail, userPassword);
+        });
 
-    //     });
+        it(`should track counts through user creates event -> admin accepts -> user submits cancel request -> admin approve flow`, () => {
+          // Step 1: Start with clean slate
+          cy.userGetAllFilterCounts().then((initial) => {
+            expect(initial['All']).to.equal(0);
+            expect(initial['In Review']).to.equal(0);
+            expect(initial['In Progress']).to.equal(0);
+            expect(initial['Completed']).to.equal(0);
+            expect(initial['Cancelled']).to.equal(0);
+          });
 
-    //   });
+          // Step 2: User creates event
+          cy.userCreateEventNew();
 
-    //   describe(`Event Lifecycle - Complete Event Path`, () => {
-    //     before(() => {
+          cy.userGetAllFilterCounts().then((afterCreate) => {
+            expect(afterCreate['All']).to.equal(1);
+            expect(afterCreate['In Review']).to.equal(1);
+            expect(afterCreate['In Progress']).to.equal(0);
+            expect(afterCreate['Completed']).to.equal(0);
+            expect(afterCreate['Cancelled']).to.equal(0);
+          });
 
-    //     });
+          // Step 3: Admin accepts event
+          cy.userLogout();
+          cy.landingToLogin();
+          cy.adminLogin(adminEmail, adminPassword);
+          cy.adminAcceptEventNew();
 
-    //     it(``, () => {
+          cy.userLogout();
+          cy.landingToLogin();
+          cy.userLogin(userEmail, userPassword);
 
-    //     });
+          cy.userGetAllFilterCounts().then((afterAccept) => {
+            expect(afterAccept['All']).to.equal(1);
+            expect(afterAccept['In Review']).to.equal(0);
+            expect(afterAccept['In Progress']).to.equal(1);
+            expect(afterAccept['Completed']).to.equal(0);
+            expect(afterAccept['Cancelled']).to.equal(0);
+          });
 
-    //     it(``, () => {
+          // Step 4: User submits cancel request
+          cy.userSubmitEventCancel();
 
-    //     });
+          cy.userGetAllFilterCounts().then((afterSubmit) => {
+            expect(afterSubmit['All']).to.equal(1);
+            expect(afterSubmit['In Review']).to.equal(0);
+            expect(afterSubmit['In Progress']).to.equal(1);
+            expect(afterSubmit['Completed']).to.equal(0);
+            expect(afterSubmit['Cancelled']).to.equal(0);
+          });
+          // Step 5: Admin accepts cancel request
+          cy.userLogout();
+          cy.landingToLogin();
+          cy.adminLogin(adminEmail, adminPassword);
 
-    //   });
-    // });
+          cy.adminAcceptEventCancel();
+          cy.userLogout();
+          cy.landingToLogin();
+          cy.userLogin(userEmail, userPassword);
+
+          cy.userGetAllFilterCounts().then((afterAccept) => {
+            expect(afterAccept['All']).to.equal(1);
+            expect(afterAccept['In Review']).to.equal(0);
+            expect(afterAccept['In Progress']).to.equal(0);
+            expect(afterAccept['Completed']).to.equal(0);
+            expect(afterAccept['Cancelled']).to.equal(1);
+          });
+        });
+      });
+
+      describe(`Event Lifecycle - Accept Complete Event Path`, () => {
+        before(() => {
+          cy.clearCacheLoadLanding();
+          cy.landingToSignup();
+          cy.userSignup(userEmail, userPassword);
+        });
+
+        it(`should track counts through user creates event -> admin accepts -> user updates event -> admin submits complete request -> user approves complete flow`, () => {
+          // Step 1: Start with clean slate
+          cy.userGetAllFilterCounts().then((initial) => {
+            expect(initial['All']).to.equal(0);
+            expect(initial['In Review']).to.equal(0);
+            expect(initial['In Progress']).to.equal(0);
+            expect(initial['Completed']).to.equal(0);
+            expect(initial['Cancelled']).to.equal(0);
+          });
+
+          // Step 2: User creates event
+          cy.userCreateEventNew();
+
+          cy.userGetAllFilterCounts().then((afterCreate) => {
+            expect(afterCreate['All']).to.equal(1);
+            expect(afterCreate['In Review']).to.equal(1);
+            expect(afterCreate['In Progress']).to.equal(0);
+            expect(afterCreate['Completed']).to.equal(0);
+            expect(afterCreate['Cancelled']).to.equal(0);
+          });
+
+          // Step 3: Admin accepts event
+          cy.userLogout();
+          cy.landingToLogin();
+          cy.adminLogin(adminEmail, adminPassword);
+          cy.adminAcceptEventNew();
+
+          cy.userLogout();
+          cy.landingToLogin();
+          cy.userLogin(userEmail, userPassword);
+
+          cy.userGetAllFilterCounts().then((afterAccept) => {
+            expect(afterAccept['All']).to.equal(1);
+            expect(afterAccept['In Review']).to.equal(0);
+            expect(afterAccept['In Progress']).to.equal(1);
+            expect(afterAccept['Completed']).to.equal(0);
+            expect(afterAccept['Cancelled']).to.equal(0);
+          });
+
+          // Step 4: User updates events
+          cy.userSaveEventUpdate({
+            name: 'This event title is updated',
+            date: '2026-12-31',
+            location: 'Garden Estate',
+            type: 'Birthday',
+            guestCount: '175',
+            budget: '125000',
+            description: 'Scrap the previous note. Here is the updated version of it. Let me know if you got any question.'
+          });
+
+          cy.userGetAllFilterCounts().then((afterUpdate) => {
+            expect(afterUpdate['All']).to.equal(1);
+            expect(afterUpdate['In Review']).to.equal(0);
+            expect(afterUpdate['In Progress']).to.equal(1);
+            expect(afterUpdate['Completed']).to.equal(0);
+            expect(afterUpdate['Cancelled']).to.equal(0);
+          });
+
+          // Step 5: Admin submits complete request
+          cy.userLogout();
+          cy.landingToLogin();
+          cy.adminLogin(adminEmail, adminPassword);
+          cy.adminSubmitEventComplete();
+
+          cy.userLogout();
+          cy.landingToLogin();
+          cy.userLogin(userEmail, userPassword);
+
+          cy.userGetAllFilterCounts().then((afterSubmit) => {
+            expect(afterSubmit['All']).to.equal(1);
+            expect(afterSubmit['In Review']).to.equal(0);
+            expect(afterSubmit['In Progress']).to.equal(1);
+            expect(afterSubmit['Completed']).to.equal(0);
+            expect(afterSubmit['Cancelled']).to.equal(0);
+          });
+
+          // Steps 6: User accepts compelte request
+          cy.userAcceptEventComplete();
+
+          cy.userGetAllFilterCounts().then((afterComplete) => {
+            expect(afterComplete['All']).to.equal(1);
+            expect(afterComplete['In Review']).to.equal(0);
+            expect(afterComplete['In Progress']).to.equal(0);
+            expect(afterComplete['Completed']).to.equal(1);
+            expect(afterComplete['Cancelled']).to.equal(0);
+          });
+        });
+      });
+    });
   });
 
   describe(`User with Mock Event Seeding`, () => {
@@ -516,12 +688,12 @@ describe(`User Experience Flow`, () => {
       cy.wait(500);
       
       // Step 3: Verify user view updated correctly
-      cy.userGetAllFilterCounts().then((afterCreate) => {
-        expect(afterCreate['All']).to.equal(1, 'All should be 1 after admin clears the mock events.');
-        expect(afterCreate['In Review']).to.equal(1, 'In Review should be 1 after admin clears the mock events.');
-        expect(afterCreate['In Progress']).to.equal(0, 'In Progress should be 0 after admin clears the mock events.');
-        expect(afterCreate['Completed']).to.equal(0, 'Completed should be 0 after admin clears the mock events.');
-        expect(afterCreate['Cancelled']).to.equal(0, 'Cancelled should be 0 after admin clears the mock events.');
+      cy.userGetAllFilterCounts().then((afterClear) => {
+        expect(afterClear['All']).to.equal(1, 'All should be 1 after admin clears the mock events.');
+        expect(afterClear['In Review']).to.equal(1, 'In Review should be 1 after admin clears the mock events.');
+        expect(afterClear['In Progress']).to.equal(0, 'In Progress should be 0 after admin clears the mock events.');
+        expect(afterClear['Completed']).to.equal(0, 'Completed should be 0 after admin clears the mock events.');
+        expect(afterClear['Cancelled']).to.equal(0, 'Cancelled should be 0 after admin clears the mock events.');
       });
     });
 
@@ -544,12 +716,12 @@ describe(`User Experience Flow`, () => {
       cy.wait(500);
 
       // Step 3: Verify admin view updated correctly
-      cy.adminGetAllStatusCounts().then((afterCreate) => {
-        expect(afterCreate['All']).to.equal(1, 'All should be 1 after admin clears the mock events.');
-        expect(afterCreate['In Review']).to.equal(1, 'In Review should be 1 after admin clears the mock events.');
-        expect(afterCreate['In Progress']).to.equal(0, 'In Progress should be 0 after admin clears the mock events.');
-        expect(afterCreate['Completed']).to.equal(0, 'Completed should be 0 after admin clears the mock events.');
-        expect(afterCreate['Cancelled']).to.equal(0, 'Cancelled should be 0 after admin clears the mock events.');
+      cy.adminGetAllStatusCounts().then((afterClear) => {
+        expect(afterClear['All']).to.equal(1, 'All should be 1 after admin clears the mock events.');
+        expect(afterClear['In Review']).to.equal(1, 'In Review should be 1 after admin clears the mock events.');
+        expect(afterClear['In Progress']).to.equal(0, 'In Progress should be 0 after admin clears the mock events.');
+        expect(afterClear['Completed']).to.equal(0, 'Completed should be 0 after admin clears the mock events.');
+        expect(afterClear['Cancelled']).to.equal(0, 'Cancelled should be 0 after admin clears the mock events.');
       });
     });
   });
