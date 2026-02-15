@@ -117,10 +117,10 @@ const AdminDashboard = () => {
           {statusCounts.submissionRequests > 0 && (
             <div className={`border-l-4 p-4 mb-6 rounded ${getPendingBadgeStyle()}`} data-cy="dashboard-alert-box">
               <div className="flex items-center">
-                <span className="text-2xl mr-3">⚠️</span>
+                <span className="text-2xl mr-3"></span>
                 <div>
                   <p className="font-semibold text-orange-800">
-                    {statusCounts.submissionRequests} New Event Submission{statusCounts.submissionRequests > 1 ? 's' : ''} Pending
+                     {statusCounts.submissionRequests} New Event{statusCounts.submissionRequests > 1 ? 's' : ''} Require{statusCounts.cancellationRequests > 1 ? '' : 's'} Attention
                   </p>
                   <p className="text-sm text-orange-700">Review and accept/decline</p>
                 </div>
@@ -132,10 +132,10 @@ const AdminDashboard = () => {
           {statusCounts.cancellationRequests > 0 && (
             <div className={`border-l-4 p-4 mb-6 rounded ${getPendingBadgeStyle()}`} data-cy="dashboard-alert-box">
               <div className="flex items-center">
-                <span className="text-2xl mr-3">⚠️</span>
+                <span className="text-2xl mr-3"></span>
                 <div>
                   <p className="font-semibold text-orange-800">
-                    {statusCounts.cancellationRequests} Cancellation Request{statusCounts.cancellationRequests > 1 ? 's' : ''} Pending
+                    {statusCounts.cancellationRequests} Cancel Event{statusCounts.cancellationRequests > 1 ? 's' : ''} Require{statusCounts.cancellationRequests > 1 ? '' : 's'} Attention
                   </p>
                   <p className="text-sm text-orange-700">Review and approve/deny</p>
                 </div>

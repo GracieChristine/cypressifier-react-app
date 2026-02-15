@@ -61,6 +61,10 @@ const EventView = () => {
     return colors[status] || 'bg-gray-100 text-gray-700';
   };
 
+  const getPendingBadgeStyle = () => {
+    return 'border border-orange-500 text-orange-600 bg-transparent';
+  };
+
   const getLocationIcon = (locationType) => {
     const icons = {
       'Castle': '🏰',
@@ -198,31 +202,37 @@ const EventView = () => {
 
             {/* Cancellation Request Alert */}
             {event.cancellationRequest && (
-              <div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded">
+              <div className={`border-l-4 p-4 mb-6 rounded ${getPendingBadgeStyle()}`}>
                 <div className="flex items-center mb-2">
-                  <span className="text-2xl mr-2">⚠️</span>
-                  <p className="font-semibold text-orange-800">Cancellation Request Pending</p>
+                  <span className="text-2xl mr-2"></span>
+                  <p className="font-semibold text-orange-800">
+                    Cancellation Request In Review
+                  </p>
                 </div>
-                <p className="text-sm text-orange-700 ml-9">
-                  Reason: {event.cancellationReason}
+                <p className="text-sm text-orange-700 ml-2">
+                  Please be patient as your Cypressifier team reviews your request.
+                  {/* Reason: {event.cancellationReason} */}
                 </p>
-                <p className="text-xs text-orange-600 ml-9 mt-1">
-                  Requested on: {formatDate(event.cancellationRequestDate)}
+                <p className="text-xs text-orange-600 ml-2 mt-1">
+                  Submitted on {formatDate(event.cancellationRequestDate)}
                 </p>
               </div>
             )}
 
             {/* Completion Request Alert */}
             {event.completionRequest && (
-              <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+              <div className={`border-l-4 p-4 mb-6 rounded ${getPendingBadgeStyle()}`}>
                 <div className="flex items-center mb-2">
-                  <span className="text-2xl mr-2">✅</span>
-                  <p className="font-semibold text-green-800">Completion Confirmation Requested</p>
+                  <span className="text-2xl mr-2"></span>
+                  <p className="font-semibold text-orange-800">Completion Request Needs Review</p>
                 </div>
-                <p className="text-sm text-green-700 ml-9">
-                  Admin Note: {event.completionNotes}
+                <p className="text-sm text-orange-700 ml-2 mt-1">
+                  Request note: {event.completionNotes}
                 </p>
-                <p className="text-xs text-green-600 ml-9 mt-1">
+                <p className="text-sm text-orange-700 ml-2">
+                  Please review and accept/dcecline all tasks are completed and the event is to your satisfaction
+                </p>
+                <p className="text-xs text-orange-600 ml-2 mt-1">
                   Requested on: {formatDate(event.completionRequestDate)}
                 </p>
               </div>
@@ -369,6 +379,17 @@ const EventView = () => {
                     Decline - Needs More Work
                   </button>
                 </div>
+
+                {/* ADD THIS: Return button for completion section */}
+                <div className="flex gap-3 mt-3">
+                  <button
+                    onClick={() => navigate('/events')}
+                    className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                    data-cy="return-eventlist-btn"
+                  >
+                    Return to Event List
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -420,6 +441,8 @@ const EventView = () => {
                     Cancel and Close
                   </button>
                 </div>
+
+                {/* NOTE: Cancel section already has return button as "Cancel and Close" - no change needed here */}
               </div>
             </div>
           </div>
