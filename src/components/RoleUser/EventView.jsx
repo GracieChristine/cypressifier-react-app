@@ -53,7 +53,7 @@ const EventView = () => {
 
   const getStatusColor = (status) => {
     const colors = {
-      'In Review': 'bg-blue-100 text-blue-700',
+      'Submitted': 'bg-blue-100 text-blue-700',
       'In Progress': 'bg-yellow-100 text-yellow-700',
       'Completed': 'bg-green-100 text-green-700',
       'Cancelled': 'bg-red-100 text-red-700'
@@ -201,12 +201,12 @@ const EventView = () => {
           <div className="p-6 space-y-6">
 
             {/* Submission Pending Alert */}
-            {event.status === 'In Review' && (
+            {event.status === 'Submitted' && (
               <div className={`border-l-4 p-4 mb-6 rounded ${getPendingBadgeStyle()}`}>
                 <div className="flex items-center mb-2">
                   <span className="text-2xl mr-2"></span>
                   <p className="font-semibold text-orange-800">
-                    Event Submission In Review
+                    Event Submission Submitted
                   </p>
                 </div>
                 <p className="text-sm text-orange-700 ml-2">
@@ -224,7 +224,7 @@ const EventView = () => {
                 <div className="flex items-center mb-2">
                   <span className="text-2xl mr-2"></span>
                   <p className="font-semibold text-orange-800">
-                    Event Cancellation Request In Review
+                    Event Cancellation Request Submitted
                   </p>
                 </div>
                 <p className="text-sm text-orange-700 ml-2">

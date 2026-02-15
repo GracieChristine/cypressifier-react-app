@@ -120,7 +120,7 @@ function generateEvent(status, userId, userEmail) {
     case 'In Progress':
       date = getRandomDate(30, 120);
       break;
-    case 'In Review':
+    case 'Submitted':
       date = getRandomDate(60, 180);
       break;
     default:
@@ -148,9 +148,9 @@ export function generateSeedEvents(userId, userEmail) {
   const events = [];
   
   // Generate varied amounts for each status
-  // In Review: 8 events
+  // Submitted: 8 events
   for (let i = 0; i < 8; i++) {
-    events.push(generateEvent('In Review', userId, userEmail));
+    events.push(generateEvent('Submitted', userId, userEmail));
   }
   
   // In Progress: 12 events
@@ -171,7 +171,7 @@ export function generateSeedEvents(userId, userEmail) {
   return {
     events,
     count: {
-      'In Review': 8,
+      'Submitted': 8,
       'In Progress': 12,
       'Completed': 6,
       'Cancelled': 4,

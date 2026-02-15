@@ -58,7 +58,7 @@ const EventsList = () => {
 
   const statusCounts = {
     all: events.length,
-    'In Review': events.filter(e => e.status === 'In Review').length,
+    'Submitted': events.filter(e => e.status === 'Submitted').length,
     'In Progress': events.filter(e => e.status === 'In Progress').length,
     'Completed': events.filter(e => e.status === 'Completed').length,
     'Cancelled': events.filter(e => e.status === 'Cancelled').length
@@ -80,7 +80,7 @@ const EventsList = () => {
 
   const getStatusColor = (status) => {
     const colors = {
-      'In Review': 'bg-blue-100 text-blue-700',
+      'Submitted': 'bg-blue-100 text-blue-700',
       'In Progress': 'bg-yellow-100 text-yellow-700',
       'Completed': 'bg-green-100 text-green-700',
       'Cancelled': 'bg-red-100 text-red-700'
@@ -106,7 +106,7 @@ const EventsList = () => {
 
   const renderEventCard = (event, isUpcoming = false) => {
     const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
-    const isInReview = event.status === 'In Review';
+    const isSubmitted = event.status === 'Submitted';
     const canCancel = event.status === 'In Progress' && !event.cancellationRequest && !event.completionRequest;
     
     return (
@@ -146,7 +146,7 @@ const EventsList = () => {
           
           <div className="flex-grow"></div>
 
-          {isInReview && (
+          {isSubmitted && (
             <div className="bg-blue-50 border border-blue-200 rounded p-2 mb-4">
               <p className="text-xs text-blue-800 font-semibold">
                 ⏳ New Event Submit Pending Review
@@ -170,7 +170,7 @@ const EventsList = () => {
             </div>
           )}
 
-          {isReadOnly || isInReview || event.cancellationRequest || event.completionRequest ? (
+          {isReadOnly || isSubmitted || event.cancellationRequest || event.completionRequest ? (
             <button
               onClick={() => navigate(`/user/events/${event.id}`)}
               className="w-full py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded transition text-sm" 
@@ -247,7 +247,7 @@ const EventsList = () => {
 
           {/* Filters */}
           <div className="flex gap-2 flex-wrap" data-cy="eventlist-filters">
-            {['all', 'In Review', 'In Progress', 'Completed', 'Cancelled'].map(status => (
+            {['all', 'Submitted', 'In Progress', 'Completed', 'Cancelled'].map(status => (
               <button
                 key={status}
                 onClick={() => setFilter(status)}
@@ -275,7 +275,7 @@ const EventsList = () => {
             <div className="space-y-3" data-cy="eventlist-event-list">
               {filteredEvents.map(event => {
                 const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
-                const isInReview = event.status === 'In Review';
+                const isSubmitted = event.status === 'Submitted';
                 const canCancel = event.status === 'In Progress' && !event.cancellationRequest && !event.completionRequest;
                 
                 return (
@@ -311,8 +311,8 @@ const EventsList = () => {
                           {event.status}
                         </span>
 
-                        {/* ADD THIS: Pending Submission badge for In Review */}
-                        {isInReview && (
+                        {/* ADD THIS: Pending Submission badge for Submitted */}
+                        {isSubmitted && (
                           <span 
                             className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getPendingBadgeStyle()}`}
                             title="Event submission pending review"
@@ -341,8 +341,8 @@ const EventsList = () => {
                       </div>
 
                       <div className="col-span-6 sm:col-span-4 md:col-span-3 lg:col-span-3 flex justify-end gap-2">
-                        {/* UPDATED: Add isInReview to conditions */}
-                        {isReadOnly || isInReview || event.cancellationRequest || event.completionRequest ? (
+                        {/* UPDATED: Add isSubmitted to conditions */}
+                        {isReadOnly || isSubmitted || event.cancellationRequest || event.completionRequest ? (
                           <button
                             onClick={() => navigate(`/user/events/${event.id}`)}
                             className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-medium transition whitespace-nowrap"

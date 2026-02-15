@@ -158,7 +158,7 @@ const EventForm = () => {
         ...formData,
         budget: budgetValue,
         guestCount: guestCountValue,
-        status: 'In Review',
+        status: 'Submitted',
         setBudget: budgetValue,
         budgetTotal: budgetValue,
         budgetSpent: 0,

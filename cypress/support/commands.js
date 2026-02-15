@@ -276,7 +276,7 @@ Cypress.Commands.add('adminGetOneStatusCount', (status) => {
 
 // Get all 5 admin event status counts
 Cypress.Commands.add('adminGetAllStatusCounts', () => {
-  const statuses = ['All', 'In Review', 'In Progress', 'Completed', 'Cancelled'];
+  const statuses = ['All', 'Submitted', 'In Progress', 'Completed', 'Cancelled'];
   const counts = {};
   
   let chain = cy.wrap(null);
@@ -302,7 +302,7 @@ Cypress.Commands.add('adminGetAllStatusCounts', () => {
 Cypress.Commands.add('userGetAllFilterCounts', () => {
   const filters = {
     'All': '[data-cy="eventlist-filter-all"]',
-    'In Review': '[data-cy="eventlist-filter-in-review"]',
+    'Submitted': '[data-cy="eventlist-filter-submitted"]',
     'In Progress': '[data-cy="eventlist-filter-in-progress"]',
     'Completed': '[data-cy="eventlist-filter-completed"]',
     'Cancelled': '[data-cy="eventlist-filter-cancelled"]'
@@ -349,7 +349,7 @@ Cypress.Commands.add('userCreateEventNew', (
   cy.userGetOneFilterCount('[data-cy="eventlist-filter-all"]')
     .then((allCount) => {
 
-    cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-review"]')
+    cy.userGetOneFilterCount('[data-cy="eventlist-filter-submitted"]')
       .then((inReviewCount) => {
 
       cy.get('[data-cy="eventlist-create-event-btn"]').click();
@@ -391,7 +391,7 @@ Cypress.Commands.add('userCreateEventNew', (
       cy.userGetOneFilterCount('[data-cy="eventlist-filter-all"]')
         .should('eq', allCount + 1);
 
-      cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-review"]')
+      cy.userGetOneFilterCount('[data-cy="eventlist-filter-submitted"]')
         .should('eq', inReviewCount + 1);
     }); 
   });
@@ -475,7 +475,7 @@ Cypress.Commands.add('userCancelEventNew', (
   cy.userGetOneFilterCount('[data-cy="eventlist-filter-all"]')
   .then((allCount) => {
 
-    cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-review"]')
+    cy.userGetOneFilterCount('[data-cy="eventlist-filter-submitted"]')
     .then((inReviewCount) => {
 
       cy.get('[data-cy="eventlist-create-event-btn"]').click();
@@ -517,7 +517,7 @@ Cypress.Commands.add('userCancelEventNew', (
       cy.userGetOneFilterCount('[data-cy="eventlist-filter-all"]')
         .should('eq', allCount);
 
-      cy.userGetOneFilterCount('[data-cy="eventlist-filter-in-review"]')
+      cy.userGetOneFilterCount('[data-cy="eventlist-filter-submitted"]')
         .should('eq', inReviewCount);
     }); 
   });
@@ -527,7 +527,7 @@ Cypress.Commands.add('userCancelEventNew', (
 Cypress.Commands.add('adminAcceptEventNew', () => {
   cy.adminGetOneStatusCount('All')
   .then((allCount) => {
-    cy.adminGetOneStatusCount('In Review')
+    cy.adminGetOneStatusCount('Submitted')
     .then((inReviewCount) => {
       cy.adminGetOneStatusCount('In Progress')
       .then((inProgressCount) => {
@@ -535,7 +535,7 @@ Cypress.Commands.add('adminAcceptEventNew', () => {
         cy.get('[data-cy="dashboard-table-entry"]').then($entries => {
           const target = $entries.filter((i, el) => {
             const $el = Cypress.$(el);
-            return $el.text().includes('In Review');
+            return $el.text().includes('Submitted');
           });
 
           expect(target.length).to.be.greaterThan(0, 'Should have at least one event in review');
@@ -564,11 +564,11 @@ Cypress.Commands.add('adminAcceptEventNew', () => {
 
           cy.get(`[data-event-id="${eventId}"]`)
             .should('contain', 'In Progress')
-            .and('not.contain', 'In Review');
+            .and('not.contain', 'Submitted');
 
           cy.adminGetOneStatusCount('All')
           .should('eq', allCount);
-          cy.adminGetOneStatusCount('In Review')
+          cy.adminGetOneStatusCount('Submitted')
           .should('eq', inReviewCount - 1);
           cy.adminGetOneStatusCount('In Progress')
           .should('eq', inProgressCount + 1);
@@ -583,7 +583,7 @@ Cypress.Commands.add('adminAcceptEventNewError', () => {});
 Cypress.Commands.add('adminRejectEventNew', () => {
   cy.adminGetOneStatusCount('All')
   .then((allCount) => {
-    cy.adminGetOneStatusCount('In Review')
+    cy.adminGetOneStatusCount('Submitted')
     .then((reviewCount) => {
       cy.adminGetOneStatusCount('Cancelled')
       .then((cancelledCount) => {
@@ -591,7 +591,7 @@ Cypress.Commands.add('adminRejectEventNew', () => {
         cy.get('[data-cy="dashboard-table-entry"]').then($entries => {
           const target = $entries.filter((i, el) => {
             const $el = Cypress.$(el);
-            return $el.text().includes('In Review');
+            return $el.text().includes('Submitted');
           });
 
           expect(target.length).to.be.greaterThan(0, 'Should have at least one event in review');
@@ -622,7 +622,7 @@ Cypress.Commands.add('adminRejectEventNew', () => {
 
           cy.adminGetOneStatusCount('All')
           .should('eq', allCount);
-          cy.adminGetOneStatusCount('In Review')
+          cy.adminGetOneStatusCount('Submitted')
           .should('eq', reviewCount - 1);
           cy.adminGetOneStatusCount('Cancelled')
           .should('eq', cancelledCount + 1);
@@ -635,7 +635,7 @@ Cypress.Commands.add('adminRejectEventNew', () => {
 Cypress.Commands.add('adminConsiderEventNew', () => {
   cy.adminGetOneStatusCount('All')
   .then((allCount) => {
-    cy.adminGetOneStatusCount('In Review')
+    cy.adminGetOneStatusCount('Submitted')
     .then((inReviewCount) => {
       cy.adminGetOneStatusCount('In Progress')
       .then((inProgressCount) => {
@@ -645,7 +645,7 @@ Cypress.Commands.add('adminConsiderEventNew', () => {
           cy.get('[data-cy="dashboard-table-entry"]').then($entries => {
             const target = $entries.filter((i, el) => {
               const $el = Cypress.$(el);
-              return $el.text().includes('In Review');
+              return $el.text().includes('Submitted');
             });
 
             expect(target.length).to.be.greaterThan(0, 'Should have at least one event in review');
@@ -669,11 +669,11 @@ Cypress.Commands.add('adminConsiderEventNew', () => {
             .should('contain', '/admin/dashboard');
 
             cy.get(`[data-event-id="${eventId}"]`)
-              .should('contain', 'In Review');
+              .should('contain', 'Submitted');
 
             cy.adminGetOneStatusCount('All')
             .should('eq', allCount);
-            cy.adminGetOneStatusCount('In Review')
+            cy.adminGetOneStatusCount('Submitted')
             .should('eq', inReviewCount);
             cy.adminGetOneStatusCount('In Progress')
             .should('eq', inProgressCount);

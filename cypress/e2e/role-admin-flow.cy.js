@@ -198,7 +198,7 @@ describe(`Admin Experience Flow`, () => {
                     // Step 1: Start with clean slate
                     cy.adminGetAllStatusCounts().then((initial) => {
                         expect(initial['All']).to.equal(0);
-                        expect(initial['In Review']).to.equal(0);
+                        expect(initial['Submitted']).to.equal(0);
                         expect(initial['In Progress']).to.equal(0);
                         expect(initial['Completed']).to.equal(0);
                         expect(initial['Cancelled']).to.equal(0);
@@ -212,12 +212,12 @@ describe(`Admin Experience Flow`, () => {
                     cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '')
                     cy.userLogout();
 
-                    // Step 3: Verify In Review
+                    // Step 3: Verify Submitted
                     cy.landingToLogin();
                     cy.adminLogin(adminEmail, adminPassword);
                     cy.adminGetAllStatusCounts().then((afterCreate) => {
                         expect(afterCreate['All']).to.equal(1, 'All should be 1 after event created');
-                        expect(afterCreate['In Review']).to.equal(1, 'In Review should be 1');
+                        expect(afterCreate['Submitted']).to.equal(1, 'Submitted should be 1');
                         expect(afterCreate['In Progress']).to.equal(0, 'In Progress should be 0');
                         expect(afterCreate['Completed']).to.equal(0, 'Completed should be 0');
                         expect(afterCreate['Cancelled']).to.equal(0, 'Cancelled should be 0');
@@ -229,7 +229,7 @@ describe(`Admin Experience Flow`, () => {
                     // Step 5: Verify Cancelled
                     cy.adminGetAllStatusCounts().then((afterDecline) => {
                         expect(afterDecline['All']).to.equal(1, 'All should still be 1');
-                        expect(afterDecline['In Review']).to.equal(0, 'In Review should be 0 after decline');
+                        expect(afterDecline['Submitted']).to.equal(0, 'Submitted should be 0 after decline');
                         expect(afterDecline['In Progress']).to.equal(0, 'In Progress should be 0');
                         expect(afterDecline['Completed']).to.equal(0, 'Completed should be 0');
                         expect(afterDecline['Cancelled']).to.equal(1, 'Cancelled should be 1 after decline');
@@ -268,7 +268,7 @@ describe(`Admin Experience Flow`, () => {
 
                     cy.adminGetAllStatusCounts().then((afterAccept) => {
                         expect(afterAccept['All']).to.equal(1, 'All should be 1');
-                        expect(afterAccept['In Review']).to.equal(0, 'In Review should be 0 after accept');
+                        expect(afterAccept['Submitted']).to.equal(0, 'Submitted should be 0 after accept');
                         expect(afterAccept['In Progress']).to.equal(1, 'In Progress should be 1 after accept');
                         expect(afterAccept['Completed']).to.equal(0, 'Completed should be 0');
                         expect(afterAccept['Cancelled']).to.equal(0, 'Cancelled should be 0');
@@ -288,7 +288,7 @@ describe(`Admin Experience Flow`, () => {
 
                     cy.adminGetAllStatusCounts().then((afterCancel) => {
                         expect(afterCancel['All']).to.equal(1, 'All should still be 1');
-                        expect(afterCancel['In Review']).to.equal(0, 'In Review should be 0');
+                        expect(afterCancel['Submitted']).to.equal(0, 'Submitted should be 0');
                         expect(afterCancel['In Progress']).to.equal(0, 'In Progress should be 0 after cancellation');
                         expect(afterCancel['Completed']).to.equal(0, 'Completed should be 0');
                         expect(afterCancel['Cancelled']).to.equal(1, 'Cancelled should be 1 after cancellation');
@@ -335,7 +335,7 @@ describe(`Admin Experience Flow`, () => {
 
                     cy.adminGetAllStatusCounts().then((afterComplete) => {
                         expect(afterComplete['All']).to.equal(1, 'All should still be 1');
-                        expect(afterComplete['In Review']).to.equal(0, 'In Review should be 0');
+                        expect(afterComplete['Submitted']).to.equal(0, 'Submitted should be 0');
                         expect(afterComplete['In Progress']).to.equal(1, 'In Progress should be 1 after sending complete request');
                         expect(afterComplete['Completed']).to.equal(0, 'Completed should be 0 after sending complete request');
                         expect(afterComplete['Cancelled']).to.equal(0, 'Cancelled should be 0');
@@ -353,7 +353,7 @@ describe(`Admin Experience Flow`, () => {
                     cy.adminLogin(adminEmail, adminPassword);
                     cy.adminGetAllStatusCounts().then((afterUserAcceptComplete) => {
                         expect(afterUserAcceptComplete['All']).to.equal(1, 'All should still be 1');
-                        expect(afterUserAcceptComplete['In Review']).to.equal(0, 'In Review should be 0');
+                        expect(afterUserAcceptComplete['Submitted']).to.equal(0, 'Submitted should be 0');
                         expect(afterUserAcceptComplete['In Progress']).to.equal(0, 'In Progress should be 0');
                         expect(afterUserAcceptComplete['Completed']).to.equal(1, 'Completed should still be 1 after user accepts completion');
                         expect(afterUserAcceptComplete['Cancelled']).to.equal(0, 'Cancelled should be 0');
@@ -377,7 +377,7 @@ describe(`Admin Experience Flow`, () => {
             // Step 1: Start with clean slate
             cy.adminGetAllStatusCounts().then((initial) => {
                 expect(initial['All']).to.equal(0);
-                expect(initial['In Review']).to.equal(0);
+                expect(initial['Submitted']).to.equal(0);
                 expect(initial['In Progress']).to.equal(0);
                 expect(initial['Completed']).to.equal(0);
                 expect(initial['Cancelled']).to.equal(0);
@@ -391,12 +391,12 @@ describe(`Admin Experience Flow`, () => {
             cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '')
             cy.userLogout();
 
-            // Step 3: Verify In Review
+            // Step 3: Verify Submitted
             cy.landingToLogin();
             cy.adminLogin(adminEmail, adminPassword);
             cy.adminGetAllStatusCounts().then((afterCreate) => {
                 expect(afterCreate['All']).to.equal(1, 'All should be 1 after event created');
-                expect(afterCreate['In Review']).to.equal(1, 'In Review should be 1');
+                expect(afterCreate['Submitted']).to.equal(1, 'Submitted should be 1');
                 expect(afterCreate['In Progress']).to.equal(0, 'In Progress should be 0');
                 expect(afterCreate['Completed']).to.equal(0, 'Completed should be 0');
                 expect(afterCreate['Cancelled']).to.equal(0, 'Cancelled should be 0');
@@ -407,7 +407,7 @@ describe(`Admin Experience Flow`, () => {
             // Step 1: Verify admin view first
             cy.adminGetAllStatusCounts().then((initial) => {
                 expect(initial['All']).to.equal(1);
-                expect(initial['In Review']).to.equal(1);
+                expect(initial['Submitted']).to.equal(1);
                 expect(initial['In Progress']).to.equal(0);
                 expect(initial['Completed']).to.equal(0);
                 expect(initial['Cancelled']).to.equal(0);
@@ -425,7 +425,7 @@ describe(`Admin Experience Flow`, () => {
             // Step 3: Verify admin view updated correctly
             cy.adminGetAllStatusCounts().then((afterCreate) => {
                 expect(afterCreate['All']).to.equal(31, 'Admin should see 31 total events');
-                expect(afterCreate['In Review']).to.equal(9, 'Admin should see 9 in review');
+                expect(afterCreate['Submitted']).to.equal(9, 'Admin should see 9 in review');
                 expect(afterCreate['In Progress']).to.equal(12, 'Admin should see 12 in progress');
                 expect(afterCreate['Completed']).to.equal(6, 'Admin should see 6 completed');
                 expect(afterCreate['Cancelled']).to.equal(4, 'Admin should see 4 cancelled');
@@ -436,7 +436,7 @@ describe(`Admin Experience Flow`, () => {
             // Step 1: Checking current status
             cy.adminGetAllStatusCounts().then((initial) => {
                 expect(initial['All']).to.equal(31);
-                expect(initial['In Review']).to.equal(9);
+                expect(initial['Submitted']).to.equal(9);
                 expect(initial['In Progress']).to.equal(12);
                 expect(initial['Completed']).to.equal(6);
                 expect(initial['Cancelled']).to.equal(4);
@@ -446,10 +446,10 @@ describe(`Admin Experience Flow`, () => {
             cy.devAddMockEvents();
             cy.wait(500);
 
-            // Step 3: Verify In Review
+            // Step 3: Verify Submitted
             cy.adminGetAllStatusCounts().then((afterCreate) => {
                 expect(afterCreate['All']).to.equal(31 + 30, 'All should be 61 after user loads mock events.');
-                expect(afterCreate['In Review']).to.equal(9 + 8, 'In Review should be 17 after user loads mock events.');
+                expect(afterCreate['Submitted']).to.equal(9 + 8, 'Submitted should be 17 after user loads mock events.');
                 expect(afterCreate['In Progress']).to.equal(12 + 12, 'In Progress should be 24 after user loads mock events.');
                 expect(afterCreate['Completed']).to.equal(6 + 6, 'Completed should be 12 after user loads mock events.');
                 expect(afterCreate['Cancelled']).to.equal(4 + 4, 'Cancelled should be 8 after user loads mock events.');
@@ -460,7 +460,7 @@ describe(`Admin Experience Flow`, () => {
             // Step 1: Checking current status
             cy.adminGetAllStatusCounts().then((initial) => {
                 expect(initial['All']).to.equal(61);
-                expect(initial['In Review']).to.equal(17);
+                expect(initial['Submitted']).to.equal(17);
                 expect(initial['In Progress']).to.equal(24);
                 expect(initial['Completed']).to.equal(12);
                 expect(initial['Cancelled']).to.equal(8);
@@ -470,10 +470,10 @@ describe(`Admin Experience Flow`, () => {
             cy.devClearMockEvents();
             cy.wait(500);
 
-            // Step 3: Verify In Review
+            // Step 3: Verify Submitted
             cy.adminGetAllStatusCounts().then((afterCreate) => {
                 expect(afterCreate['All']).to.equal(1, 'All should be 1 after admin clears the mock events.');
-                expect(afterCreate['In Review']).to.equal(1, 'In Review should be 1 after admin clears the mock events.');
+                expect(afterCreate['Submitted']).to.equal(1, 'Submitted should be 1 after admin clears the mock events.');
                 expect(afterCreate['In Progress']).to.equal(0, 'In Progress should be 0 after admin clears the mock events.');
                 expect(afterCreate['Completed']).to.equal(0, 'Completed should be 0 after admin clears the mock events.');
                 expect(afterCreate['Cancelled']).to.equal(0, 'Cancelled should be 0 after admin clears the mock events.');

@@ -44,11 +44,11 @@ const AdminEventView = () => {
   const isCompleteMode = mode === 'complete';
   const isViewMode = mode === 'view';
 
-  const isNewSubmission = selectedEvent.status === 'In Review' && !selectedEvent.cancellationRequest;
+  const isSubmitted = selectedEvent.status === 'Submitted' && !selectedEvent.cancellationRequest;
   const isCancellationRequest = selectedEvent.cancellationRequest && selectedEvent.status !== 'Cancelled';
   const isReadOnly = selectedEvent.status === 'Completed' || selectedEvent.status === 'Cancelled';
   
-  const isInReviewWithCancellation = selectedEvent.status === 'In Review' && selectedEvent.cancellationRequest;
+  const isSubmittedWithCancellation = selectedEvent.status === 'Submitted' && selectedEvent.cancellationRequest;
   const isInProgressWithCancellation = selectedEvent.status === 'In Progress' && selectedEvent.cancellationRequest;
 
   const updateEvent = (updatedEvent) => {
@@ -209,9 +209,9 @@ const AdminEventView = () => {
           <p className="text-gray-600 mb-6 font-serif">
             {isUpdateMode && 'Manage Event - Planning & Updates'}
             {isCompleteMode && 'Complete Event - Send for Client Review'}
-            {isViewMode && isNewSubmission && 'New Event Submission - Review Required'}
-            {isViewMode && isInReviewWithCancellation && 'New Event Submission with Cancellation Request - Review Required'}
-            {isViewMode && isCancellationRequest && !isInReviewWithCancellation && 'Cancellation Request - Review Required'}
+            {isViewMode && isSubmitted && 'New Event Submission - Review Required'}
+            {isViewMode && isSubmittedWithCancellation && 'New Event Submission with Cancellation Request - Review Required'}
+            {isViewMode && isCancellationRequest && !isSubmittedWithCancellation && 'Cancellation Request - Review Required'}
             {isViewMode && isInProgressWithCancellation && 'Event In Progress with Cancellation Request - Review Required'}
             {isViewMode && isReadOnly && `Event ${selectedEvent.status}`}
             {isViewMode && selectedEvent.completionRequest && 'Event Completion Pending Client Review'}
@@ -378,8 +378,8 @@ const AdminEventView = () => {
           <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="eventview-action">
             <h2 className="text-3xl font-display mb-2">Admin Actions</h2>
             <p className="text-gray-600 mb-6 font-serif">
-              {(isNewSubmission || isInReviewWithCancellation) && 'Review and respond to new event submission'}
-              {isCancellationRequest && !isInReviewWithCancellation && !isInProgressWithCancellation && 'Review and respond to cancellation request'}
+              {(isSubmitted || isSubmittedWithCancellation) && 'Review and respond to new event submission'}
+              {isCancellationRequest && !isSubmittedWithCancellation && !isInProgressWithCancellation && 'Review and respond to cancellation request'}
               {isInProgressWithCancellation && 'Review cancellation request'}
               {selectedEvent.completionRequest && 'Event completion pending client review'}
             </p>
@@ -387,7 +387,7 @@ const AdminEventView = () => {
             <div className="space-y-6">
               
               {/* New Event Request Review */}
-              {(isNewSubmission || isInReviewWithCancellation) && (
+              {(isSubmitted || isSubmittedWithCancellation) && (
                 <div className="bg-gray-50 border rounded-lg p-6">
                   <div data-cy="eventview-action-review-new">
                     <p className="text-lg font-semibold mb-4">Review New Event Submission</p>
@@ -441,7 +441,7 @@ const AdminEventView = () => {
               )}
 
               {/* Event Cancellation Request Review */}
-              {(isCancellationRequest || isInReviewWithCancellation || isInProgressWithCancellation) && (
+              {(isCancellationRequest || isSubmittedWithCancellation || isInProgressWithCancellation) && (
                 <div className="bg-gray-50 border rounded-lg p-6">
                   <div data-cy="eventview-action-review-cancel">
                     <p className="text-lg font-semibold mb-4">Review Cancellation Request</p>

@@ -393,7 +393,7 @@ describe(`User Experience Flow`, () => {
           // Step 1: Start with clean slate
           cy.userGetAllFilterCounts().then((initial) => {
             expect(initial['All']).to.equal(0);
-            expect(initial['In Review']).to.equal(0);
+            expect(initial['Submitted']).to.equal(0);
             expect(initial['In Progress']).to.equal(0);
             expect(initial['Completed']).to.equal(0);
             expect(initial['Cancelled']).to.equal(0);
@@ -404,7 +404,7 @@ describe(`User Experience Flow`, () => {
 
           cy.userGetAllFilterCounts().then((afterCancelCreating) => {
             expect(afterCancelCreating['All']).to.equal(0, 'All should be 0 after event was not created');
-            expect(afterCancelCreating['In Review']).to.equal(0, 'In Review should be 0 after event was not created');
+            expect(afterCancelCreating['Submitted']).to.equal(0, 'Submitted should be 0 after event was not created');
             expect(afterCancelCreating['In Progress']).to.equal(0, 'In Progress should be 0');
             expect(afterCancelCreating['Completed']).to.equal(0, 'Completed should be 0');
             expect(afterCancelCreating['Cancelled']).to.equal(0, 'Cancelled should be 0');
@@ -423,7 +423,7 @@ describe(`User Experience Flow`, () => {
           // Step 1: Start with clean slate
           cy.userGetAllFilterCounts().then((initial) => {
             expect(initial['All']).to.equal(0);
-            expect(initial['In Review']).to.equal(0);
+            expect(initial['Submitted']).to.equal(0);
             expect(initial['In Progress']).to.equal(0);
             expect(initial['Completed']).to.equal(0);
             expect(initial['Cancelled']).to.equal(0);
@@ -434,7 +434,7 @@ describe(`User Experience Flow`, () => {
 
           cy.userGetAllFilterCounts().then((afterCreate) => {
             expect(afterCreate['All']).to.equal(1);
-            expect(afterCreate['In Review']).to.equal(1);
+            expect(afterCreate['Submitted']).to.equal(1);
             expect(afterCreate['In Progress']).to.equal(0);
             expect(afterCreate['Completed']).to.equal(0);
             expect(afterCreate['Cancelled']).to.equal(0);
@@ -452,7 +452,7 @@ describe(`User Experience Flow`, () => {
 
           cy.userGetAllFilterCounts().then((afterAccept) => {
             expect(afterAccept['All']).to.equal(1);
-            expect(afterAccept['In Review']).to.equal(0);
+            expect(afterAccept['Submitted']).to.equal(0);
             expect(afterAccept['In Progress']).to.equal(1);
             expect(afterAccept['Completed']).to.equal(0);
             expect(afterAccept['Cancelled']).to.equal(0);
@@ -463,7 +463,7 @@ describe(`User Experience Flow`, () => {
 
           cy.userGetAllFilterCounts().then((afterSubmit) => {
             expect(afterSubmit['All']).to.equal(1);
-            expect(afterSubmit['In Review']).to.equal(0);
+            expect(afterSubmit['Submitted']).to.equal(0);
             expect(afterSubmit['In Progress']).to.equal(1);
             expect(afterSubmit['Completed']).to.equal(0);
             expect(afterSubmit['Cancelled']).to.equal(0);
@@ -474,7 +474,7 @@ describe(`User Experience Flow`, () => {
 
           cy.userGetAllFilterCounts().then((afterSubmit) => {
             expect(afterSubmit['All']).to.equal(1);
-            expect(afterSubmit['In Review']).to.equal(0);
+            expect(afterSubmit['Submitted']).to.equal(0);
             expect(afterSubmit['In Progress']).to.equal(1);
             expect(afterSubmit['Completed']).to.equal(0);
             expect(afterSubmit['Cancelled']).to.equal(0);
@@ -492,7 +492,7 @@ describe(`User Experience Flow`, () => {
 
           cy.userGetAllFilterCounts().then((afterAccept) => {
             expect(afterAccept['All']).to.equal(1);
-            expect(afterAccept['In Review']).to.equal(0);
+            expect(afterAccept['Submitted']).to.equal(0);
             expect(afterAccept['In Progress']).to.equal(0);
             expect(afterAccept['Completed']).to.equal(0);
             expect(afterAccept['Cancelled']).to.equal(1);
@@ -502,7 +502,7 @@ describe(`User Experience Flow`, () => {
           cy.userViewEvent();
           cy.userGetAllFilterCounts().then((afterAccept) => {
             expect(afterAccept['All']).to.equal(1);
-            expect(afterAccept['In Review']).to.equal(0);
+            expect(afterAccept['Submitted']).to.equal(0);
             expect(afterAccept['In Progress']).to.equal(0);
             expect(afterAccept['Completed']).to.equal(0);
             expect(afterAccept['Cancelled']).to.equal(1);
@@ -521,7 +521,7 @@ describe(`User Experience Flow`, () => {
           // Step 1: Start with clean slate
           cy.userGetAllFilterCounts().then((initial) => {
             expect(initial['All']).to.equal(0);
-            expect(initial['In Review']).to.equal(0);
+            expect(initial['Submitted']).to.equal(0);
             expect(initial['In Progress']).to.equal(0);
             expect(initial['Completed']).to.equal(0);
             expect(initial['Cancelled']).to.equal(0);
@@ -532,7 +532,7 @@ describe(`User Experience Flow`, () => {
 
           cy.userGetAllFilterCounts().then((afterCreate) => {
             expect(afterCreate['All']).to.equal(1);
-            expect(afterCreate['In Review']).to.equal(1);
+            expect(afterCreate['Submitted']).to.equal(1);
             expect(afterCreate['In Progress']).to.equal(0);
             expect(afterCreate['Completed']).to.equal(0);
             expect(afterCreate['Cancelled']).to.equal(0);
@@ -550,7 +550,7 @@ describe(`User Experience Flow`, () => {
 
           cy.userGetAllFilterCounts().then((afterAccept) => {
             expect(afterAccept['All']).to.equal(1);
-            expect(afterAccept['In Review']).to.equal(0);
+            expect(afterAccept['Submitted']).to.equal(0);
             expect(afterAccept['In Progress']).to.equal(1);
             expect(afterAccept['Completed']).to.equal(0);
             expect(afterAccept['Cancelled']).to.equal(0);
@@ -569,7 +569,7 @@ describe(`User Experience Flow`, () => {
 
           cy.userGetAllFilterCounts().then((afterUpdate) => {
             expect(afterUpdate['All']).to.equal(1);
-            expect(afterUpdate['In Review']).to.equal(0);
+            expect(afterUpdate['Submitted']).to.equal(0);
             expect(afterUpdate['In Progress']).to.equal(1);
             expect(afterUpdate['Completed']).to.equal(0);
             expect(afterUpdate['Cancelled']).to.equal(0);
@@ -587,7 +587,7 @@ describe(`User Experience Flow`, () => {
 
           cy.userGetAllFilterCounts().then((afterSubmit) => {
             expect(afterSubmit['All']).to.equal(1);
-            expect(afterSubmit['In Review']).to.equal(0);
+            expect(afterSubmit['Submitted']).to.equal(0);
             expect(afterSubmit['In Progress']).to.equal(1);
             expect(afterSubmit['Completed']).to.equal(0);
             expect(afterSubmit['Cancelled']).to.equal(0);
@@ -598,7 +598,7 @@ describe(`User Experience Flow`, () => {
 
           cy.userGetAllFilterCounts().then((afterSubmit) => {
             expect(afterSubmit['All']).to.equal(1);
-            expect(afterSubmit['In Review']).to.equal(0);
+            expect(afterSubmit['Submitted']).to.equal(0);
             expect(afterSubmit['In Progress']).to.equal(1);
             expect(afterSubmit['Completed']).to.equal(0);
             expect(afterSubmit['Cancelled']).to.equal(0);
@@ -609,7 +609,7 @@ describe(`User Experience Flow`, () => {
 
           cy.userGetAllFilterCounts().then((afterComplete) => {
             expect(afterComplete['All']).to.equal(1);
-            expect(afterComplete['In Review']).to.equal(0);
+            expect(afterComplete['Submitted']).to.equal(0);
             expect(afterComplete['In Progress']).to.equal(0);
             expect(afterComplete['Completed']).to.equal(1);
             expect(afterComplete['Cancelled']).to.equal(0);
@@ -620,7 +620,7 @@ describe(`User Experience Flow`, () => {
 
           cy.userGetAllFilterCounts().then((afterComplete) => {
             expect(afterComplete['All']).to.equal(1);
-            expect(afterComplete['In Review']).to.equal(0);
+            expect(afterComplete['Submitted']).to.equal(0);
             expect(afterComplete['In Progress']).to.equal(0);
             expect(afterComplete['Completed']).to.equal(1);
             expect(afterComplete['Cancelled']).to.equal(0);
@@ -641,7 +641,7 @@ describe(`User Experience Flow`, () => {
       // Step 1: Start with clean slate
       cy.userGetAllFilterCounts().then((initial) => {
         expect(initial['All']).to.equal(0);
-        expect(initial['In Review']).to.equal(0);
+        expect(initial['Submitted']).to.equal(0);
         expect(initial['In Progress']).to.equal(0);
         expect(initial['Completed']).to.equal(0);
         expect(initial['Cancelled']).to.equal(0);
@@ -651,10 +651,10 @@ describe(`User Experience Flow`, () => {
       cy.eventlistToNewEventForm();
       cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '')
 
-      // Step 3: Verify In Review
+      // Step 3: Verify Submitted
       cy.userGetAllFilterCounts().then((afterCreate) => {
         expect(afterCreate['All']).to.equal(1, 'All should be 1 after event created');
-        expect(afterCreate['In Review']).to.equal(1, 'In Review should be 1');
+        expect(afterCreate['Submitted']).to.equal(1, 'Submitted should be 1');
         expect(afterCreate['In Progress']).to.equal(0, 'In Progress should be 0');
         expect(afterCreate['Completed']).to.equal(0, 'Completed should be 0');
         expect(afterCreate['Cancelled']).to.equal(0, 'Cancelled should be 0');
@@ -665,7 +665,7 @@ describe(`User Experience Flow`, () => {
       // Step 1: Verify user view first
       cy.userGetAllFilterCounts().then((initial) => {
         expect(initial['All']).to.equal(1);
-        expect(initial['In Review']).to.equal(1);
+        expect(initial['Submitted']).to.equal(1);
         expect(initial['In Progress']).to.equal(0);         
         expect(initial['Completed']).to.equal(0);
         expect(initial['Cancelled']).to.equal(0);
@@ -678,7 +678,7 @@ describe(`User Experience Flow`, () => {
       // Step 3: Verify user view updated correctly
       cy.userGetAllFilterCounts().then((afterCreate) => {
         expect(afterCreate['All']).to.equal(31, 'Admin should see 31 total events');
-        expect(afterCreate['In Review']).to.equal(9, 'Admin should see 9 in review');
+        expect(afterCreate['Submitted']).to.equal(9, 'Admin should see 9 in review');
         expect(afterCreate['In Progress']).to.equal(12, 'Admin should see 12 in progress');
         expect(afterCreate['Completed']).to.equal(6, 'Admin should see 6 completed');
         expect(afterCreate['Cancelled']).to.equal(4, 'Admin should see 4 cancelled');
@@ -689,7 +689,7 @@ describe(`User Experience Flow`, () => {
       // Step 1: Verify user view first
       cy.userGetAllFilterCounts().then((initial) => {
         expect(initial['All']).to.equal(31);
-        expect(initial['In Review']).to.equal(9);
+        expect(initial['Submitted']).to.equal(9);
         expect(initial['In Progress']).to.equal(12);
         expect(initial['Completed']).to.equal(6);
         expect(initial['Cancelled']).to.equal(4);
@@ -710,7 +710,7 @@ describe(`User Experience Flow`, () => {
       // Step 3: Verify user view not update
       cy.userGetAllFilterCounts().then((afterCreate) => {
         expect(afterCreate['All']).to.equal(31, 'Admin should see 31 total events');
-        expect(afterCreate['In Review']).to.equal(9, 'Admin should see 9 in review');
+        expect(afterCreate['Submitted']).to.equal(9, 'Admin should see 9 in review');
         expect(afterCreate['In Progress']).to.equal(12, 'Admin should see 12 in progress');
         expect(afterCreate['Completed']).to.equal(6, 'Admin should see 6 completed');
         expect(afterCreate['Cancelled']).to.equal(4, 'Admin should see 4 cancelled');
@@ -721,7 +721,7 @@ describe(`User Experience Flow`, () => {
       // Step 1: Verify user view first
       cy.userGetAllFilterCounts().then((initial) => {
         expect(initial['All']).to.equal(31);
-        expect(initial['In Review']).to.equal(9);
+        expect(initial['Submitted']).to.equal(9);
         expect(initial['In Progress']).to.equal(12);
         expect(initial['Completed']).to.equal(6);
         expect(initial['Cancelled']).to.equal(4);
@@ -734,7 +734,7 @@ describe(`User Experience Flow`, () => {
       // Step 3: Verify user view updated correctly
       cy.userGetAllFilterCounts().then((afterClear) => {
         expect(afterClear['All']).to.equal(1, 'All should be 1 after admin clears the mock events.');
-        expect(afterClear['In Review']).to.equal(1, 'In Review should be 1 after admin clears the mock events.');
+        expect(afterClear['Submitted']).to.equal(1, 'Submitted should be 1 after admin clears the mock events.');
         expect(afterClear['In Progress']).to.equal(0, 'In Progress should be 0 after admin clears the mock events.');
         expect(afterClear['Completed']).to.equal(0, 'Completed should be 0 after admin clears the mock events.');
         expect(afterClear['Cancelled']).to.equal(0, 'Cancelled should be 0 after admin clears the mock events.');
@@ -749,7 +749,7 @@ describe(`User Experience Flow`, () => {
 
       cy.adminGetAllStatusCounts().then((initial) => {
         expect(initial['All']).to.equal(31);
-        expect(initial['In Review']).to.equal(9);
+        expect(initial['Submitted']).to.equal(9);
         expect(initial['In Progress']).to.equal(12);
         expect(initial['Completed']).to.equal(6);
         expect(initial['Cancelled']).to.equal(4);
@@ -762,7 +762,7 @@ describe(`User Experience Flow`, () => {
       // Step 3: Verify admin view updated correctly
       cy.adminGetAllStatusCounts().then((afterClear) => {
         expect(afterClear['All']).to.equal(1, 'All should be 1 after admin clears the mock events.');
-        expect(afterClear['In Review']).to.equal(1, 'In Review should be 1 after admin clears the mock events.');
+        expect(afterClear['Submitted']).to.equal(1, 'Submitted should be 1 after admin clears the mock events.');
         expect(afterClear['In Progress']).to.equal(0, 'In Progress should be 0 after admin clears the mock events.');
         expect(afterClear['Completed']).to.equal(0, 'Completed should be 0 after admin clears the mock events.');
         expect(afterClear['Cancelled']).to.equal(0, 'Cancelled should be 0 after admin clears the mock events.');

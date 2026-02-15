@@ -63,17 +63,17 @@ const AdminDashboard = () => {
   
   const statusCounts = {
     total: events.length,
-    inReview: events.filter(e => e.status === 'In Review' || e.cancellationRequest || e.submissionRequest).length,
+    submitted: events.filter(e => e.status === 'Submitted' || e.cancellationRequest || e.submissionRequest).length,
     inProgress: events.filter(e => e.status === 'In Progress').length,
     completed: events.filter(e => e.status === 'Completed').length,
     cancelled: events.filter(e => e.status === 'Cancelled').length,
-    submissionRequests: events.filter(e => !e.cancellationRequest && e.status === 'In Review').length,
+    submissionRequests: events.filter(e => !e.cancellationRequest && e.status === 'Submitted').length,
     cancellationRequests: events.filter(e => e.cancellationRequest && e.status !== 'Cancelled').length
   };
 
   const getStatusColor = (status) => {
     const colors = {
-      'In Review': 'bg-blue-100 text-blue-700',
+      'Submitted': 'bg-blue-100 text-blue-700',
       'In Progress': 'bg-yellow-100 text-yellow-700',
       'Completed': 'bg-green-100 text-green-700',
       'Cancelled': 'bg-red-100 text-red-700'
@@ -150,7 +150,7 @@ const AdminDashboard = () => {
               All ({statusCounts.total})
             </div>
             <div className="px-4 py-2 rounded bg-blue-100 text-blue-700 flex-1 text-center min-w-[120px] whitespace-nowrap" data-cy="dashboard-status-box">
-              In Review ({statusCounts.inReview})
+              Submitted ({statusCounts.submitted})
             </div>
             <div className="px-4 py-2 rounded bg-yellow-100 text-yellow-700 flex-1 text-center min-w-[120px] whitespace-nowrap" data-cy="dashboard-status-box">
               In Progress ({statusCounts.inProgress})
@@ -230,7 +230,7 @@ const AdminDashboard = () => {
                             >
                               {event.status}
                             </span>
-                            {event.status === 'In Review' && (
+                            {event.status === 'Submitted' && (
                               <span className={`px-3 py-1 rounded text-xs font-semibold inline-flex items-center justify-center max-w-[140px] truncate ${getPendingBadgeStyle()}`}>
                                 Reviewing Submission
                               </span>
@@ -267,7 +267,7 @@ const AdminDashboard = () => {
                                 </button>
                                 <button
                                   onClick={() => navigate(`/admin/events/${event.id}/edit?mode=complete`)}
-                                  className="min-w-[90px] h-8 py-1.5 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded text-sm font-medium transition whitespace-nowrap flex items-center justify-center"
+                                  className="min-w-[90px] h-8 py-1.5 bg-lime-100 hover:bg-lime-200 text-lime-700 rounded text-sm font-medium transition whitespace-nowrap flex items-center justify-center"
                                   data-cy="dashboard-table-entry-complete-btn"
                                 >
                                   Complete
@@ -277,7 +277,7 @@ const AdminDashboard = () => {
                               // Everything else - Show View button only
                               <button
                                 onClick={() => navigate(`/admin/events/${event.id}/edit`)}
-                                className="min-w-[90px] h-8 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-medium transition whitespace-nowrap flex items-center justify-center"
+                                className="min-w-[90px] h-8 py-1.5 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded text-sm font-medium transition whitespace-nowrap flex items-center justify-center"
                                 data-cy="dashboard-table-entry-view-btn"
                               >
                                 View
