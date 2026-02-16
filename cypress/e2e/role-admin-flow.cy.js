@@ -65,33 +65,37 @@ describe(``, () => {
   describe(`Admin Event Mgmt.`, () => {
     describe(`Admin Reviewing New Events`, () => {
       before(() => {
-    cy.clearCacheLoadLanding();
+        cy.clearCacheLoadLanding();
 
-    cy.landingToSignup();
-      cy.userSignup(user.email, user.password);
-      cy.eventlistToNewEventForm();
+        cy.landingToSignup();
+          cy.userSignup(user.email, user.password);
+          cy.eventlistToNewEventForm();
 
-      // create 3 new events
-      Cypress._.times(3, () => {
-      cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '')
-      });
+          // create 3 new events
+          Cypress._.times(3, () => {
+          cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '')
+          });
 
-      cy.userLogout();
+          cy.userLogout();
 
-      cy.landingToLogin();
-      cy.adminLogin(admin.email, admin.password);
-      });
+          cy.landingToLogin();
+          cy.adminLogin(admin.email, admin.password);
+          });
 
-      it(`should accept new event`, () => {
-      cy.adminAcceptEventNew();
-      });
+          it(`should error out wiith no comment`, () => {
+            cy.adminAcceptEventNewError();
+          });
 
-      it(`should decline new event`, () => {
-      cy.adminRejectEventNew();
-      });
+          it(`should accept new event`, () => {
+          cy.adminAcceptEventNew();
+          });
 
-      it(`should return with no action`, () => {
-      cy.adminConsiderEventNew();
+          it(`should decline new event`, () => {
+          cy.adminRejectEventNew();
+          });
+
+          it(`should return with no action`, () => {
+          cy.adminConsiderEventNew();
       });
     });
 
@@ -133,6 +137,10 @@ describe(``, () => {
       cy.landingToLogin();
       cy.adminLogin(admin.email, admin.password);
 
+      });
+
+      it(`should error out with no comment`, () => {
+        cy.adminAcceptEventCancelError();
       });
 
       it(`should approve cancellation request`, () => {

@@ -574,7 +574,62 @@ Cypress.Commands.add('adminAcceptEventNew', () => {
   });
 });
 
-Cypress.Commands.add('adminAcceptEventNewError', () => {});
+Cypress.Commands.add('adminAcceptEventNewError', () => {
+  cy.adminGetOneStatusCount('All')
+  .then((allCount) => {
+    cy.adminGetOneStatusCount('Submitted')
+    .then((inReviewCount) => {
+      cy.adminGetOneStatusCount('In Progress')
+      .then((inProgressCount) => {
+
+        cy.get('[data-cy="dashboard-table-entry"]').then($entries => {
+          const target = $entries.filter((i, el) => {
+            const $el = Cypress.$(el);
+            return $el.text().includes('Submitted');
+          });
+
+          expect(target.length).to.be.greaterThan(0, 'Should have at least one event in review');
+
+          const eventId = Cypress.$(target.first()).attr('data-event-id');
+
+          // cy.log('Accepting event:', eventId);
+
+          cy.wrap(target.first())
+            .find('[data-cy="dashboard-table-entry-view-btn"]')
+            .click();
+
+          cy.url()
+            .should('include', '/admin/events/')
+            .and('contain', '/edit');
+
+          cy.get('[data-cy="review-new-comment-input"]')
+            .should('be.visible')
+            .clear();
+
+          cy.get('[data-cy="accept-new-event-btn"]')
+            .should('be.disabled')
+
+          cy.get('[data-cy="return-dashboard-btn"]')
+            .click();
+
+          cy.url()
+            .should('contain', '/admin/dashboard');
+
+          cy.get(`[data-event-id="${eventId}"]`)
+            .should('contain', 'Submitted')
+            .and('not.contain', 'In Progress');
+
+          cy.adminGetOneStatusCount('All')
+            .should('eq', allCount);
+          cy.adminGetOneStatusCount('Submitted')
+            .should('eq', inReviewCount);
+          cy.adminGetOneStatusCount('In Progress')
+            .should('eq', inProgressCount);
+        });
+      });
+    });
+  });
+});
 
 Cypress.Commands.add('adminRejectEventNew', () => {
   cy.adminGetOneStatusCount('All')
@@ -1212,7 +1267,58 @@ Cypress.Commands.add('adminAcceptEventCancel', () => {
   });
 });
 
-Cypress.Commands.add('adminAcceptEventCancelError', () => {});
+Cypress.Commands.add('adminAcceptEventCancelError', () => {
+  cy.adminGetOneStatusCount('All')
+  .then((allCount) => {
+    cy.adminGetOneStatusCount('In Progress')
+    .then((inProgressCount) => {
+      cy.adminGetOneStatusCount('Cancelled')
+      .then((cancelledCount) => {
+
+        cy.get('[data-cy="dashboard-table-entry"]').then($entries => {
+          const target = $entries.filter((i, el) => {
+            const $el = Cypress.$(el);
+            return $el.text().includes('Reviewing Cancellation');
+          });
+
+          expect(target.length).to.be.greaterThan(0, 'Should have at least one event reviewing cancellation');
+
+          const eventId = Cypress.$(target.first()).attr('data-event-id');
+
+          // cy.log('Accepting cancellation for event:', eventId);
+
+          cy.wrap(target.first())
+            .find('[data-cy="dashboard-table-entry-view-btn"]')
+            .click();
+
+          cy.get('[data-cy="review-cancel-comment-input"]')
+            .scrollIntoView()
+            .clear();
+
+          cy.get('[data-cy="accept-cancel-event-btn"]')
+            .should('be.disabled');
+          
+          cy.get('[data-cy="return-dashboard-btn"]')
+            .click();
+
+          cy.url()
+            .should('contain', '/admin/dashboard');
+
+          cy.get(`[data-event-id="${eventId}"]`)
+            .should('contain', 'Reviewing Cancellation')
+            .and('not.contain', 'Cancelled');
+
+          cy.adminGetOneStatusCount('All')
+            .should('eq', allCount);
+          cy.adminGetOneStatusCount('In Progress')
+            .should('eq', inProgressCount);
+          cy.adminGetOneStatusCount('Cancelled')
+            .should('eq', cancelledCount);
+        });
+      });
+    });
+  });
+});
 
 Cypress.Commands.add('adminRejectEventCancel', () => {
   cy.adminGetOneStatusCount('All')
