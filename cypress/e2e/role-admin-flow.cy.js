@@ -185,39 +185,110 @@ describe(``, () => {
       });
     });
 
-    // describe(`Admin Viewing Events`, () => {
-    //   before(() => {
-
-    //   });
-
-    //   it(``, () => {
-
-    //   });
-
-    //   it(``, () => {
-
-    //   });
-    // });
-
-    describe(`Admin Event Mgmt. End-to-End`, () => {
-      describe(`Event Lifecycle - Decline New Event Path`, () => {
+    describe(`Admin Viewing Events`, () => {
       before(() => {
         cy.clearCacheLoadLanding();
         cy.landingToSignup();
-        cy.userSignup(user.email, user.password);
+        cy.userSignup(user.email, user.password, user.password);
+        
+        // Event 1: Submitted (don't accept this one!)
+        cy.eventlistToNewEventForm();
+        cy.userCreateEventNew();
+        
+        // Event 2: In Progress with Pending Cancellation
+        cy.eventlistToNewEventForm();
+        cy.userCreateEventNew();
+        
         cy.userLogout();
         cy.landingToLogin();
         cy.adminLogin(admin.email, admin.password);
+        cy.adminAcceptEventNew(); // Accepts Event 2
+        
+        cy.userLogout();
+        cy.landingToLogin();
+        cy.userLogin(user.email, user.password);
+        cy.userSubmitEventCancel(); // Cancel Event 2
+        
+        // Event 3: In Progress with Reviewing Completion
+        cy.eventlistToNewEventForm();
+        cy.userCreateEventNew();
+        
+        cy.userLogout();
+        cy.landingToLogin();
+        cy.adminLogin(admin.email, admin.password);
+        cy.adminAcceptEventNew(); // Accepts Event 3
+        cy.adminSubmitEventComplete(); // Request completion for Event 3
+        
+        // Event 4: Completed
+        cy.userLogout();
+        cy.landingToLogin();
+        cy.userLogin(user.email, user.password);
+        cy.eventlistToNewEventForm();
+        cy.userCreateEventNew();
+        
+        cy.userLogout();
+        cy.landingToLogin();
+        cy.adminLogin(admin.email, admin.password);
+        cy.adminAcceptEventNew(); // Accepts Event 4
+        cy.adminSubmitEventComplete(); // Request completion for Event 4
+        
+        cy.userLogout();
+        cy.landingToLogin();
+        cy.userLogin(user.email, user.password);
+        cy.userAcceptEventComplete(); // Accept completion for Event 4
+        
+        // Event 5: Cancelled
+        cy.eventlistToNewEventForm();
+        cy.userCreateEventNew();
+        
+        cy.userLogout();
+        cy.landingToLogin();
+        cy.adminLogin(admin.email, admin.password);
+        cy.adminRejectEventNew(); // Rejects Event 5
+        
+        // IMPORTANT: Stay login as admin for the tests!
       });
 
-      it('should track counts through user creates event -> admin declines flow', () => {
+      it(`should view submitted event with reviewing event`, () => {
+        cy.adminViewEvent('Submitted', 'Reviewing Event');
+      });
+
+      it(`should view in progress event with reviewing cancellation`, () => {
+        cy.adminViewEvent('In Progress', 'Reviewing Cancellation');
+      });
+
+      it(`should view in progress event with pending completion`, () => {
+        cy.adminViewEvent('In Progress', 'Pending Completion');
+      });
+
+      it(`should view completed event`, () => {
+        cy.adminViewEvent('Completed');
+      });
+
+      it(`should view cancelled event`, () => {
+        cy.adminViewEvent('Cancelled');
+      });
+    });
+
+    describe(`Admin Event Mgmt. End-to-End`, () => {
+      describe(`Event Lifecycle - Decline New Event Path`, () => {
+        before(() => {
+          cy.clearCacheLoadLanding();
+          cy.landingToSignup();
+          cy.userSignup(user.email, user.password);
+          cy.userLogout();
+          cy.landingToLogin();
+          cy.adminLogin(admin.email, admin.password);
+        });
+
+        it('should track counts through user creates event -> admin declines flow', () => {
           // Step 1: Start with clean slate
           cy.adminGetAllStatusCounts().then((initial) => {
-                expect(initial['All']).to.equal(0);
-                expect(initial['Submitted']).to.equal(0);
-                expect(initial['In Progress']).to.equal(0);
-                expect(initial['Completed']).to.equal(0);
-                expect(initial['Cancelled']).to.equal(0);
+            expect(initial['All']).to.equal(0);
+            expect(initial['Submitted']).to.equal(0);
+            expect(initial['In Progress']).to.equal(0);
+            expect(initial['Completed']).to.equal(0);
+            expect(initial['Cancelled']).to.equal(0);
           });
 
           // Step 2: User creates event
@@ -228,27 +299,49 @@ describe(``, () => {
           cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '')
           cy.userLogout();
 
-          // Step 3: Verify Submitted
+          // Step 3: Admin checks status counts before review
           cy.landingToLogin();
           cy.adminLogin(admin.email, admin.password);
+
           cy.adminGetAllStatusCounts().then((afterCreate) => {
-                expect(afterCreate['All']).to.equal(1, 'All should be 1 after event created');
-                expect(afterCreate['Submitted']).to.equal(1, 'Submitted should be 1');
-                expect(afterCreate['In Progress']).to.equal(0, 'In Progress should be 0');
-                expect(afterCreate['Completed']).to.equal(0, 'Completed should be 0');
-                expect(afterCreate['Cancelled']).to.equal(0, 'Cancelled should be 0');
+            expect(afterCreate['All']).to.equal(1, 'All should be 1 after event created');
+            expect(afterCreate['Submitted']).to.equal(1, 'Submitted should be 1');
+            expect(afterCreate['In Progress']).to.equal(0, 'In Progress should be 0');
+            expect(afterCreate['Completed']).to.equal(0, 'Completed should be 0');
+            expect(afterCreate['Cancelled']).to.equal(0, 'Cancelled should be 0');
           });
 
-          // Step 4: Admin declines
+          // Step 4: Admin views new events pending review
+          cy.adminViewEvent('Submitted', 'Reviewing Event');
+
+          cy.adminGetAllStatusCounts().then((afterCreateView) => {
+            expect(afterCreateView['All']).to.equal(1, 'All should be 1 after event created');
+            expect(afterCreateView['Submitted']).to.equal(1, 'Submitted should be 1');
+            expect(afterCreateView['In Progress']).to.equal(0, 'In Progress should be 0');
+            expect(afterCreateView['Completed']).to.equal(0, 'Completed should be 0');
+            expect(afterCreateView['Cancelled']).to.equal(0, 'Cancelled should be 0');
+          });
+
+          // Step 5: Admin declines
           cy.adminRejectEventNew();
 
-          // Step 5: Verify Cancelled
           cy.adminGetAllStatusCounts().then((afterDecline) => {
             expect(afterDecline['All']).to.equal(1, 'All should still be 1');
             expect(afterDecline['Submitted']).to.equal(0, 'Submitted should be 0 after decline');
             expect(afterDecline['In Progress']).to.equal(0, 'In Progress should be 0');
             expect(afterDecline['Completed']).to.equal(0, 'Completed should be 0');
             expect(afterDecline['Cancelled']).to.equal(1, 'Cancelled should be 1 after decline');
+          });
+
+          // Step 6: Admin views declined event
+          cy.adminViewEvent('Cancelled');
+
+          cy.adminGetAllStatusCounts().then((afterDeclineView) => {
+            expect(afterDeclineView['All']).to.equal(1, 'All should still be 1');
+            expect(afterDeclineView['Submitted']).to.equal(0, 'Submitted should be 0');
+            expect(afterDeclineView['In Progress']).to.equal(0, 'In Progress should be 0');
+            expect(afterDeclineView['Completed']).to.equal(0, 'Completed should be 0');
+            expect(afterDeclineView['Cancelled']).to.equal(1, 'Cancelled should still be 1 after viewing cancelled event');
           });
         });
       });
@@ -277,9 +370,30 @@ describe(``, () => {
           cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '')
           cy.userLogout();
 
-          // Step 3: Admin accepts
+          // Step 3: Admin checks status counts before review
           cy.landingToLogin();
           cy.adminLogin(admin.email, admin.password);
+
+          cy.adminGetAllStatusCounts().then((beforeAccept) => {
+            expect(beforeAccept['All']).to.equal(1, 'All should be 1');
+            expect(beforeAccept['Submitted']).to.equal(1, 'Submitted should be 1 before accept');
+            expect(beforeAccept['In Progress']).to.equal(0, 'In Progress should be 0 before accept');
+            expect(beforeAccept['Completed']).to.equal(0, 'Completed should be 0');
+            expect(beforeAccept['Cancelled']).to.equal(0, 'Cancelled should be 0');
+          });
+
+          // Step 4: Admin views new events pending review
+          cy.adminViewEvent('Submitted', 'Reviewing Event');
+
+          cy.adminGetAllStatusCounts().then((beforeAcceptView) => {
+            expect(beforeAcceptView['All']).to.equal(1, 'All should be 1');
+            expect(beforeAcceptView['Submitted']).to.equal(1, 'Submitted should be 1 before accept');
+            expect(beforeAcceptView['In Progress']).to.equal(0, 'In Progress should be 0 before accept');
+            expect(beforeAcceptView['Completed']).to.equal(0, 'Completed should be 0');
+            expect(beforeAcceptView['Cancelled']).to.equal(0, 'Cancelled should be 0');
+          });
+
+          // Step 5: Admin accepts
           cy.adminAcceptEventNew();
 
           cy.adminGetAllStatusCounts().then((afterAccept) => {
@@ -290,18 +404,43 @@ describe(``, () => {
             expect(afterAccept['Cancelled']).to.equal(0, 'Cancelled should be 0');
           });
 
-          // Step 4: User requests cancellation
+          // Step 5: User requests cancellation
           cy.userLogout();
           cy.landingToLogin();
           cy.userLogin(user.email, user.password);
+
           cy.userSubmitEventCancel();
+
           cy.userLogout();
 
-          // Step 5: Admin approves cancellation
           cy.landingToLogin();
           cy.adminLogin(admin.email, admin.password);
+
+          // Step 6: Admin views reviewing cancellation event
+          cy.adminViewEvent('In Progress', 'Reviewing Cancellation');
+          
+          cy.adminGetAllStatusCounts().then((beforeConfirmCancelView) => {
+            expect(beforeConfirmCancelView['All']).to.equal(1, 'All should be 1');
+            expect(beforeConfirmCancelView['Submitted']).to.equal(0, 'Submitted should be 0 after accept');
+            expect(beforeConfirmCancelView['In Progress']).to.equal(1, 'In Progress should be 1 after accept');
+            expect(beforeConfirmCancelView['Completed']).to.equal(0, 'Completed should be 0');
+            expect(beforeConfirmCancelView['Cancelled']).to.equal(0, 'Cancelled should be 0');
+          });
+
+          // Step 7: Admin approves cancellation
           cy.adminAcceptEventCancel();
 
+          cy.adminGetAllStatusCounts().then((afterCancel) => {
+            expect(afterCancel['All']).to.equal(1, 'All should still be 1');
+            expect(afterCancel['Submitted']).to.equal(0, 'Submitted should be 0');
+            expect(afterCancel['In Progress']).to.equal(0, 'In Progress should be 0 after cancellation');
+            expect(afterCancel['Completed']).to.equal(0, 'Completed should be 0');
+            expect(afterCancel['Cancelled']).to.equal(1, 'Cancelled should be 1 after cancellation');
+          });
+
+          // Step 8: Admin views cancelled event
+          cy.adminViewEvent('Cancelled');
+          
           cy.adminGetAllStatusCounts().then((afterCancel) => {
             expect(afterCancel['All']).to.equal(1, 'All should still be 1');
             expect(afterCancel['Submitted']).to.equal(0, 'Submitted should be 0');
@@ -336,17 +475,41 @@ describe(``, () => {
           cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '')
           cy.userLogout();
 
-          // Step 3: Admin accepts
+          // Step 3: Admin checks status counts before review
           cy.landingToLogin();
           cy.adminLogin(admin.email, admin.password);
+
+          cy.adminGetAllStatusCounts().then((beforeAccept) => {
+            expect(beforeAccept['All']).to.equal(1, 'All should be 1');
+            expect(beforeAccept['Submitted']).to.equal(1, 'Submitted should be 1 before accept');
+            expect(beforeAccept['In Progress']).to.equal(0, 'In Progress should be 0 before accept');
+            expect(beforeAccept['Completed']).to.equal(0, 'Completed should be 0');
+            expect(beforeAccept['Cancelled']).to.equal(0, 'Cancelled should be 0');
+          });
+
+          // Step 4: Admin views new events pending review
+          cy.adminViewEvent('Submitted', 'Reviewing Event');
+
+          cy.adminGetAllStatusCounts().then((beforeAcceptView) => {
+            expect(beforeAcceptView['All']).to.equal(1, 'All should be 1');
+            expect(beforeAcceptView['Submitted']).to.equal(1, 'Submitted should be 1 before accept');
+            expect(beforeAcceptView['In Progress']).to.equal(0, 'In Progress should be 0 before accept');
+            expect(beforeAcceptView['Completed']).to.equal(0, 'Completed should be 0');
+            expect(beforeAcceptView['Cancelled']).to.equal(0, 'Cancelled should be 0');
+          });
+
+          // Step 5: Admin accepts
           cy.adminAcceptEventNew();
 
           cy.adminGetAllStatusCounts().then((afterAccept) => {
-            expect(afterAccept['All']).to.equal(1);
-            expect(afterAccept['In Progress']).to.equal(1);
+            expect(afterAccept['All']).to.equal(1, 'All should be 1');
+            expect(afterAccept['Submitted']).to.equal(0, 'Submitted should be 0 after accept');
+            expect(afterAccept['In Progress']).to.equal(1, 'In Progress should be 1 after accept');
+            expect(afterAccept['Completed']).to.equal(0, 'Completed should be 0');
+            expect(afterAccept['Cancelled']).to.equal(0, 'Cancelled should be 0');
           });
 
-          // Step 4: Admin submit event complete
+          // Step 6: Admin submits event completion request
           cy.adminSubmitEventComplete();
 
           cy.adminGetAllStatusCounts().then((afterComplete) => {
@@ -357,16 +520,39 @@ describe(``, () => {
             expect(afterComplete['Cancelled']).to.equal(0, 'Cancelled should be 0');
           });
 
-          // Step 5: User accepts event completion
+          // Step 7: Admin views pending completion event
+          cy.adminViewEvent('In Progress', 'Pending Completion');
+
+          cy.adminGetAllStatusCounts().then((afterComplete) => {
+            expect(afterComplete['All']).to.equal(1, 'All should still be 1');
+            expect(afterComplete['Submitted']).to.equal(0, 'Submitted should be 0');
+            expect(afterComplete['In Progress']).to.equal(1, 'In Progress should be 1 after sending complete request');
+            expect(afterComplete['Completed']).to.equal(0, 'Completed should be 0 after sending complete request');
+            expect(afterComplete['Cancelled']).to.equal(0, 'Cancelled should be 0');
+          });
+
+          // Step 8: User accepts event completion
           cy.userLogout();
           cy.landingToLogin();
           cy.userLogin(user.email, user.password);
+
           cy.userAcceptEventComplete();
           cy.userLogout();
-
-          // Step 6: Verify Completed count unchanged
           cy.landingToLogin();
           cy.adminLogin(admin.email, admin.password);
+
+          // Step 9: Verify Completed count unchanged
+          cy.adminGetAllStatusCounts().then((afterUserAcceptComplete) => {
+            expect(afterUserAcceptComplete['All']).to.equal(1, 'All should still be 1');
+            expect(afterUserAcceptComplete['Submitted']).to.equal(0, 'Submitted should be 0');
+            expect(afterUserAcceptComplete['In Progress']).to.equal(0, 'In Progress should be 0');
+            expect(afterUserAcceptComplete['Completed']).to.equal(1, 'Completed should still be 1 after user accepts completion');
+            expect(afterUserAcceptComplete['Cancelled']).to.equal(0, 'Cancelled should be 0');
+          });
+
+          // Step 10: Admin views completed event
+          cy.adminViewEvent('Completed');
+          
           cy.adminGetAllStatusCounts().then((afterUserAcceptComplete) => {
             expect(afterUserAcceptComplete['All']).to.equal(1, 'All should still be 1');
             expect(afterUserAcceptComplete['Submitted']).to.equal(0, 'Submitted should be 0');

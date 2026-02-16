@@ -63,7 +63,7 @@ const AdminDashboard = () => {
   
   const statusCounts = {
     total: events.length,
-    submitted: events.filter(e => e.status === 'Submitted' || e.cancellationRequest || e.submissionRequest).length,
+    submitted: events.filter(e => e.status === 'Submitted').length, // REMOVE: || e.cancellationRequest || e.submissionRequest
     inProgress: events.filter(e => e.status === 'In Progress').length,
     completed: events.filter(e => e.status === 'Completed').length,
     cancelled: events.filter(e => e.status === 'Cancelled').length,

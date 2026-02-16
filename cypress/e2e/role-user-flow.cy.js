@@ -501,8 +501,8 @@ describe(`User Experience Flow`, () => {
         cy.userLogin(user.email, user.password);
       });
 
-      it('should view submitted event', () => {
-        cy.userViewEvent('Submitted');
+      it('should view submitted event with pending review', () => {
+        cy.userViewEvent('Submitted, Pending Review');
       });
 
       it('should view in progress event with pending cancellation', () => {

@@ -1709,79 +1709,125 @@ Cypress.Commands.add('userViewEvent', (status, badge = null) => {
   });
 });
 
-Cypress.Commands.add('adminViewEvent', () => {
+Cypress.Commands.add('adminViewEvent', (status, badge = null) => {
   cy.get('[data-cy="dashboard-table-entry"]').then($entries => {
     const target = $entries.filter((i, el) => {
       const $el = Cypress.$(el);
+      const text = $el.text();
+      
+      // If status is provided, filter by it
+      if (status) {
+        const hasStatus = text.includes(status);
+        
+        // If badge is also provided, filter by both
+        if (badge) {
+          return hasStatus && text.includes(badge);
+        }
+        
+        // If only status, check for specific combinations
+        if (status === 'Submitted' && !badge) {
+          // Submitted without any other badges (should have Reviewing Submission)
+          return hasStatus && text.includes('Reviewing Event');
+        }
+
+        if (status === 'In Progress' && !badge) {
+          // In Progress without any badges (clean In Progress - no Pending/Reviewing)
+          return hasStatus && 
+                 !text.includes('Pending Completion') && 
+                 !text.includes('Reviewing Cancellation');
+        }
+        
+        return hasStatus;
+      }
+      
+      // Default behavior: any viewable event (has action sections or is read-only)
       return (
-        (
-          $el.text().includes('Submitted') && $el.text().includes('Reviewing Event')
-        ) ||
-        (
-          $el.text().includes('In Progress') &&
-            (
-              $el.text().includes('Reviewing Cancellation') || 
-              $el.text().includes('Pending Completion')
-            )
-        ) ||
-        $el.text().includes('Completed') || 
-        $el.text().includes('Cancelled')
-      )
+        (text.includes('Submitted') && text.includes('Reviewing Submission')) ||
+        (text.includes('In Progress') &&
+          (text.includes('Pending Completion') || 
+           text.includes('Reviewing Cancellation'))) ||
+        text.includes('Completed') || 
+        text.includes('Cancelled')
+      );
     });
 
-    expect(target.length).to.be.greaterThan(0, 'Should have at least one viewable event');
+    expect(target.length).to.be.greaterThan(0, `Should have at least one event with status: ${status}${badge ? ` and badge: ${badge}` : ''}`);
 
     const eventId = Cypress.$(target.first()).attr('data-event-id');
     const eventText = Cypress.$(target.first()).text();
     
-    // Determine the status from the event text
-    let expectedStatus;
-    let hasPendingState = false;
+    // Determine if action section should exist
+    let shouldHaveActionSection = false;
     
-    if (eventText.includes('Completed')) {
-      expectedStatus = 'Completed';
-    } else if (eventText.includes('Cancelled')) {
-      expectedStatus = 'Cancelled';
-    } else if (eventText.includes('In Progress')) {
-      expectedStatus = 'In Progress';
-      // Check if it has a pending/reviewing state
-      if (eventText.includes('Pending Cancellation') || eventText.includes('Reviewing Completion')) {
-        hasPendingState = true;
-      }
+    // Action section exists for:
+    // - Submitted (review submission)
+    // - In Progress with Reviewing Cancellation
+    // Note: In Progress with Pending Completion shows info only, no action buttons
+    if (eventText.includes('Submitted') || 
+        eventText.includes('Reviewing Cancellation')) {
+      shouldHaveActionSection = true;
     }
 
-    // cy.log(`Viewing event ${eventId} with status: ${expectedStatus}${hasPendingState ? ' (with pending state)' : ''}`);
+    cy.log(`Viewing event ${eventId} - Status: ${status || 'any'}${badge ? `, Badge: ${badge}` : ''}`);
 
     cy.wrap(target.first())
       .find('[data-cy="dashboard-table-entry-view-btn"]')
       .click();
-
+      
     cy.url()
       .should('contain', '/admin/events/event_')
       .and('contain', '/edit');
 
-    cy.get('[data-cy="eventview-detail"]')
+    cy.get('[data-cy="eventview-details"]')
       .should('exist');
 
-    cy.get('[data-cy="return-eventlist-btn"]')
+    // Verify action section presence
+    if (shouldHaveActionSection) {
+      cy.get('[data-cy="eventview-action"]').should('exist');
+      
+      // Verify specific subsections
+      if (eventText.includes('Submitted')) {
+        cy.get('[data-cy="eventview-action-review-new"]').should('exist');
+      } else if (eventText.includes('Reviewing Cancellation')) {
+        cy.get('[data-cy="eventview-action-review-cancel"]').should('exist');
+      }
+    } else {
+      // Read-only events (Completed, Cancelled, Pending Completion) have no action section with buttons
+      // Pending Completion shows info section inside eventview-action but no action buttons
+      if (eventText.includes('Pending Completion')) {
+        cy.get('[data-cy="eventview-action"]').should('exist'); // Info section exists
+        cy.get('[data-cy="eventview-action-review-new"]').should('not.exist');
+        cy.get('[data-cy="eventview-action-review-cancel"]').should('not.exist');
+      } else {
+        cy.get('[data-cy="eventview-action"]').should('not.exist');
+      }
+    }
+
+    cy.get('[data-cy="return-dashboard-btn"]')
       .should('be.enabled')
       .click();
 
-    cy.url().should('contain', '/user/events');
-    cy.url().should('not.contain', '/event_');
+    cy.url().should('contain', '/admin/dashboard');
 
     // Verify the event status hasn't changed
     cy.get(`[data-event-id="${eventId}"]`).then($event => {
       const updatedText = $event.text();
       
-      // Verify status remains the same
-      expect(updatedText).to.contain(expectedStatus);
-      
-      // If it had a pending state, verify it still has it
-      if (hasPendingState) {
-        const stillHasPending = updatedText.includes('Pending Cancellation') || 
-                                updatedText.includes('Reviewing Completion');
-        expect(stillHasPending).to.be.true;
+      // Check that the status we originally filtered for is still there
+      if (status) {
+        expect(updatedText).to.contain(status);
+        
+        // If we also filtered by badge, check that too
+        if (badge) {
+          expect(updatedText).to.contain(badge);
+        }
+      } else {
+        // If no status was specified, just check it's still viewable
+        const isStillViewable = updatedText.includes('Submitted') ||
+                                updatedText.includes('In Progress') ||
+                                updatedText.includes('Completed') ||
+                                updatedText.includes('Cancelled');
+        expect(isStillViewable).to.be.true;
       }
     });
   });

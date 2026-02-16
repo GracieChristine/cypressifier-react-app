@@ -205,18 +205,55 @@ const AdminEventView = () => {
 
         {/* Event View Details */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="eventview-details">
-          <h2 className="text-3xl font-display mb-2">{selectedEvent.name}</h2>
-          <p className="text-gray-600 mb-6 font-serif">
-            {isUpdateMode && 'Manage Event - Planning & Updates'}
-            {isCompleteMode && 'Complete Event - Send for Client Review'}
-            {isViewMode && isSubmitted && 'New Event Submission - Review Required'}
-            {isViewMode && isSubmittedWithCancellation && 'New Event Submission with Cancellation Request - Review Required'}
-            {isViewMode && isCancellationRequest && !isSubmittedWithCancellation && 'Cancellation Request - Review Required'}
-            {isViewMode && isInProgressWithCancellation && 'Event In Progress with Cancellation Request - Review Required'}
-            {isViewMode && isReadOnly && `Event ${selectedEvent.status}`}
-            {isViewMode && selectedEvent.completionRequest && 'Event Completion Pending Client Review'}
-          </p>
+          <div className="flex justify-between items-start mb-6">
+            <div>
+              <h2 className="text-3xl font-display mb-2">{selectedEvent.name}</h2>
+              <p className="text-gray-600 font-serif">
+                {isUpdateMode && 'Manage Event - Planning & Updates'}
+                {isCompleteMode && 'Complete Event - Send for Client Review'}
+                {isViewMode && isSubmitted && 'New Event Submission - Review Required'}
+                {isViewMode && isSubmittedWithCancellation && 'New Event Submission with Cancellation Request - Review Required'}
+                {isViewMode && isCancellationRequest && !isSubmittedWithCancellation && 'Cancellation Request - Review Required'}
+                {isViewMode && isInProgressWithCancellation && 'Event In Progress with Cancellation Request - Review Required'}
+                {isViewMode && isReadOnly && `Event ${selectedEvent.status}`}
+                {isViewMode && selectedEvent.completionRequest && 'Event Completion Pending Client Review'}
+              </p>
+            </div>
 
+            {/* Status Badge - Prominent like user view */}
+            <div className="flex flex-col gap-2 items-end -mt-2">
+              <span className={`px-4 py-2 rounded-lg text-sm font-semibold ${
+                selectedEvent.status === 'Submitted' ? 'bg-blue-100 text-blue-700' :
+                selectedEvent.status === 'In Progress' ? 'bg-yellow-100 text-yellow-700' :
+                selectedEvent.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                selectedEvent.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
+                'bg-gray-100 text-gray-700'
+              }`}>
+                {selectedEvent.status}
+              </span>
+
+              {/* Reviewing Submission Badge */}
+              {selectedEvent.status === 'Submitted' && (
+                <span className="px-3 py-1 rounded text-xs font-semibold border border-orange-500 text-orange-600 bg-transparent whitespace-nowrap">
+                  Reviewing Submission
+                </span>
+              )}
+
+              {/* Reviewing Cancellation Badge */}
+              {selectedEvent.cancellationRequest && (
+                <span className="px-3 py-1 rounded text-xs font-semibold border border-orange-500 text-orange-600 bg-transparent whitespace-nowrap">
+                  Reviewing Cancellation
+                </span>
+              )}
+
+              {/* Pending Completion Badge */}
+              {selectedEvent.completionRequest && (
+                <span className="px-3 py-1 rounded text-xs font-semibold border border-orange-500 text-orange-600 bg-transparent whitespace-nowrap">
+                  Pending Completion
+                </span>
+              )}
+            </div>
+          </div>
           <div className="space-y-6">
 
             {/* Client Info - Read Only */}
