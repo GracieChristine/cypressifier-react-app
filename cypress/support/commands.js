@@ -1598,19 +1598,135 @@ Cypress.Commands.add('userConsiderEventComplete', () => {
 });
 
 //// View Event
-Cypress.Commands.add('userViewEvent', () => {
+Cypress.Commands.add('userViewEvent', (status, badge = null) => {
   cy.get('[data-cy="eventlist-event-list-entry"]').then($entries => {
     const target = $entries.filter((i, el) => {
       const $el = Cypress.$(el);
+      const text = $el.text();
+      
+      // If status is provided, filter by it
+      if (status) {
+        const hasStatus = text.includes(status);
+        
+        // If badge is also provided, filter by both
+        if (badge) {
+          return hasStatus && text.includes(badge);
+        }
+        
+        // If only status, check for specific combinations
+        if (status === 'In Progress' && !badge) {
+          // In Progress without any badges (clean In Progress)
+          return hasStatus && 
+                 !text.includes('Pending Cancellation') && 
+                 !text.includes('Reviewing Completion');
+        }
+        
+        return hasStatus;
+      }
+      
+      // Default behavior: any viewable event
       return (
-        $el.text().includes('In Progress') &&
-          (
-            $el.text().includes('Pending Cancellation') || 
-            $el.text().includes('Reviewing Completion')
-          )
-            ) || 
-            $el.text().includes('Completed') || 
-            $el.text().includes('Cancelled');
+        text.includes('Submitted') ||
+        (text.includes('In Progress') &&
+          (text.includes('Pending Cancellation') || 
+           text.includes('Reviewing Completion'))) ||
+        text.includes('Completed') || 
+        text.includes('Cancelled')
+      );
+    });
+
+    expect(target.length).to.be.greaterThan(0, `Should have at least one event with status: ${status}${badge ? ` and badge: ${badge}` : ''}`);
+
+    const eventId = Cypress.$(target.first()).attr('data-event-id');
+    const eventText = Cypress.$(target.first()).text();
+    
+    // Determine expected sections
+    let shouldHaveCompletionSection = false;
+    let shouldHaveCancelSection = false;
+    
+    if (eventText.includes('Reviewing Completion')) {
+      shouldHaveCompletionSection = true;
+    } else if (eventText.includes('In Progress') && 
+               !eventText.includes('Pending Cancellation') && 
+               !eventText.includes('Reviewing Completion')) {
+      // Clean In Progress can cancel
+      shouldHaveCancelSection = true;
+    }
+
+    cy.log(`Viewing event ${eventId} - Status: ${status || 'any'}${badge ? `, Badge: ${badge}` : ''}`);
+
+    cy.wrap(target.first())
+      .find('[data-cy="eventlist-event-list-entry-view-btn"]')
+      .click();
+
+    cy.url()
+      .should('contain', '/user/events/event_')
+      .and('not.contain', '/edit');
+
+    cy.get('[data-cy="eventview-detail"]')
+      .should('exist');
+
+    // Verify sections
+    if (shouldHaveCompletionSection) {
+      cy.get('[data-cy="confirm-completion-section"]').should('exist');
+      cy.get('[data-cy="cancel-event-section"]').should('not.exist');
+    } else if (shouldHaveCancelSection) {
+      cy.get('[data-cy="cancel-event-section"]').should('exist');
+      cy.get('[data-cy="confirm-completion-section"]').should('not.exist');
+    } else {
+      cy.get('[data-cy="confirm-completion-section"]').should('not.exist');
+      cy.get('[data-cy="cancel-event-section"]').should('not.exist');
+    }
+
+    cy.get('[data-cy="return-eventlist-btn"]')
+      .should('be.enabled')
+      .click();
+
+    cy.url().should('contain', '/user/events');
+    cy.url().should('not.contain', '/event_');
+
+    // Verify the event status hasn't changed - use the original eventText to determine what to check
+    cy.get(`[data-event-id="${eventId}"]`).then($event => {
+      const updatedText = $event.text();
+      
+      // Check that the status we originally filtered for is still there
+      if (status) {
+        expect(updatedText).to.contain(status);
+        
+        // If we also filtered by badge, check that too
+        if (badge) {
+          expect(updatedText).to.contain(badge);
+        }
+      } else {
+        // If no status was specified, just check it's still viewable
+        const isStillViewable = updatedText.includes('Submitted') ||
+                                updatedText.includes('In Progress') ||
+                                updatedText.includes('Completed') ||
+                                updatedText.includes('Cancelled');
+        expect(isStillViewable).to.be.true;
+      }
+    });
+  });
+});
+
+Cypress.Commands.add('adminViewEvent', () => {
+  cy.get('[data-cy="dashboard-table-entry"]').then($entries => {
+    const target = $entries.filter((i, el) => {
+      const $el = Cypress.$(el);
+      return (
+        (
+          $el.text().includes('Submitted') && $el.text().includes('Reviewing Event')
+        ) ||
+        (
+          $el.text().includes('In Progress') &&
+            (
+              $el.text().includes('Reviewing Cancellation') || 
+              $el.text().includes('Pending Completion')
+            )
+        ) ||
+        $el.text().includes('Completed') || 
+        $el.text().includes('Cancelled')
+      )
     });
 
     expect(target.length).to.be.greaterThan(0, 'Should have at least one viewable event');
@@ -1637,12 +1753,12 @@ Cypress.Commands.add('userViewEvent', () => {
     // cy.log(`Viewing event ${eventId} with status: ${expectedStatus}${hasPendingState ? ' (with pending state)' : ''}`);
 
     cy.wrap(target.first())
-      .find('[data-cy="eventlist-event-list-entry-view-btn"]')
+      .find('[data-cy="dashboard-table-entry-view-btn"]')
       .click();
 
     cy.url()
-      .should('contain', '/user/events/event_')
-      .and('not.contain', '/edit');
+      .should('contain', '/admin/events/event_')
+      .and('contain', '/edit');
 
     cy.get('[data-cy="eventview-detail"]')
       .should('exist');
@@ -1670,7 +1786,6 @@ Cypress.Commands.add('userViewEvent', () => {
     });
   });
 });
-
 
 // Dev Related Commands
 Cypress.Commands.add(`devExpandPanel`, () => {

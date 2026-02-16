@@ -148,7 +148,7 @@ describe(`User Experience Flow`, () => {
   });
 
   describe(`User Event Mgmt.`, () => {
-    describe(`User Creating New Event`, () => {
+    describe(`User Creating New Events`, () => {
       before(() => {
         cy.clearCacheLoadLanding();
         cy.landingToSignup();
@@ -252,7 +252,7 @@ describe(`User Experience Flow`, () => {
       });
     });
 
-    describe(`User Editing Existing Event`, () => {
+    describe(`User Editing Existing Events`, () => {
       before(() => {
         cy.clearCacheLoadLanding();
         cy.landingToSignup();
@@ -346,7 +346,7 @@ describe(`User Experience Flow`, () => {
       });
     });
 
-    describe(`User Submitting Event Cancellation Request`, () => {
+    describe(`User Submitting Event Cancellation Requests`, () => {
       before(() => {
         cy.clearCacheLoadLanding();
         cy.landingToSignup();
@@ -383,6 +383,142 @@ describe(`User Experience Flow`, () => {
 
       it(`should cancel submiting event cancel request`, () => {
         cy.userCancelEventCancel();
+      });
+    });
+
+    describe(`User Reviewing Event Completion Requests `, () => {
+      before(() => {
+        cy.clearCacheLoadLanding();
+        cy.landingToSignup();
+        cy.userSignup(user.email, user.password, user.password)
+        cy.eventlistToNewEventForm();
+        
+        // create 3 new events
+        Cypress._.times(3, () => {
+          cy.userCreateEventNew('', event.date, event.location, event.type, event.guestCount, event.budget, '')
+        });
+
+        cy.userLogout();
+
+        cy.landingToLogin();
+        cy.adminLogin(admin.email, admin.password);
+
+        Cypress._.times(3, () => {
+          cy.adminAcceptEventNew()
+        });
+
+        Cypress._.times(3, () => {
+          cy.adminSubmitEventComplete()
+        });
+
+        cy.userLogout();
+
+        cy.landingToLogin();
+        cy.userLogin(user.email, user.password);
+      });
+
+      it(`should error out with no comment`, () => {
+        cy.userAcceptEventCompleteError();
+      });
+
+      it(`should accept evnet complete request`, () => {
+        cy.userAcceptEventComplete();
+      });
+
+      it(`should reject event complete request`, () => {
+        cy.userRejectEventComplete();
+      });
+
+      it(`should return with no action`, () => {
+        cy.userConsiderEventComplete();
+      });
+    });
+
+    describe(`User Viewing Events`, () => {
+      before(() => {
+        cy.clearCacheLoadLanding();
+        cy.landingToSignup();
+        cy.userSignup(user.email, user.password, user.password);
+        
+        // Event 1: Submitted (don't accept this one!)
+        cy.eventlistToNewEventForm();
+        cy.userCreateEventNew();
+        
+        // Event 2: In Progress with Pending Cancellation
+        cy.eventlistToNewEventForm();
+        cy.userCreateEventNew();
+        
+        cy.userLogout();
+        cy.landingToLogin();
+        cy.adminLogin(admin.email, admin.password);
+        cy.adminAcceptEventNew(); // Accepts Event 2
+        
+        cy.userLogout();
+        cy.landingToLogin();
+        cy.userLogin(user.email, user.password);
+        cy.userSubmitEventCancel(); // Cancel Event 2
+        
+        // Event 3: In Progress with Reviewing Completion
+        cy.eventlistToNewEventForm();
+        cy.userCreateEventNew();
+        
+        cy.userLogout();
+        cy.landingToLogin();
+        cy.adminLogin(admin.email, admin.password);
+        cy.adminAcceptEventNew(); // Accepts Event 3
+        cy.adminSubmitEventComplete(); // Request completion for Event 3
+        
+        // Event 4: Completed
+        cy.userLogout();
+        cy.landingToLogin();
+        cy.userLogin(user.email, user.password);
+        cy.eventlistToNewEventForm();
+        cy.userCreateEventNew();
+        
+        cy.userLogout();
+        cy.landingToLogin();
+        cy.adminLogin(admin.email, admin.password);
+        cy.adminAcceptEventNew(); // Accepts Event 4
+        cy.adminSubmitEventComplete(); // Request completion for Event 4
+        
+        cy.userLogout();
+        cy.landingToLogin();
+        cy.userLogin(user.email, user.password);
+        cy.userAcceptEventComplete(); // Accept completion for Event 4
+        
+        // Event 5: Cancelled
+        cy.eventlistToNewEventForm();
+        cy.userCreateEventNew();
+        
+        cy.userLogout();
+        cy.landingToLogin();
+        cy.adminLogin(admin.email, admin.password);
+        cy.adminRejectEventNew(); // Rejects Event 5
+        
+        // IMPORTANT: Log back in as user for the tests!
+        cy.userLogout();
+        cy.landingToLogin();
+        cy.userLogin(user.email, user.password);
+      });
+
+      it('should view submitted event', () => {
+        cy.userViewEvent('Submitted');
+      });
+
+      it('should view in progress event with pending cancellation', () => {
+        cy.userViewEvent('In Progress', 'Pending Cancellation');
+      });
+
+      it('should view in progress event with reviewing completion', () => {
+        cy.userViewEvent('In Progress', 'Reviewing Completion');
+      });
+
+      it('should view completed event', () => {
+        cy.userViewEvent('Completed');
+      });
+
+      it('should view cancelled event', () => {
+        cy.userViewEvent('Cancelled');
       });
     });
 
@@ -435,6 +571,7 @@ describe(`User Experience Flow`, () => {
           });
 
           // Step 2: User creates event
+          cy.eventlistToNewEventForm(); // ADD THIS
           cy.userCreateEventNew();
 
           cy.userGetAllFilterCounts().then((afterCreate) => {
@@ -475,42 +612,43 @@ describe(`User Experience Flow`, () => {
           });
 
           // Step 5: User views event with pending request
-          cy.userViewEvent();
+          cy.userViewEvent('In Progress', 'Pending Cancellation');
 
-          cy.userGetAllFilterCounts().then((afterSubmit) => {
-            expect(afterSubmit['All']).to.equal(1);
-            expect(afterSubmit['Submitted']).to.equal(0);
-            expect(afterSubmit['In Progress']).to.equal(1);
-            expect(afterSubmit['Completed']).to.equal(0);
-            expect(afterSubmit['Cancelled']).to.equal(0);
+          cy.userGetAllFilterCounts().then((afterView) => {
+            expect(afterView['All']).to.equal(1);
+            expect(afterView['Submitted']).to.equal(0);
+            expect(afterView['In Progress']).to.equal(1);
+            expect(afterView['Completed']).to.equal(0);
+            expect(afterView['Cancelled']).to.equal(0);
           });
 
           // Step 6: Admin accepts cancel request
           cy.userLogout();
           cy.landingToLogin();
           cy.adminLogin(admin.email, admin.password);
-
           cy.adminAcceptEventCancel();
+          
           cy.userLogout();
           cy.landingToLogin();
           cy.userLogin(user.email, user.password);
 
-          cy.userGetAllFilterCounts().then((afterAccept) => {
-            expect(afterAccept['All']).to.equal(1);
-            expect(afterAccept['Submitted']).to.equal(0);
-            expect(afterAccept['In Progress']).to.equal(0);
-            expect(afterAccept['Completed']).to.equal(0);
-            expect(afterAccept['Cancelled']).to.equal(1);
+          cy.userGetAllFilterCounts().then((afterCancel) => {
+            expect(afterCancel['All']).to.equal(1);
+            expect(afterCancel['Submitted']).to.equal(0);
+            expect(afterCancel['In Progress']).to.equal(0);
+            expect(afterCancel['Completed']).to.equal(0);
+            expect(afterCancel['Cancelled']).to.equal(1);
           });
 
-          // Step 7: User views event cancelled
-          cy.userViewEvent();
-          cy.userGetAllFilterCounts().then((afterAccept) => {
-            expect(afterAccept['All']).to.equal(1);
-            expect(afterAccept['Submitted']).to.equal(0);
-            expect(afterAccept['In Progress']).to.equal(0);
-            expect(afterAccept['Completed']).to.equal(0);
-            expect(afterAccept['Cancelled']).to.equal(1);
+          // Step 7: User views cancelled event
+          cy.userViewEvent('Cancelled');
+
+          cy.userGetAllFilterCounts().then((final) => {
+            expect(final['All']).to.equal(1);
+            expect(final['Submitted']).to.equal(0);
+            expect(final['In Progress']).to.equal(0);
+            expect(final['Completed']).to.equal(0);
+            expect(final['Cancelled']).to.equal(1);
           });
         });
       });
@@ -599,7 +737,7 @@ describe(`User Experience Flow`, () => {
           });
 
           // Step 6: User views event with pending request
-          cy.userViewEvent();
+          cy.userViewEvent('In Progress', 'Reviewing Completion');
 
           cy.userGetAllFilterCounts().then((afterSubmit) => {
             expect(afterSubmit['All']).to.equal(1);
@@ -621,7 +759,7 @@ describe(`User Experience Flow`, () => {
           });
 
           // Step 8: User views event completed
-          cy.userViewEvent();
+          cy.userViewEvent('Completed');
 
           cy.userGetAllFilterCounts().then((afterComplete) => {
             expect(afterComplete['All']).to.equal(1);

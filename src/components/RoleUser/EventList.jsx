@@ -314,7 +314,7 @@ const EventsList = () => {
                         {/* ADD THIS: Pending Submission badge for Submitted */}
                         {isSubmitted && (
                           <span 
-                            className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getPendingBadgeStyle()}`}
+                            className={`min-w-[100px] px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getPendingBadgeStyle()}`}
                             title="Event submission pending review"
                           >
                             Pending Review
@@ -323,7 +323,7 @@ const EventsList = () => {
 
                         {event.cancellationRequest && (
                           <span 
-                            className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getPendingBadgeStyle()}`}
+                            className={`min-w-[100px] px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getPendingBadgeStyle()}`}
                             title="Cancellation pending"
                           >
                             Pending Cancellation
@@ -332,7 +332,7 @@ const EventsList = () => {
                         
                         {event.completionRequest && (
                           <span 
-                            className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getPendingBadgeStyle()}`}
+                            className={`min-w-[100px] px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getPendingBadgeStyle()}`}
                             title="Completion confirmation pending"
                           >
                             Reviewing Completion
