@@ -122,6 +122,54 @@ describe('User Experience Flow', () => {
     });
   });
 
+  describe('User Event Filtering', () => {
+    before(() => {
+      cy.clearCacheLoadLanding();
+      cy.landingToSignup();
+      cy.userSignup(user.email, user.password);
+      
+      // Seed 30 mock events
+      cy.devAddMockEvents();
+      cy.wait(500);
+    });
+
+    it('should filter by All and verify count matches', () => {
+      cy.userFilterEvents('All');
+    });
+
+    it('should filter by Submitted and verify count matches', () => {
+      cy.userFilterEvents('Submitted');
+    });
+
+    it('should filter by In Progress and verify count matches', () => {
+      cy.userFilterEvents('In Progress');
+    });
+
+    it('should filter by Completed and verify count matches', () => {
+      cy.userFilterEvents('Completed');
+    });
+
+    it('should filter by Cancelled and verify count matches', () => {
+      cy.userFilterEvents('Cancelled');
+    });
+
+    it('should maintain accurate counts when switching between filters', () => {
+      cy.userFilterEvents('Submitted');
+      cy.userFilterEvents('Completed');
+      cy.userFilterEvents('All');
+      cy.userFilterEvents('In Progress');
+      cy.userFilterEvents('Cancelled');
+    });
+
+    it('should handle filters with zero events', () => {
+      // Clear mock events to test zero state
+      cy.devClearMockEvents();
+      cy.wait(500);
+      
+      cy.userFilterEvents('All'); // Should show 0
+    });
+  });
+
   describe('User Event Management', () => {
     describe('Creating New Events', () => {
       before(() => {

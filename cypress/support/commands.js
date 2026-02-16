@@ -246,6 +246,91 @@ Cypress.Commands.add(`userLogout`, () => {
     .should('eq','http://localhost:5173/');
 });
 
+// Event Filter Related Commands
+Cypress.Commands.add('userFilterEvents', (filterName) => {
+  // Map filter names to their data-cy selectors and expected statuses
+  const filterConfig = {
+    'All': {
+      selector: 'eventlist-filter-all',
+      statuses: ['Submitted', 'In Progress', 'Completed', 'Cancelled']
+    },
+    'Submitted': {
+      selector: 'eventlist-filter-submitted',
+      statuses: ['Submitted']
+    },
+    'In Progress': {
+      selector: 'eventlist-filter-in-progress',
+      statuses: ['In Progress']
+    },
+    'Completed': {
+      selector: 'eventlist-filter-completed',
+      statuses: ['Completed']
+    },
+    'Cancelled': {
+      selector: 'eventlist-filter-cancelled',
+      statuses: ['Cancelled']
+    }
+  };
+
+  const config = filterConfig[filterName];
+  
+  if (!config) {
+    throw new Error(`Invalid filter name: ${filterName}. Valid options: All, Submitted, In Progress, Completed, Cancelled`);
+  }
+
+  cy.log(`Testing filter: ${filterName}`);
+
+  // Get the expected count from the filter box BEFORE clicking
+  cy.get(`[data-cy="${config.selector}"]`)
+    .invoke('text')
+    .then((text) => {
+      const filterBoxCount = parseInt(text.match(/\d+/)[0]);
+      cy.log(`Filter box shows: ${filterBoxCount} events`);
+
+      // Click the filter
+      cy.get(`[data-cy="${config.selector}"]`).click();
+
+      // Verify filter button is active (has active styling)
+      cy.get(`[data-cy="${config.selector}"]`)
+        .should('have.class', 'bg-purple-600')
+        .and('have.class', 'text-white');
+
+      // Count visible events in the list
+      if (filterBoxCount === 0) {
+        // Should show "no events" message
+        cy.get('[data-cy="eventlist-event-list-no-entry"]')
+          .should('exist')
+          .and('be.visible');
+        cy.get('[data-cy="eventlist-event-list-entry"]').should('not.exist');
+        
+        cy.log(`✓ Filter box count (${filterBoxCount}) matches event list (0 events, showing "no events" message)`);
+      } else {
+        // Count events in the list
+        cy.get('[data-cy="eventlist-event-list-entry"]').should('have.length', filterBoxCount);
+        
+        cy.get('[data-cy="eventlist-event-list-entry"]').then($entries => {
+          const eventListCount = $entries.length;
+          
+          // Verify counts match
+          expect(eventListCount).to.equal(filterBoxCount, 
+            `Event list count (${eventListCount}) should match filter box count (${filterBoxCount})`);
+          
+          cy.log(`✓ Filter box count (${filterBoxCount}) matches event list count (${eventListCount})`);
+
+          // Verify each visible event has the correct status
+          $entries.each((index, entry) => {
+            const entryText = Cypress.$(entry).text();
+            const hasCorrectStatus = config.statuses.some(status => entryText.includes(status));
+            expect(hasCorrectStatus, 
+              `Event ${index + 1} should have status: ${config.statuses.join(' or ')}`).to.be.true;
+          });
+          
+          cy.log(`✓ All ${eventListCount} events have correct status for "${filterName}" filter`);
+        });
+      }
+    });
+});
+
 // Event Management Related Commands
 //// Helper function to extract count
 const getCountFromText = (text) => {
