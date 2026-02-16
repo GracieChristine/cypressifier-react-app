@@ -132,6 +132,14 @@ function App() {
               </ProtectedRoute>
             </AppLayout>
           } />
+
+          <Route path="/admin/events/:id" element={
+            <AppLayout>
+              <ProtectedRoute adminOnly={true}>
+                <AdminEventView />
+              </ProtectedRoute>
+            </AppLayout>
+          } />
           
           <Route path="/admin/events/:id/edit" element={
             <AppLayout>

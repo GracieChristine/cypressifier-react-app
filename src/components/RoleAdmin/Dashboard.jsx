@@ -276,7 +276,7 @@ const AdminDashboard = () => {
                             ) : (
                               // Everything else - Show View button only
                               <button
-                                onClick={() => navigate(`/admin/events/${event.id}/edit`)}
+                                onClick={() => navigate(`/admin/events/${event.id}`)}
                                 className="min-w-[90px] h-8 py-1.5 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded text-sm font-medium transition whitespace-nowrap flex items-center justify-center"
                                 data-cy="dashboard-table-entry-view-btn"
                               >

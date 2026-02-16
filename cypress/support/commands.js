@@ -545,7 +545,7 @@ Cypress.Commands.add('adminAcceptEventNew', () => {
 
           cy.url()
             .should('include', '/admin/events/')
-            .and('contain', '/edit');
+            .and('not.contain', '/edit');
 
           cy.get('[data-cy="review-new-comment-input"]')
             .should('be.visible')
@@ -600,7 +600,7 @@ Cypress.Commands.add('adminAcceptEventNewError', () => {
 
           cy.url()
             .should('include', '/admin/events/')
-            .and('contain', '/edit');
+            .and('not.contain', '/edit');
 
           cy.get('[data-cy="review-new-comment-input"]')
             .should('be.visible')
@@ -656,8 +656,8 @@ Cypress.Commands.add('adminRejectEventNew', () => {
             .click();
 
           cy.url()
-            .should('contain', '/admin/events/')
-            .and('contain', '/edit');
+            .should('include', '/admin/events/')
+            .and('not.contain', '/edit');
 
           cy.get('[data-cy="review-new-comment-input"]')
             .type('After much consideration, we decided to decline this request.');
@@ -712,7 +712,7 @@ Cypress.Commands.add('adminConsiderEventNew', () => {
 
             cy.url()
               .should('include', '/admin/events/')
-              .and('contain', '/edit');
+              .and('not.contain', '/edit');
 
             cy.get('[data-cy="return-dashboard-btn"]')
               .scrollIntoView()
@@ -1240,6 +1240,10 @@ Cypress.Commands.add('adminAcceptEventCancel', () => {
             .find('[data-cy="dashboard-table-entry-view-btn"]')
             .click();
 
+          cy.url()
+            .should('include', '/admin/events/')
+            .and('not.contain', '/edit');
+
           cy.get('[data-cy="review-cancel-comment-input"]')
             .scrollIntoView()
             .type('After much consideration, we have approved the cancellation request.');
@@ -1290,6 +1294,10 @@ Cypress.Commands.add('adminAcceptEventCancelError', () => {
           cy.wrap(target.first())
             .find('[data-cy="dashboard-table-entry-view-btn"]')
             .click();
+          
+          cy.url()
+            .should('include', '/admin/events/')
+            .and('not.contain', '/edit');
 
           cy.get('[data-cy="review-cancel-comment-input"]')
             .scrollIntoView()
@@ -1343,6 +1351,10 @@ Cypress.Commands.add('adminRejectEventCancel', () => {
           cy.wrap(target.first())
             .find('[data-cy="dashboard-table-entry-view-btn"]')
             .click();
+          
+          cy.url()
+            .should('include', '/admin/events/')
+            .and('not.contain', '/edit');
 
           cy.get('[data-cy="review-cancel-comment-input"]')
             .scrollIntoView()
@@ -1394,6 +1406,10 @@ Cypress.Commands.add('adminConsiderEventCancel', () => {
           cy.wrap(target.first())
             .find('[data-cy="dashboard-table-entry-view-btn"]')
             .click();
+          
+          cy.url()
+            .should('include', '/admin/events/')
+            .and('not.contain', '/edit');
 
           cy.get('[data-cy="return-dashboard-btn"]')
             .last()
@@ -1439,8 +1455,8 @@ Cypress.Commands.add('adminSubmitEventComplete', () => {
       .click();
 
     cy.url()
-      .should('include', '/admin/events/event_')
-      .and('include', 'mode=complete');
+      .should('include', '/admin/events/')
+      .and('contain', 'mode=complete');
 
     cy.get('[data-cy="eventview-action-complete"]')
       .should('exist');
@@ -1482,8 +1498,8 @@ Cypress.Commands.add('adminSubmitEventCompleteError', () => {
       .click();
 
     cy.url()
-      .should('include', '/admin/events/event_')
-      .and('include', 'mode=complete');
+      .should('include', '/admin/events/')
+      .and('contain', 'mode=complete');
 
     cy.get('[data-cy="eventview-action-complete"]')
       .should('exist');
@@ -1523,8 +1539,8 @@ Cypress.Commands.add('adminCancelEventComplete', () => {
       .click();
 
     cy.url()
-      .should('include', '/admin/events/event_')
-      .and('include', 'mode=complete');
+      .should('include', '/admin/events/')
+      .and('contain', 'mode=complete');
 
     cy.get('[data-cy="eventview-action-complete"]')
       .should('exist');
@@ -1842,7 +1858,6 @@ Cypress.Commands.add('adminViewEvent', (status, badge = null) => {
                  !text.includes('Pending Completion') && 
                  !text.includes('Reviewing Cancellation');
         }
-        
         return hasStatus;
       }
       
@@ -1882,7 +1897,7 @@ Cypress.Commands.add('adminViewEvent', (status, badge = null) => {
       
     cy.url()
       .should('contain', '/admin/events/event_')
-      .and('contain', '/edit');
+      .and('not.contain', '/edit');
 
     cy.get('[data-cy="eventview-details"]')
       .should('exist');
