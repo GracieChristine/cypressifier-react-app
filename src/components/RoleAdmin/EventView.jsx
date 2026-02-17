@@ -200,28 +200,18 @@ const AdminEventView = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-elegant-50 to-royal-50/30 py-6 px-8" data-cy="eventview">
+    <div className="min-h-screen bg-gradient-to-br from-elegant-50 to-royal-50/30 py-4 px-3 sm:py-6 sm:px-6 lg:px-8" data-cy="eventview">
       <div className="max-w-4xl mx-auto">
 
         {/* Event View Details */}
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="eventview-details">
-          <div className="flex justify-between items-start mb-6">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-8 mb-6" data-cy="eventview-details">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
             <div>
-              <h2 className="text-3xl font-display mb-2">{selectedEvent.name}</h2>
-              <p className="text-gray-600 font-serif">
-                {isUpdateMode && 'Manage Event - Planning & Updates'}
-                {isCompleteMode && 'Complete Event - Send for Client Review'}
-                {isViewMode && isSubmitted && 'New Event Submission - Review Required'}
-                {isViewMode && isSubmittedWithCancellation && 'New Event Submission with Cancellation Request - Review Required'}
-                {isViewMode && isCancellationRequest && !isSubmittedWithCancellation && 'Cancellation Request - Review Required'}
-                {isViewMode && isInProgressWithCancellation && 'Event In Progress with Cancellation Request - Review Required'}
-                {isViewMode && isReadOnly && `Event ${selectedEvent.status}`}
-                {isViewMode && selectedEvent.completionRequest && 'Event Completion Pending Client Review'}
-              </p>
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-display mb-2">{selectedEvent.name}</h2>
             </div>
 
             {/* Status Badge - Prominent like user view */}
-            <div className="flex flex-col gap-2 items-end -mt-2">
+            <div className="flex flex-wrap gap-2 sm:flex-col sm:items-end">
               <span className={`px-4 py-2 rounded-lg text-sm font-semibold ${
                 selectedEvent.status === 'Submitted' ? 'bg-blue-100 text-blue-700' :
                 selectedEvent.status === 'In Progress' ? 'bg-yellow-100 text-yellow-700' :
@@ -232,10 +222,10 @@ const AdminEventView = () => {
                 {selectedEvent.status}
               </span>
 
-              {/* Reviewing Submission Badge */}
+              {/* Reviewing Event Badge */}
               {selectedEvent.status === 'Submitted' && (
-                <span className="px-3 py-1 rounded text-xs font-semibold border border-orange-500 text-orange-600 bg-transparent whitespace-nowrap">
-                  Reviewing Submission
+                <span className="px-3 py-2 rounded text-xs font-semibold border border-orange-500 text-orange-600 bg-transparent whitespace-nowrap">
+                  Reviewing Event
                 </span>
               )}
 
@@ -259,7 +249,7 @@ const AdminEventView = () => {
             {/* Client Info - Read Only */}
             <div className="bg-gray-50 border rounded-lg p-6">
               <h3 className="text-lg font-semibold mb-4">Client Information</h3>
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-gray-600">Name:</span>
                   <span className="ml-2 font-semibold">{selectedEvent.userEmail?.split('@')[0].toUpperCase() || 'Not available'}</span>
@@ -279,7 +269,7 @@ const AdminEventView = () => {
             <div className="bg-gray-50 border rounded-lg p-6">
               <h3 className="text-lg font-semibold mb-4">Event Details</h3>
 
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-gray-600">Date:</span>
                   <span className="ml-2 font-semibold">{formatDateShort(selectedEvent.date)}</span>
@@ -314,10 +304,10 @@ const AdminEventView = () => {
 
             {/* Return to Dashboard for read-only */}
             {isViewMode && isReadOnly && (
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => navigate('/admin/dashboard')}
-                  className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                  className="w-full sm:flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
                   data-cy="return-dashboard-btn"
                 >
                   Close and Return to Dashboard
@@ -346,10 +336,10 @@ const AdminEventView = () => {
                   </p>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={() => navigate('/admin/dashboard')}
-                    className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                    className="w-full sm:flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
                     data-cy="return-dashboard-btn"
                   >
                     Return to Dashboard
@@ -378,7 +368,7 @@ const AdminEventView = () => {
                     value={completionNotes}
                     onChange={(e) => setCompletionNotes(e.target.value)}
                     required
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2.5 sm:py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
                     rows="4"
                     placeholder="Add any final notes about how the event went and what was completed..."
                     data-cy="complete-event-comment-input"
@@ -389,17 +379,17 @@ const AdminEventView = () => {
                   <button
                     onClick={handleRequestCompletion}
                     disabled={!completionNotes.trim()}
-                    className="flex-1 px-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    className="w-full sm:flex-1 px-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
                     data-cy="save-event-update-btn"
                   >
                     Send Completion for Review
                   </button>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={() => navigate('/admin/dashboard')}
-                    className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                    className="w-full sm:flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
                     data-cy="return-dashboard-btn"
                   >
                     Return to Dashboard
@@ -437,18 +427,18 @@ const AdminEventView = () => {
                         value={adminComment}
                         onChange={(e) => setAdminComment(e.target.value)}
                         required
-                        className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-royal-500"
+                        className="w-full px-3 py-2.5 sm:py-2 border rounded focus:outline-none focus:ring-2 focus:ring-royal-500"
                         rows="4"
                         placeholder="Add your response to the decision..."
                         data-cy="review-new-comment-input"
                       />
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <button
                         onClick={handleAcceptSubmission}
                         disabled={!adminComment.trim()}
-                        className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        className="w-full sm:flex-1 px-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
                         data-cy="accept-new-event-btn"
                       >
                         Accept Request
@@ -456,7 +446,7 @@ const AdminEventView = () => {
                       <button
                         onClick={handleRejectSubmission}
                         disabled={!adminComment.trim()}
-                        className="flex-1 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        className="w-full sm:flex-1 px-6 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
                         data-cy="decline-new-event-btn"
                       >
                         Decline Request
@@ -466,7 +456,7 @@ const AdminEventView = () => {
                     <div className="flex gap-3 mt-3">
                       <button
                         onClick={() => navigate('/admin/dashboard')}
-                        className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                        className="w-full sm:flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
                         data-cy="return-dashboard-btn"
                       >
                         Return to Dashboard
@@ -498,18 +488,18 @@ const AdminEventView = () => {
                         value={adminComment}
                         onChange={(e) => setAdminComment(e.target.value)}
                         required
-                        className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-royal-500"
+                        className="w-full px-3 py-2.5 sm:py-2 border rounded focus:outline-none focus:ring-2 focus:ring-royal-500"
                         rows="4"
                         placeholder="Add your response to the client's cancellation request..."
                         data-cy="review-cancel-comment-input"
                       />
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <button
                         onClick={handleApproveCancellation}
                         disabled={!adminComment.trim()}
-                        className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        className="w-full sm:flex-1 px-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
                         data-cy="accept-cancel-event-btn"
                       >
                         Accept Request
@@ -517,7 +507,7 @@ const AdminEventView = () => {
                       <button
                         onClick={handleDenyCancellation}
                         disabled={!adminComment.trim()}
-                        className="flex-1 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        className="w-full sm:flex-1 px-6 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
                         data-cy="decline-cancel-event-btn"
                       >
                         Decline Request
@@ -527,7 +517,7 @@ const AdminEventView = () => {
                     <div className="flex gap-3 mt-3">
                       <button
                         onClick={() => navigate('/admin/dashboard')}
-                        className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                        className="w-full sm:flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
                         data-cy="return-dashboard-btn"
                       >
                         Return to Dashboard
@@ -557,7 +547,7 @@ const AdminEventView = () => {
                   <div className="flex gap-3 mt-3">
                     <button
                       onClick={() => navigate('/admin/dashboard')}
-                      className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                      className="w-full sm:flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
                       data-cy="return-dashboard-btn"
                     >
                       Return to Dashboard

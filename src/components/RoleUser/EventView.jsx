@@ -175,21 +175,21 @@ const EventView = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-8" data-cy="eventview">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-4 sm:px-6 md:px-8" data-cy="eventview">
       <div className="max-w-4xl mx-auto">
 
         <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-6" data-cy="eventview-detail">
 
-          <div className="bg-gradient-to-r from-purple-600 to-pink-500 p-6 text-white">
-            <div className="flex justify-between items-start ">
+          <div className="bg-gradient-to-r from-purple-600 to-pink-500 p-4 sm:p-6 text-white">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div className="flex items-center gap-3">
                 <div>
-                  <h1 className="text-3xl font-bold">{event.name}</h1>
+                  <h1 className="text-2xl sm:text-3xl font-bold">{event.name}</h1>
                 </div>
               </div>
-              <div className="flex items-start gap-3 -mt-2">
+              <div className="flex items-start gap-3 mt-0 sm:-mt-8">
                 <div>
-                  <span className={`px-4 py-7 rounded-lg text-sm font-semibold ${getStatusColor(event.status)} bg-opacity-90`}>
+                  <span className={`px-3 sm:px-4 py-2 sm:py-7 rounded-lg text-sm font-semibold ${getStatusColor(event.status)} bg-opacity-90`}>
                     {event.status}
                   </span>
                 </div>
@@ -229,7 +229,6 @@ const EventView = () => {
                 </div>
                 <p className="text-sm text-orange-700 ml-2">
                   Please be patient as your Cypressifier team reviews your request.
-                  {/* Reason: {event.cancellationReason} */}
                 </p>
                 <p className="text-xs text-orange-600 ml-2 mt-1">
                   Submitted on {formatDate(event.cancellationRequestDate)}
@@ -248,7 +247,7 @@ const EventView = () => {
                   Request note: {event.completionNotes}
                 </p>
                 <p className="text-sm text-orange-700 ml-2">
-                  Please review and accept/dcecline all tasks are completed and the event is to your satisfaction
+                  Please review and accept/decline all tasks are completed and the event is to your satisfaction
                 </p>
                 <p className="text-xs text-orange-600 ml-2 mt-1">
                   Requested on: {formatDate(event.completionRequestDate)}
@@ -338,7 +337,7 @@ const EventView = () => {
               <div className="flex gap-3">
                 <button
                   onClick={() => navigate('/events')}
-                  className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                  className="w-full px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
                   data-cy="return-eventlist-btn"
                 >
                   Close and Return to Event List
@@ -379,11 +378,11 @@ const EventView = () => {
                   )}
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleConfirmCompletion}
                     disabled={!confirmNotes.trim()}
-                    className="flex-1 px-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    className="w-full px-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
                     data-cy="confirm-completion-submit-btn"
                   >
                     Confirm
@@ -391,18 +390,17 @@ const EventView = () => {
                   <button
                     onClick={handleDeclineCompletion}
                     disabled={!confirmNotes.trim()}
-                    className="flex-1 px-6 bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    className="w-full px-6 bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
                     data-cy="decline-completion-submit-btn"
                   >
                     Decline - Needs More Work
                   </button>
                 </div>
 
-                {/* ADD THIS: Return button for completion section */}
                 <div className="flex gap-3 mt-3">
                   <button
                     onClick={() => navigate('/events')}
-                    className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                    className="w-full px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
                     data-cy="return-eventlist-btn"
                   >
                     Return to Event List
@@ -442,25 +440,23 @@ const EventView = () => {
                   )}
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleCancelRequest}
                     disabled={!cancelReason.trim()}
-                    className="flex-1 px-6 bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    className="w-full px-6 bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
                     data-cy="cancel-event-submit-btn"
                   >
                     Submit Request
                   </button>
                   <button
                     onClick={() => navigate('/events')}
-                    className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                    className="w-full px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
                     data-cy="cancel-event-cancel-btn"
                   >
                     Cancel and Close
                   </button>
                 </div>
-
-                {/* NOTE: Cancel section already has return button as "Cancel and Close" - no change needed here */}
               </div>
             </div>
           </div>

@@ -219,11 +219,11 @@ const EventForm = () => {
   const currentMinBudget = formData.locationType ? LOCATION_TYPES[formData.locationType].min : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-8" data-cy="eventform">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-4 sm:px-6 md:px-8" data-cy="eventform">
       <div className="max-w-3xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg p-8">
-          <div className="flex justify-between items-center mb-6">
-            <p className="text-3xl font-bold text-gray-800">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <p className="text-2xl sm:text-3xl font-bold text-gray-800">
               {isEditing ? 'Edit Event' : 'Create New Event'}
             </p>
           </div>
@@ -392,10 +392,10 @@ const EventForm = () => {
             </div>
 
             {/* Form Buttons */}
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <button
                 type="submit"
-                className="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-semibold"
+                className="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-semibold"
                 data-cy="eventform-save-btn"
               >
                 {isEditing ? 'Update Event' : 'Create Event'}
@@ -403,7 +403,7 @@ const EventForm = () => {
               <button
                 type="button"
                 onClick={() => navigate('/events')}
-                className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition font-semibold"
+                className="w-full bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition font-semibold"
                 data-cy="eventform-cancel-btn"
               >
                 Cancel and Close
