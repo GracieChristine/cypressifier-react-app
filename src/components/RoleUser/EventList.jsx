@@ -258,7 +258,7 @@ const EventList = () => {
                   filter === status 
                     ? 'bg-purple-600 text-white' 
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                } flex-1 min-w-[150px]`}
+                } flex-1 min-w-[155px]`}
                 data-cy={`eventlist-filter-${status.toLowerCase().replace(' ', '-')}`}
               >
                 {status === 'all' ? 'All' : status} ({statusCounts[status]})
