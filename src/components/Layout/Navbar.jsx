@@ -31,7 +31,7 @@ const Navbar = () => {
             {user && !user.isAdmin && (
               <>
                 <p
-                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  className={`hidden sm:block px-3 py-2 rounded-md text-sm font-medium ${
                     isActive('/user/events')
                       ? 'bg-purple-100 text-purple-700'
                       : 'text-gray-700 hover:bg-gray-100'
@@ -45,7 +45,7 @@ const Navbar = () => {
             
             {user && user.isAdmin && (
               <p
-                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                className={`hidden sm:block px-3 py-2 rounded-md text-sm font-medium ${
                   isActive('/admin/dashboard')
                     ? 'bg-purple-100 text-purple-700'
                     : 'text-gray-700 hover:bg-gray-100'

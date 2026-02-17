@@ -14,7 +14,6 @@ const AdminEventView = () => {
 
   const currentAdmin = 'Admin';
 
-  // Get mode from URL query parameter
   const queryParams = new URLSearchParams(location.search);
   const mode = queryParams.get('mode') || 'view';
 
@@ -59,9 +58,7 @@ const AdminEventView = () => {
   };
 
   const handleAcceptSubmission = () => {
-    if (!adminComment.trim()) {
-      return;
-    }
+    if (!adminComment.trim()) return;
 
     const activityLog = selectedEvent.activityLog || [];
     activityLog.push({
@@ -71,22 +68,18 @@ const AdminEventView = () => {
       note: adminComment
     });
 
-    const updatedEvent = {
+    updateEvent({
       ...selectedEvent,
       status: 'In Progress',
       activityLog,
       acceptedBy: currentAdmin,
       acceptedAt: new Date().toISOString()
-    };
-    
-    updateEvent(updatedEvent);
+    });
     navigate('/admin/dashboard');
   };
 
   const handleRejectSubmission = () => {
-    if (!adminComment.trim()) {
-      return;
-    }
+    if (!adminComment.trim()) return;
 
     const activityLog = selectedEvent.activityLog || [];
     activityLog.push({
@@ -96,22 +89,18 @@ const AdminEventView = () => {
       note: adminComment
     });
 
-    const updatedEvent = {
+    updateEvent({
       ...selectedEvent,
       status: 'Cancelled',
       activityLog,
       rejectedBy: currentAdmin,
       rejectedAt: new Date().toISOString()
-    };
-    
-    updateEvent(updatedEvent);
+    });
     navigate('/admin/dashboard');
   };
 
   const handleApproveCancellation = () => {
-    if (!adminComment.trim()) {
-      return;
-    }
+    if (!adminComment.trim()) return;
 
     const activityLog = selectedEvent.activityLog || [];
     activityLog.push({
@@ -121,7 +110,7 @@ const AdminEventView = () => {
       note: adminComment
     });
 
-    const updatedEvent = {
+    updateEvent({
       ...selectedEvent,
       status: 'Cancelled',
       cancellationRequest: false,
@@ -129,16 +118,12 @@ const AdminEventView = () => {
       activityLog,
       cancellationApprovedBy: currentAdmin,
       cancellationApprovedAt: new Date().toISOString()
-    };
-    
-    updateEvent(updatedEvent);
+    });
     navigate('/admin/dashboard');
   };
 
   const handleDenyCancellation = () => {
-    if (!adminComment.trim()) {
-      return;
-    }
+    if (!adminComment.trim()) return;
 
     const activityLog = selectedEvent.activityLog || [];
     activityLog.push({
@@ -148,23 +133,19 @@ const AdminEventView = () => {
       note: adminComment
     });
 
-    const updatedEvent = {
+    updateEvent({
       ...selectedEvent,
       cancellationRequest: false,
       cancellationDenied: true,
       activityLog,
       cancellationDeniedBy: currentAdmin,
       cancellationDeniedAt: new Date().toISOString()
-    };
-    
-    updateEvent(updatedEvent);
+    });
     navigate('/admin/dashboard');
   };
 
   const handleRequestCompletion = () => {
-    if (!completionNotes.trim()) {
-      return;
-    }
+    if (!completionNotes.trim()) return;
 
     const activityLog = selectedEvent.activityLog || [];
     activityLog.push({
@@ -174,16 +155,14 @@ const AdminEventView = () => {
       note: completionNotes
     });
 
-    const updatedEvent = {
+    updateEvent({
       ...selectedEvent,
       completionRequest: true,
       completionNotes: completionNotes,
       completionRequestDate: new Date().toISOString(),
       completionRequestedBy: currentAdmin,
       activityLog
-    };
-    
-    updateEvent(updatedEvent);
+    });
     navigate('/admin/dashboard');
   };
 
@@ -200,29 +179,16 @@ const AdminEventView = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-elegant-50 to-royal-50/30 py-6 px-8" data-cy="eventview">
+    <div className="min-h-screen bg-gradient-to-br from-elegant-50 to-royal-50/30 py-6 px-4 sm:px-6 md:px-8" data-cy="eventview">
       <div className="max-w-4xl mx-auto">
 
-        {/* Event View Details */}
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="eventview-details">
-          <div className="flex justify-between items-start mb-6">
-            <div>
-              <h2 className="text-3xl font-display mb-2">{selectedEvent.name}</h2>
-              <p className="text-gray-600 font-serif">
-                {isUpdateMode && 'Manage Event - Planning & Updates'}
-                {isCompleteMode && 'Complete Event - Send for Client Review'}
-                {isViewMode && isSubmitted && 'New Event Submission - Review Required'}
-                {isViewMode && isSubmittedWithCancellation && 'New Event Submission with Cancellation Request - Review Required'}
-                {isViewMode && isCancellationRequest && !isSubmittedWithCancellation && 'Cancellation Request - Review Required'}
-                {isViewMode && isInProgressWithCancellation && 'Event In Progress with Cancellation Request - Review Required'}
-                {isViewMode && isReadOnly && `Event ${selectedEvent.status}`}
-                {isViewMode && selectedEvent.completionRequest && 'Event Completion Pending Client Review'}
-              </p>
-            </div>
+        {/* Event Details */}
+        <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8 mb-6" data-cy="eventview-details">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
+            <h2 className="text-2xl sm:text-3xl font-display">{selectedEvent.name}</h2>
 
-            {/* Status Badge - Prominent like user view */}
-            <div className="flex flex-col gap-2 items-end -mt-2">
-              <span className={`px-4 py-2 rounded-lg text-sm font-semibold ${
+            <div className="flex flex-wrap gap-2 sm:flex-col sm:items-end">
+              <span className={`px-4 py-2 rounded-lg text-sm font-semibold min-w-[180px] max-w-[180px] text-center ${
                 selectedEvent.status === 'Submitted' ? 'bg-blue-100 text-blue-700' :
                 selectedEvent.status === 'In Progress' ? 'bg-yellow-100 text-yellow-700' :
                 selectedEvent.status === 'Completed' ? 'bg-green-100 text-green-700' :
@@ -231,35 +197,29 @@ const AdminEventView = () => {
               }`}>
                 {selectedEvent.status}
               </span>
-
-              {/* Reviewing Submission Badge */}
               {selectedEvent.status === 'Submitted' && (
-                <span className="px-3 py-1 rounded text-xs font-semibold border border-orange-500 text-orange-600 bg-transparent whitespace-nowrap">
-                  Reviewing Submission
+                <span className="px-3 py-2 rounded text-xs font-semibold border border-orange-500 text-orange-600 bg-transparent min-w-[180px] max-w-[180px] text-center">
+                  Reviewing Event
                 </span>
               )}
-
-              {/* Reviewing Cancellation Badge */}
               {selectedEvent.cancellationRequest && (
-                <span className="px-3 py-1 rounded text-xs font-semibold border border-orange-500 text-orange-600 bg-transparent whitespace-nowrap">
+                <span className="px-3 py-2 rounded text-xs font-semibold border border-orange-500 text-orange-600 bg-transparent min-w-[180px] max-w-[180px] text-center">
                   Reviewing Cancellation
                 </span>
               )}
-
-              {/* Pending Completion Badge */}
               {selectedEvent.completionRequest && (
-                <span className="px-3 py-1 rounded text-xs font-semibold border border-orange-500 text-orange-600 bg-transparent whitespace-nowrap">
+                <span className="px-3 py-2 rounded text-xs font-semibold border border-orange-500 text-orange-600 bg-transparent min-w-[180px] max-w-[180px] text-center">
                   Pending Completion
                 </span>
               )}
             </div>
           </div>
-          <div className="space-y-6">
 
-            {/* Client Info - Read Only */}
-            <div className="bg-gray-50 border rounded-lg p-6">
+          <div className="space-y-6">
+            {/* Client Info */}
+            <div className="bg-gray-50 border rounded-lg p-4 sm:p-6">
               <h3 className="text-lg font-semibold mb-4">Client Information</h3>
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-gray-600">Name:</span>
                   <span className="ml-2 font-semibold">{selectedEvent.userEmail?.split('@')[0].toUpperCase() || 'Not available'}</span>
@@ -275,11 +235,10 @@ const AdminEventView = () => {
               </div>
             </div>
 
-            {/* Event Details - Read Only */}
-            <div className="bg-gray-50 border rounded-lg p-6">
+            {/* Event Details */}
+            <div className="bg-gray-50 border rounded-lg p-4 sm:p-6">
               <h3 className="text-lg font-semibold mb-4">Event Details</h3>
-
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-gray-600">Date:</span>
                   <span className="ml-2 font-semibold">{formatDateShort(selectedEvent.date)}</span>
@@ -288,7 +247,6 @@ const AdminEventView = () => {
                   <span className="text-gray-600">Venue Type:</span>
                   <span className="ml-2 font-semibold">{selectedEvent.locationType}</span>
                 </div>
-
                 <div>
                   <span className="text-gray-600">Event Type:</span>
                   <span className="ml-2 font-semibold">{selectedEvent.type}</span>
@@ -297,7 +255,6 @@ const AdminEventView = () => {
                   <span className="text-gray-600">Guest Count:</span>
                   <span className="ml-2 font-semibold">{selectedEvent.guestCount || 'Not specified'}</span>
                 </div>
-
                 <div>
                   <span className="text-gray-600">Budget:</span>
                   <span className="ml-2 font-semibold">${parseInt(selectedEvent.budget || selectedEvent.setBudget || selectedEvent.budgetTotal || 0).toLocaleString()}</span>
@@ -312,29 +269,23 @@ const AdminEventView = () => {
               )}
             </div>
 
-            {/* Return to Dashboard for read-only */}
             {isViewMode && isReadOnly && (
-              <div className="flex gap-3">
-                <button
-                  onClick={() => navigate('/admin/dashboard')}
-                  className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
-                  data-cy="return-dashboard-btn"
-                >
-                  Close and Return to Dashboard
-                </button>
-              </div>
+              <button
+                onClick={() => navigate('/admin/dashboard')}
+                className="w-full px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                data-cy="return-dashboard-btn"
+              >
+                Close and Return to Dashboard
+              </button>
             )}
-
           </div>
         </div>
 
-        {/* UPDATE MODE - Show planning features only */}
+        {/* Update Mode */}
         {isUpdateMode && (
-          <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="eventview-action">
-            <h2 className="text-3xl font-display mb-2">Event Management</h2>
-            <p className="text-gray-600 mb-6 font-serif">
-              Plan and manage event details
-            </p>
+          <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8 mb-6" data-cy="eventview-action">
+            <h2 className="text-2xl sm:text-3xl font-display mb-2">Event Management</h2>
+            <p className="text-gray-600 mb-6 font-serif">Plan and manage event details</p>
 
             <div className="space-y-6">
               <div className="bg-gray-50 border rounded-lg p-6">
@@ -346,27 +297,23 @@ const AdminEventView = () => {
                   </p>
                 </div>
 
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => navigate('/admin/dashboard')}
-                    className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
-                    data-cy="return-dashboard-btn"
-                  >
-                    Return to Dashboard
-                  </button>
-                </div>
+                <button
+                  onClick={() => navigate('/admin/dashboard')}
+                  className="w-full px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                  data-cy="return-dashboard-btn"
+                >
+                  Return to Dashboard
+                </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* COMPLETE MODE - Show completion form only (NO CHECKBOX) */}
+        {/* Complete Mode */}
         {isCompleteMode && (
-          <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="eventview-action">
-            <h2 className="text-3xl font-display mb-2">Mark Event as Complete</h2>
-            <p className="text-gray-600 mb-6 font-serif">
-              Submit completion request for client review
-            </p>
+          <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8 mb-6" data-cy="eventview-action">
+            <h2 className="text-2xl sm:text-3xl font-display mb-2">Mark Event as Complete</h2>
+            <p className="text-gray-600 mb-6 font-serif">Submit completion request for client review</p>
 
             <div className="space-y-6">
               <div className="bg-gray-50 border rounded-lg p-6" data-cy="eventview-action-complete">
@@ -385,35 +332,31 @@ const AdminEventView = () => {
                   />
                 </div>
 
-                <div className="flex gap-3 mb-3">
-                  <button
-                    onClick={handleRequestCompletion}
-                    disabled={!completionNotes.trim()}
-                    className="flex-1 px-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
-                    data-cy="save-event-update-btn"
-                  >
-                    Send Completion for Review
-                  </button>
-                </div>
+                <button
+                  onClick={handleRequestCompletion}
+                  disabled={!completionNotes.trim()}
+                  className="w-full px-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed mb-3"
+                  data-cy="save-event-update-btn"
+                >
+                  Send Completion for Review
+                </button>
 
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => navigate('/admin/dashboard')}
-                    className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
-                    data-cy="return-dashboard-btn"
-                  >
-                    Return to Dashboard
-                  </button>
-                </div>
+                <button
+                  onClick={() => navigate('/admin/dashboard')}
+                  className="w-full px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                  data-cy="return-dashboard-btn"
+                >
+                  Return to Dashboard
+                </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* VIEW MODE - Show review/action sections */}
+        {/* View Mode - Admin Actions */}
         {isViewMode && !isReadOnly && (
-          <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="eventview-action">
-            <h2 className="text-3xl font-display mb-2">Admin Actions</h2>
+          <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8 mb-6" data-cy="eventview-action">
+            <h2 className="text-2xl sm:text-3xl font-display mb-2">Admin Actions</h2>
             <p className="text-gray-600 mb-6 font-serif">
               {(isSubmitted || isSubmittedWithCancellation) && 'Review and respond to new event submission'}
               {isCancellationRequest && !isSubmittedWithCancellation && !isInProgressWithCancellation && 'Review and respond to cancellation request'}
@@ -422,125 +365,115 @@ const AdminEventView = () => {
             </p>
 
             <div className="space-y-6">
-              
-              {/* New Event Request Review */}
+              {/* New Event Review */}
               {(isSubmitted || isSubmittedWithCancellation) && (
-                <div className="bg-gray-50 border rounded-lg p-6">
-                  <div data-cy="eventview-action-review-new">
-                    <p className="text-lg font-semibold mb-4">Review New Event Submission</p>
-                    
-                    <div className="mb-4">
-                      <label className="block text-sm text-gray-700 font-semibold mb-2">
-                        Response to Client <span className="text-red-500">*</span>
-                      </label>
-                      <textarea
-                        value={adminComment}
-                        onChange={(e) => setAdminComment(e.target.value)}
-                        required
-                        className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-royal-500"
-                        rows="4"
-                        placeholder="Add your response to the decision..."
-                        data-cy="review-new-comment-input"
-                      />
-                    </div>
-
-                    <div className="flex gap-3">
-                      <button
-                        onClick={handleAcceptSubmission}
-                        disabled={!adminComment.trim()}
-                        className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
-                        data-cy="accept-new-event-btn"
-                      >
-                        Accept Request
-                      </button>
-                      <button
-                        onClick={handleRejectSubmission}
-                        disabled={!adminComment.trim()}
-                        className="flex-1 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
-                        data-cy="decline-new-event-btn"
-                      >
-                        Decline Request
-                      </button>
-                    </div>
-
-                    <div className="flex gap-3 mt-3">
-                      <button
-                        onClick={() => navigate('/admin/dashboard')}
-                        className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
-                        data-cy="return-dashboard-btn"
-                      >
-                        Return to Dashboard
-                      </button>
-                    </div>
-
+                <div className="bg-gray-50 border rounded-lg p-6" data-cy="eventview-action-review-new">
+                  <p className="text-lg font-semibold mb-4">Review New Event Submission</p>
+                  
+                  <div className="mb-4">
+                    <label className="block text-sm text-gray-700 font-semibold mb-2">
+                      Response to Client <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      value={adminComment}
+                      onChange={(e) => setAdminComment(e.target.value)}
+                      required
+                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-royal-500"
+                      rows="4"
+                      placeholder="Add your response to the decision..."
+                      data-cy="review-new-comment-input"
+                    />
                   </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={handleAcceptSubmission}
+                      disabled={!adminComment.trim()}
+                      className="w-full sm:flex-1 px-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      data-cy="accept-new-event-btn"
+                    >
+                      Accept Request
+                    </button>
+                    <button
+                      onClick={handleRejectSubmission}
+                      disabled={!adminComment.trim()}
+                      className="w-full sm:flex-1 px-6 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      data-cy="decline-new-event-btn"
+                    >
+                      Decline Request
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={() => navigate('/admin/dashboard')}
+                    className="w-full px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition mt-3"
+                    data-cy="return-dashboard-btn"
+                  >
+                    Return to Dashboard
+                  </button>
                 </div>
               )}
 
-              {/* Event Cancellation Request Review */}
+              {/* Cancellation Review */}
               {(isCancellationRequest || isSubmittedWithCancellation || isInProgressWithCancellation) && (
-                <div className="bg-gray-50 border rounded-lg p-6">
-                  <div data-cy="eventview-action-review-cancel">
-                    <p className="text-lg font-semibold mb-4">Review Cancellation Request</p>
-                    
-                    {selectedEvent.cancellationReason && (
-                      <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
-                        <p className="text-sm font-semibold text-gray-700 mb-1">Client's Reason:</p>
-                        <p className="text-sm text-gray-800">{selectedEvent.cancellationReason}</p>
-                      </div>
-                    )}
-
-                    <div className="mb-4">
-                      <label className="block text-gray-700 text-sm font-semibold mb-2">
-                        Response to Client <span className="text-red-500">*</span>
-                      </label>
-                      <textarea
-                        value={adminComment}
-                        onChange={(e) => setAdminComment(e.target.value)}
-                        required
-                        className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-royal-500"
-                        rows="4"
-                        placeholder="Add your response to the client's cancellation request..."
-                        data-cy="review-cancel-comment-input"
-                      />
+                <div className="bg-gray-50 border rounded-lg p-6" data-cy="eventview-action-review-cancel">
+                  <p className="text-lg font-semibold mb-4">Review Cancellation Request</p>
+                  
+                  {selectedEvent.cancellationReason && (
+                    <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
+                      <p className="text-sm font-semibold text-gray-700 mb-1">Client's Reason:</p>
+                      <p className="text-sm text-gray-800">{selectedEvent.cancellationReason}</p>
                     </div>
+                  )}
 
-                    <div className="flex gap-3">
-                      <button
-                        onClick={handleApproveCancellation}
-                        disabled={!adminComment.trim()}
-                        className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
-                        data-cy="accept-cancel-event-btn"
-                      >
-                        Accept Request
-                      </button>
-                      <button
-                        onClick={handleDenyCancellation}
-                        disabled={!adminComment.trim()}
-                        className="flex-1 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
-                        data-cy="decline-cancel-event-btn"
-                      >
-                        Decline Request
-                      </button>
-                    </div>
-
-                    <div className="flex gap-3 mt-3">
-                      <button
-                        onClick={() => navigate('/admin/dashboard')}
-                        className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
-                        data-cy="return-dashboard-btn"
-                      >
-                        Return to Dashboard
-                      </button>
-                    </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-semibold mb-2">
+                      Response to Client <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      value={adminComment}
+                      onChange={(e) => setAdminComment(e.target.value)}
+                      required
+                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-royal-500"
+                      rows="4"
+                      placeholder="Add your response to the client's cancellation request..."
+                      data-cy="review-cancel-comment-input"
+                    />
                   </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={handleApproveCancellation}
+                      disabled={!adminComment.trim()}
+                      className="w-full sm:flex-1 px-6 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      data-cy="accept-cancel-event-btn"
+                    >
+                      Accept Request
+                    </button>
+                    <button
+                      onClick={handleDenyCancellation}
+                      disabled={!adminComment.trim()}
+                      className="w-full sm:flex-1 px-6 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      data-cy="decline-cancel-event-btn"
+                    >
+                      Decline Request
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={() => navigate('/admin/dashboard')}
+                    className="w-full px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition mt-3"
+                    data-cy="return-dashboard-btn"
+                  >
+                    Return to Dashboard
+                  </button>
                 </div>
               )}
 
-              {/* Completion Request - Just show info, no actions */}
+              {/* Completion Pending */}
               {selectedEvent.completionRequest && (
                 <div className="bg-gray-50 border rounded-lg p-6">
-                  <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6">
+                  <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6 mb-4">
                     <div className="text-4xl mb-3 text-center">✅</div>
                     <h3 className="text-lg font-semibold mb-2 text-center">Completion Pending Client Review</h3>
                     <p className="text-gray-600 text-center text-sm mb-4">
@@ -554,27 +487,23 @@ const AdminEventView = () => {
                     )}
                   </div>
 
-                  <div className="flex gap-3 mt-3">
-                    <button
-                      onClick={() => navigate('/admin/dashboard')}
-                      className="flex-1 px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
-                      data-cy="return-dashboard-btn"
-                    >
-                      Return to Dashboard
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => navigate('/admin/dashboard')}
+                    className="w-full px-6 bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition"
+                    data-cy="return-dashboard-btn"
+                  >
+                    Return to Dashboard
+                  </button>
                 </div>
               )}
             </div>
           </div>
         )}
 
-        {/* Event View Activity Log - Always Visible */}
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-6" data-cy="eventview-log">
-          <h2 className="text-3xl font-display mb-2">Activity Log</h2>
-          <p className="text-gray-600 mb-6 font-serif">
-            Event history and communications
-          </p>
+        {/* Activity Log */}
+        <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8 mb-6" data-cy="eventview-log">
+          <h2 className="text-2xl sm:text-3xl font-display mb-2">Activity Log</h2>
+          <p className="text-gray-600 mb-6 font-serif">Event history and communications</p>
 
           <div className="space-y-4">
             {(!selectedEvent.activityLog || selectedEvent.activityLog.length === 0) && (
@@ -591,14 +520,10 @@ const AdminEventView = () => {
                   className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
                   data-cy={`eventview-log-${isCurrentUser ? 'right' : 'left'}`}
                 >
-                  <div className={`max-w-md ${isCurrentUser ? 'bg-royal-100' : 'bg-gray-100'} rounded-lg p-4 shadow-sm`}>
+                  <div className={`max-w-[85%] sm:max-w-md ${isCurrentUser ? 'bg-royal-100' : 'bg-gray-100'} rounded-lg p-4 shadow-sm`}>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-sm">
-                        {log.actor}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {formatTimestamp(log.timestamp)}
-                      </span>
+                      <span className="font-semibold text-sm">{log.actor}</span>
+                      <span className="text-xs text-gray-500">{formatTimestamp(log.timestamp)}</span>
                     </div>
                     <div className={`text-xs font-semibold mb-2 ${isCurrentUser ? 'text-royal-700' : 'text-gray-700'}`}>
                       {log.action}
