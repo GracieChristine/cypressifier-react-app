@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { formatDate, formatDateShort } from '../../utils/dateHelpers';
 import { loadEventsFromStorage } from '../../utils/seedData';
 
-const EventsList = () => {
+const EventList = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   
@@ -404,4 +404,4 @@ const EventsList = () => {
   );
 };
 
-export default EventsList;
+export default EventList;

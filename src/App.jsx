@@ -3,11 +3,11 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 // Layout Components
-import Navbar from './components/Layout/Navbar';
-import Footer from './components/Layout/Footer';
+import LandingPage from './components/Landing/LandingPage';
 import Login from './components/Auth/Login';
 import Signup from './components/Auth/Signup';
-import LandingPage from './components/Landing/LandingPage';
+import Navbar from './components/Layout/Navbar';
+import Footer from './components/Layout/Footer';
 
 // User Components
 import UserEventList from './components/RoleUser/EventList';
