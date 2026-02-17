@@ -10,19 +10,30 @@ const EventList = () => {
   
   const [events, setEvents] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!user) {
       setEvents([]);
+      setIsLoading(false);
       return;
     }
 
+    setIsLoading(true);
+    const startTime = Date.now();
+
     const allEvents = loadEventsFromStorage();
-    
     const userEvents = user.isAdmin
       ? allEvents
       : allEvents.filter(e => e.userId === user.id);
-    setEvents(userEvents);
+
+    const elapsed = Date.now() - startTime;
+    const remaining = Math.max(0, 700 - elapsed);
+
+    setTimeout(() => {
+      setEvents(userEvents);
+      setIsLoading(false);
+    }, remaining);
   }, [user]);
 
   const totalBudget = events
@@ -104,7 +115,17 @@ const EventList = () => {
     return icons[locationType] || '🏰';
   };
 
-  // Card renderer for upcoming events
+  const PulsingSpinner = () => (
+    <div className="flex flex-col items-center justify-center py-16">
+      <div className="flex gap-2 mb-3">
+        <div className="w-3 h-3 rounded-full bg-purple-600 animate-bounce [animation-delay:0ms]"></div>
+        <div className="w-3 h-3 rounded-full bg-pink-500 animate-bounce [animation-delay:150ms]"></div>
+        <div className="w-3 h-3 rounded-full bg-purple-600 animate-bounce [animation-delay:300ms]"></div>
+      </div>
+      <p className="text-gray-500 text-sm">Loading events...</p>
+    </div>
+  );
+
   const renderEventCard = (event, isUpcoming = false) => {
     const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
     const isSubmitted = event.status === 'Submitted';
@@ -123,9 +144,7 @@ const EventList = () => {
           <div className="flex items-start justify-between mb-3">
             <h3 className="font-bold text-lg flex-1 pr-2">{event.name}</h3>
             <div className="flex flex-col gap-1.5 items-end">
-              <span
-                className={`shrink-0 px-2 py-1 rounded text-xs font-medium ${getStatusColor(event.status)}`}
-              >
+              <span className={`shrink-0 px-2 py-1 rounded text-xs font-medium ${getStatusColor(event.status)}`}>
                 {event.status}
               </span>
               {isSubmitted && (
@@ -136,7 +155,6 @@ const EventList = () => {
                   Pending Review
                 </span>
               )}
-
               {event.cancellationRequest && (
                 <span 
                   className={`shrink-0 px-2 py-1 rounded text-xs font-medium ${getPendingBadgeStyle()}`}
@@ -145,7 +163,6 @@ const EventList = () => {
                   Pending Cancellation
                 </span>
               )}
-
               {event.completionRequest && (
                 <span 
                   className={`shrink-0 px-2 py-1 rounded text-xs font-medium ${getPendingBadgeStyle()}`}
@@ -162,7 +179,6 @@ const EventList = () => {
               <span>📅</span>
               <span>{formatDate(event.date)}</span>
             </div>
-
             <div className="flex items-center gap-2">
               <span>👥</span>
               <span>{event.guestCount} guests</span>
@@ -171,7 +187,6 @@ const EventList = () => {
           
           <div className="flex-grow"></div>
 
-          {/* Action buttons */}
           {isReadOnly || isSubmitted || event.cancellationRequest || event.completionRequest ? (
             <button
               onClick={() => navigate(`/user/events/${event.id}`)}
@@ -209,7 +224,7 @@ const EventList = () => {
         </div>
       </div>
     );
-};
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-6 px-4 sm:px-6 md:px-8" data-cy="eventlist">
@@ -221,7 +236,6 @@ const EventList = () => {
             <h1 className="text-3xl font-bold text-gray-800">My Events</h1>
             <p className="text-gray-600">Manage and track all your events</p>
           </div>
-
           <button
             onClick={() => navigate('/user/events/new')}
             className="w-full sm:w-auto bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition shadow-lg whitespace-nowrap" 
@@ -231,174 +245,153 @@ const EventList = () => {
           </button>
         </div>
 
-        {/* Upcoming Events */}
-        {(thisWeekEvents.length > 0 || nextWeekEvents.length > 0) && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6" data-cy="eventlist-upcomings">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              Upcoming Events
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {thisWeekEvents.map(event => renderEventCard(event, true))}
-              {nextWeekEvents.map(event => renderEventCard(event, true))}
-            </div>
+        {isLoading ? (
+          <div className="bg-white rounded-lg shadow-md p-4">
+            <PulsingSpinner />
           </div>
+        ) : (
+          <>
+            {(thisWeekEvents.length > 0 || nextWeekEvents.length > 0) && (
+              <div className="bg-white rounded-lg shadow-md p-6 mb-6" data-cy="eventlist-upcomings">
+                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">Upcoming Events</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {thisWeekEvents.map(event => renderEventCard(event, true))}
+                  {nextWeekEvents.map(event => renderEventCard(event, true))}
+                </div>
+              </div>
+            )}
+
+            <div className="bg-white rounded-lg shadow-md p-4 mb-6" data-cy="eventlist-filters-and-event-list">
+
+              <div className="flex gap-2 flex-wrap" data-cy="eventlist-filters">
+                {['all', 'Submitted', 'In Progress', 'Completed', 'Cancelled'].map(status => (
+                  <button
+                    key={status}
+                    onClick={() => setFilter(status)}
+                    className={`px-4 py-2 rounded transition ${
+                      filter === status 
+                        ? 'bg-purple-600 text-white' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    } flex-1 min-w-[155px]`}
+                    data-cy={`eventlist-filter-${status.toLowerCase().replace(' ', '-')}`}
+                  >
+                    {status === 'all' ? 'All' : status} ({statusCounts[status]})
+                  </button>
+                ))}
+              </div>
+              <br />
+
+              {filteredEvents.length === 0 ? (
+                <div className="p-12 text-center" data-cy="eventlist-event-list-no-entry">
+                  <div className="text-6xl mb-4">🎉</div>
+                  <h3 className="text-xl font-semibold mb-2">No events yet</h3>
+                  <p className="text-gray-600 mb-4">Create your first event to get started!</p>
+                </div>
+              ) : (
+                <div data-cy="eventlist-event-list">
+                  <div className="hidden sm:block space-y-3">
+                    {filteredEvents.map(event => {
+                      const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
+                      const isSubmitted = event.status === 'Submitted';
+                      const canCancel = event.status === 'In Progress' && !event.cancellationRequest && !event.completionRequest;
+                      
+                      return (
+                        <div
+                          key={event.id}
+                          className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition"
+                          data-cy="eventlist-event-list-entry"
+                          data-event-id={event.id}
+                        >
+                          <div className="p-4 grid grid-cols-12 gap-3 items-center">
+                            <div className="col-span-12 sm:col-span-3 md:col-span-2">
+                              <h3 className="font-semibold text-gray-900">{event.name}</h3>
+                            </div>
+                            
+                            <div className="col-span-12 sm:col-span-3 md:col-span-2">
+                              <div className="text-sm text-gray-600">{formatDate(event.date)}</div>
+                            </div>
+                            
+                            <div className="hidden md:block md:col-span-2 lg:col-span-1">
+                              <div className="text-sm text-gray-600 font-medium">{event.guestCount}</div>
+                            </div>
+
+                            <div className="hidden lg:block lg:col-span-2">
+                              <div className="text-sm text-gray-600 font-medium">
+                                ${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}
+                              </div>
+                            </div>
+                            
+                            <div className="col-span-12 sm:col-span-3 md:col-span-3 lg:col-span-2 flex flex-wrap gap-2 sm:flex-col sm:gap-1.5">
+                              <span className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getStatusColor(event.status)}`}>
+                                {event.status}
+                              </span>
+                              {isSubmitted && (
+                                <span className={`min-w-[100px] px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getPendingBadgeStyle()}`}>
+                                  Pending Review
+                                </span>
+                              )}
+                              {event.cancellationRequest && (
+                                <span className={`min-w-[100px] px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getPendingBadgeStyle()}`}>
+                                  Pending Cancellation
+                                </span>
+                              )}
+                              {event.completionRequest && (
+                                <span className={`min-w-[100px] px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getPendingBadgeStyle()}`}>
+                                  Reviewing Completion
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="col-span-12 sm:col-span-3 md:col-span-3 lg:col-span-3 flex flex-col sm:flex-row gap-2 sm:justify-end">
+                              {isReadOnly || isSubmitted || event.cancellationRequest || event.completionRequest ? (
+                                <button
+                                  onClick={() => navigate(`/user/events/${event.id}`)}
+                                  className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-medium transition whitespace-nowrap"
+                                  data-cy="eventlist-event-list-entry-view-btn"
+                                >
+                                  View
+                                </button>
+                              ) : canCancel ? (
+                                <>
+                                  <button
+                                    onClick={() => navigate(`/user/events/${event.id}/edit`)}
+                                    className="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-sm font-medium transition whitespace-nowrap"
+                                    data-cy="eventlist-event-list-entry-edit-btn"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={() => navigate(`/user/events/${event.id}`)}
+                                    className={`px-3 py-1.5 rounded text-sm font-medium transition whitespace-nowrap ${getPendingBadgeStyle()} border border-orange-500 hover:border-orange-600 hover:text-orange-700 hover:bg-orange-50`}
+                                    data-cy="eventlist-event-list-entry-cancel-btn"
+                                  >
+                                    Cancel
+                                  </button>
+                                </>
+                              ) : (
+                                <button
+                                  onClick={() => navigate(`/user/events/${event.id}/edit`)}
+                                  className="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-sm font-medium transition whitespace-nowrap"
+                                  data-cy="eventlist-event-list-entry-edit-btn"
+                                >
+                                  Edit
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="sm:hidden space-y-4">
+                    {filteredEvents.map(event => renderEventCard(event, false))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
         )}
-
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6" data-cy="eventlist-filters-and-event-list">
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">All Events</h2>
-
-          {/* Filters */}
-          <div className="flex gap-2 flex-wrap" data-cy="eventlist-filters">
-            {['all', 'Submitted', 'In Progress', 'Completed', 'Cancelled'].map(status => (
-              <button
-                key={status}
-                onClick={() => setFilter(status)}
-                className={`px-4 py-2 rounded transition ${
-                  filter === status 
-                    ? 'bg-purple-600 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                } flex-1 min-w-[155px]`}
-                data-cy={`eventlist-filter-${status.toLowerCase().replace(' ', '-')}`}
-              >
-                {status === 'all' ? 'All' : status} ({statusCounts[status]})
-              </button>
-            ))}
-          </div>
-          <br />
-
-          {/* Event Lists */}
-          {filteredEvents.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-md p-12 text-center" data-cy="eventlist-event-list-no-entry">
-              <div className="text-6xl mb-4">🎉</div>
-              <h3 className="text-xl font-semibold mb-2">No events yet</h3>
-              <p className="text-gray-600 mb-4">Create your first event to get started!</p>
-            </div>
-          ) : (
-            <div data-cy="eventlist-event-list">
-              {/* Desktop/Tablet: Table view */}
-              <div className="hidden sm:block space-y-3">
-                {filteredEvents.map(event => {
-                  const isReadOnly = event.status === 'Completed' || event.status === 'Cancelled';
-                  const isSubmitted = event.status === 'Submitted';
-                  const canCancel = event.status === 'In Progress' && !event.cancellationRequest && !event.completionRequest;
-                  
-                  return (
-                    <div
-                      key={event.id}
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition"
-                      data-cy="eventlist-event-list-entry"
-                      data-event-id={event.id}
-                    >
-                      <div className="p-4 grid grid-cols-12 gap-3 items-center">
-                        <div className="col-span-12 sm:col-span-3 md:col-span-2">
-                          <h3 className="font-semibold text-gray-900">
-                            {event.name}
-                          </h3>
-                        </div>
-                        
-                        <div className="col-span-12 sm:col-span-3 md:col-span-2">
-                          <div className="text-sm text-gray-600">
-                            {formatDate(event.date)}
-                          </div>
-                        </div>
-                        
-                        <div className="hidden md:block md:col-span-2 lg:col-span-1">
-                          <div className="text-sm text-gray-600 font-medium">
-                            {event.guestCount}
-                          </div>
-                        </div>
-
-                        <div className="hidden lg:block lg:col-span-2">
-                          <div className="text-sm text-gray-600 font-medium">
-                            ${parseInt(event.budget || event.setBudget || event.budgetTotal || 0).toLocaleString()}
-                          </div>
-                        </div>
-                        
-                        <div className="col-span-12 sm:col-span-3 md:col-span-3 lg:col-span-2 flex flex-wrap gap-2 sm:flex-col sm:gap-1.5">
-                          <span 
-                            className={`px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getStatusColor(event.status)}`}
-                          >
-                            {event.status}
-                          </span>
-
-                          {isSubmitted && (
-                            <span 
-                              className={`min-w-[100px] px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getPendingBadgeStyle()}`}
-                              title="Event submission pending review"
-                            >
-                              Pending Review
-                            </span>
-                          )}
-
-                          {event.cancellationRequest && (
-                            <span 
-                              className={`min-w-[100px] px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getPendingBadgeStyle()}`}
-                              title="Cancellation pending"
-                            >
-                              Pending Cancellation
-                            </span>
-                          )}
-                          
-                          {event.completionRequest && (
-                            <span 
-                              className={`min-w-[100px] px-3 py-1 rounded text-xs font-medium whitespace-nowrap text-center ${getPendingBadgeStyle()}`}
-                              title="Completion confirmation pending"
-                            >
-                              Reviewing Completion
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="col-span-12 sm:col-span-3 md:col-span-3 lg:col-span-3 flex flex-col sm:flex-row gap-2 sm:justify-end">
-                          {isReadOnly || isSubmitted || event.cancellationRequest || event.completionRequest ? (
-                            <button
-                              onClick={() => navigate(`/user/events/${event.id}`)}
-                              className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-medium transition whitespace-nowrap"
-                              data-cy="eventlist-event-list-entry-view-btn"
-                            >
-                              View
-                            </button>
-                          ) : canCancel ? (
-                            <>
-                              <button
-                                onClick={() => navigate(`/user/events/${event.id}/edit`)}
-                                className="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-sm font-medium transition whitespace-nowrap"
-                                data-cy="eventlist-event-list-entry-edit-btn"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => navigate(`/user/events/${event.id}`)}
-                                className={`px-3 py-1.5 rounded text-sm font-medium transition whitespace-nowrap ${getPendingBadgeStyle()} border border-orange-500 hover:border-orange-600 hover:text-orange-700 hover:bg-orange-50`}
-                                data-cy="eventlist-event-list-entry-cancel-btn"
-                              >
-                                Cancel
-                              </button>
-                            </>
-                          ) : (
-                            <button
-                              onClick={() => navigate(`/user/events/${event.id}/edit`)}
-                              className="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-sm font-medium transition whitespace-nowrap"
-                              data-cy="eventlist-event-list-entry-edit-btn"
-                            >
-                              Edit
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Mobile: Card view */}
-              <div className="sm:hidden space-y-4">
-                {filteredEvents.map(event => renderEventCard(event, false))}
-              </div>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );
