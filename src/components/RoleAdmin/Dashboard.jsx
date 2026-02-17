@@ -126,19 +126,19 @@ const AdminDashboard = () => {
         {/* Status Grid */}
         <div className="bg-white rounded-lg shadow-md p-4 mb-6" data-cy="dashboard-status">
           <div className="flex gap-2 flex-wrap">
-            <div className="px-4 py-2 rounded bg-gray-100 text-gray-700 flex-1 text-center min-w-[100px] whitespace-nowrap text-sm" data-cy="dashboard-status-box">
+            <div className="px-4 py-2 rounded bg-gray-100 text-gray-700 flex-1 text-center min-w-[110px] whitespace-nowrap text-sm" data-cy="dashboard-status-box">
               All ({statusCounts.total})
             </div>
-            <div className="px-4 py-2 rounded bg-blue-100 text-blue-700 flex-1 text-center min-w-[100px] whitespace-nowrap text-sm" data-cy="dashboard-status-box">
+            <div className="px-4 py-2 rounded bg-blue-100 text-blue-700 flex-1 text-center min-w-[110px] whitespace-nowrap text-sm" data-cy="dashboard-status-box">
               Submitted ({statusCounts.submitted})
             </div>
-            <div className="px-4 py-2 rounded bg-yellow-100 text-yellow-700 flex-1 text-center min-w-[100px] whitespace-nowrap text-sm" data-cy="dashboard-status-box">
+            <div className="px-4 py-2 rounded bg-yellow-100 text-yellow-700 flex-1 text-center min-w-[110px] whitespace-nowrap text-sm" data-cy="dashboard-status-box">
               In Progress ({statusCounts.inProgress})
             </div>
-            <div className="px-4 py-2 rounded bg-green-100 text-green-700 flex-1 text-center min-w-[100px] whitespace-nowrap text-sm" data-cy="dashboard-status-box">
+            <div className="px-4 py-2 rounded bg-green-100 text-green-700 flex-1 text-center min-w-[110px] whitespace-nowrap text-sm" data-cy="dashboard-status-box">
               Completed ({statusCounts.completed})
             </div>
-            <div className="px-4 py-2 rounded bg-red-100 text-red-700 flex-1 text-center min-w-[100px] whitespace-nowrap text-sm" data-cy="dashboard-status-box">
+            <div className="px-4 py-2 rounded bg-red-100 text-red-700 flex-1 text-center min-w-[110px] whitespace-nowrap text-sm" data-cy="dashboard-status-box">
               Cancelled ({statusCounts.cancelled})
             </div>
           </div>
