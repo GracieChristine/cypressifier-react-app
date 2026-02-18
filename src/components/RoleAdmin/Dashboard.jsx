@@ -7,6 +7,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [emptyStateIndex] = useState(() => Math.floor(Math.random() * 3));
 
   useEffect(() => {
     const loadEvents = () => {
@@ -59,10 +60,7 @@ const AdminDashboard = () => {
 
     loadEvents();
     window.addEventListener('focus', loadEvents);
-    
-    return () => {
-      window.removeEventListener('focus', loadEvents);
-    };
+    return () => window.removeEventListener('focus', loadEvents);
   }, []);
   
   const statusCounts = {
@@ -99,6 +97,146 @@ const AdminDashboard = () => {
       <p className="text-gray-500 text-sm">Loading events...</p>
     </div>
   );
+
+  const SleepyMailboxEmpty = () => (
+    <tr data-cy="dashboard-table-no-entry">
+      <td colSpan="7" className="px-6 py-16 text-center">
+        <style>{`
+          @keyframes sleepySway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+          }
+          @keyframes floatZzz {
+            0% { opacity: 0; transform: translateY(0) translateX(0); }
+            50% { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-20px) translateX(8px); }
+          }
+          .mailbox-svg { animation: sleepySway 3s ease-in-out infinite; transform-origin: bottom center; }
+          .zzz { display: inline-block; animation: floatZzz 2s ease-in-out infinite; font-style: italic; font-weight: 700; color: #a3a3a3; }
+          .zzz:nth-child(1) { animation-delay: 0s; font-size: 12px; }
+          .zzz:nth-child(2) { animation-delay: 0.4s; font-size: 16px; }
+          .zzz:nth-child(3) { animation-delay: 0.8s; font-size: 20px; }
+        `}</style>
+        
+        <div className="flex flex-col items-center">
+          <div className="mb-4 flex items-start gap-2">
+            <svg className="mailbox-svg" width="80" height="100" viewBox="0 0 80 100" fill="none">
+              <rect x="36" y="60" width="8" height="35" rx="2" fill="#8B7355"/>
+              <rect x="10" y="35" width="60" height="35" rx="6" fill="#E8D5B7"/>
+              <rect x="10" y="35" width="60" height="35" rx="6" stroke="#C4A882" strokeWidth="2"/>
+              <path d="M10 50 Q10 30 40 28 Q70 30 70 50" fill="#D4B896" stroke="#C4A882" strokeWidth="2"/>
+              <rect x="22" y="52" width="36" height="5" rx="2.5" fill="#8B7355"/>
+              <rect x="15" y="42" width="25" height="22" rx="3" fill="#C4A882" stroke="#A88B6A" strokeWidth="1.5"/>
+              <path d="M60 36 L70 46 M65 36 L70 46 M60 41 L70 46" stroke="#ccc" strokeWidth="1" opacity="0.7"/>
+              <circle cx="70" cy="46" r="2" fill="#999" opacity="0.5"/>
+              <path d="M20 50 Q23 48 26 50" stroke="#8B7355" strokeWidth="1.5" fill="none"/>
+              <path d="M28 49 Q31 47 34 49" stroke="#8B7355" strokeWidth="1.5" fill="none"/>
+              <path d="M22 54 Q27 57 32 54" stroke="#8B7355" strokeWidth="1.5" fill="none"/>
+            </svg>
+            <div className="mt-8">
+              <span className="zzz">z</span>
+              <span className="zzz">z</span>
+              <span className="zzz">Z</span>
+            </div>
+          </div>
+          
+          <h3 className="text-xl font-bold text-gray-700 mb-2">No mail today... ☕</h3>
+          <p className="text-gray-500 text-sm mb-1">Nothing to review — go grab a coffee!</p>
+          <p className="text-gray-400 text-xs italic">Events will appear here once users submit them.</p>
+        </div>
+      </td>
+    </tr>
+  );
+
+  const TumbleweedEmpty = () => (
+    <tr data-cy="dashboard-table-no-entry">
+      <td colSpan="7" className="px-6 py-16 text-center">
+        <style>{`
+          @keyframes roll {
+            0% { left: -10%; transform: translateY(-50%) rotate(0deg); }
+            100% { left: 110%; transform: translateY(-50%) rotate(720deg); }
+          }
+          @keyframes heatShimmer {
+            0%, 100% { transform: scaleY(1); opacity: 0.5; }
+            50% { transform: scaleY(1.1); opacity: 1; }
+          }
+          .tumbleweed { animation: roll 3s linear infinite; }
+          .heat-wave { animation: heatShimmer 2s ease-in-out infinite; display: inline-block; }
+        `}</style>
+        
+        <div className="flex flex-col items-center">
+          <div className="text-3xl mb-2">
+            <span className="heat-wave">🌵</span>
+            <span className="mx-12"></span>
+            <span className="heat-wave" style={{ animationDelay: '0.5s' }}>🌵</span>
+          </div>
+          
+          <div className="relative w-full max-w-md h-20 overflow-hidden mb-4">
+            <div className="tumbleweed absolute text-4xl top-1/2">🌾</div>
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-amber-300 to-transparent"></div>
+          </div>
+          
+          <h3 className="text-xl font-bold text-gray-700 mb-2">It's quiet... too quiet.</h3>
+          <p className="text-gray-500 text-sm mb-1">No events submitted yet. Enjoy the calm before the storm!</p>
+          <p className="text-gray-400 text-xs italic">Users haven't created any events yet.</p>
+        </div>
+      </td>
+    </tr>
+  );
+
+  const BoredAdminEmpty = () => (
+    <tr data-cy="dashboard-table-no-entry">
+      <td colSpan="7" className="px-6 py-16 text-center">
+        <style>{`
+          @keyframes nod {
+            0%, 100% { transform: rotate(0deg); }
+            10% { transform: rotate(-3deg); }
+            20% { transform: rotate(0deg); }
+            30% { transform: rotate(-3deg); }
+            40% { transform: rotate(0deg); }
+            70% { transform: rotate(0deg); }
+          }
+          .desk-scene { animation: nod 4s ease-in-out infinite; transform-origin: bottom center; }
+        `}</style>
+        
+        <div className="flex flex-col items-center">
+          <svg className="desk-scene mb-4" width="100" height="90" viewBox="0 0 100 90" fill="none">
+            <rect x="5" y="65" width="90" height="8" rx="3" fill="#8B7355"/>
+            <rect x="10" y="73" width="6" height="15" rx="2" fill="#A0826D"/>
+            <rect x="84" y="73" width="6" height="15" rx="2" fill="#A0826D"/>
+            <rect x="30" y="35" width="40" height="28" rx="3" fill="#374151"/>
+            <rect x="33" y="38" width="34" height="20" rx="2" fill="#1F2937"/>
+            <rect x="36" y="41" width="20" height="2" rx="1" fill="#374151"/>
+            <rect x="36" y="45" width="15" height="2" rx="1" fill="#374151"/>
+            <rect x="36" y="49" width="18" height="2" rx="1" fill="#374151"/>
+            <rect x="47" y="63" width="6" height="4" rx="1" fill="#374151"/>
+            <rect x="42" y="66" width="16" height="2" rx="1" fill="#6B7280"/>
+            <circle cx="22" cy="48" r="12" fill="#FBBF24"/>
+            <path d="M17 46 Q19 44 21 46" stroke="#92400E" strokeWidth="1.5" fill="none"/>
+            <circle cx="26" cy="46" r="1.5" fill="#92400E"/>
+            <path d="M24 44 Q26 45 28 44" stroke="#92400E" strokeWidth="1" fill="#FBBF24" opacity="0.7"/>
+            <path d="M17 52 L26 52" stroke="#92400E" strokeWidth="1.5"/>
+            <path d="M16 58 Q18 56 22 60" stroke="#FBBF24" strokeWidth="6" strokeLinecap="round" fill="none"/>
+            <rect x="68" y="55" width="14" height="10" rx="2" fill="#EF4444"/>
+            <path d="M82 59 Q86 59 86 62 Q86 65 82 65" stroke="#EF4444" strokeWidth="2" fill="none"/>
+            <rect x="70" y="57" width="10" height="2" rx="1" fill="white" opacity="0.4"/>
+            <path d="M72 54 Q73 51 72 48" stroke="#9CA3AF" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.6"/>
+            <path d="M77 54 Q78 50 77 47" stroke="#9CA3AF" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.6"/>
+          </svg>
+          
+          <h3 className="text-xl font-bold text-gray-700 mb-2">Nothing to see here... yet!</h3>
+          <p className="text-gray-500 text-sm mb-1">When users create events, they'll show up right here.</p>
+          <p className="text-gray-400 text-xs italic">Maybe check back after lunch? ☕</p>
+        </div>
+      </td>
+    </tr>
+  );
+
+  const EmptyStateSelector = () => {
+    if (emptyStateIndex === 0) return <SleepyMailboxEmpty />;
+    if (emptyStateIndex === 1) return <TumbleweedEmpty />;
+    return <BoredAdminEmpty />;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-elegant-50 to-royal-50/30 py-6 px-4 sm:px-6 md:px-8" data-cy="dashboard">
@@ -184,11 +322,7 @@ const AdminDashboard = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {events.length === 0 ? (
-                    <tr data-cy="dashboard-table-no-entry">
-                      <td colSpan="7" className="px-6 py-12 text-center text-gray-500 font-serif">
-                        No events yet
-                      </td>
-                    </tr>
+                    <EmptyStateSelector />
                   ) : (
                     events.map(event => {
                       const isActiveInProgress = event.status === 'In Progress' && !event.cancellationRequest && !event.completionRequest;
