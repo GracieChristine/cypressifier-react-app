@@ -11,6 +11,7 @@ const EventList = () => {
   const [events, setEvents] = useState([]);
   const [filter, setFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
+  const [emptyStateIndex] = useState(() => Math.floor(Math.random() * 2));
 
   useEffect(() => {
     if (!user) {
@@ -123,6 +124,137 @@ const EventList = () => {
         <div className="w-3 h-3 rounded-full bg-purple-600 animate-bounce [animation-delay:300ms]"></div>
       </div>
       <p className="text-gray-500 text-sm">Loading events...</p>
+    </div>
+  );
+
+  const CalendarWallEmpty = () => (
+    <div className="relative min-h-[450px] flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50 to-sky-100 rounded-lg p-8">
+      <style>{`
+        @keyframes calendarPop {
+          0%, 70% { transform: scale(1); }
+          80% { transform: scale(1.1); }
+          90%, 100% { transform: scale(1); }
+        }
+        @keyframes questionPulse {
+          0%, 100% { opacity: 0.1; transform: translate(-50%, -50%) scale(1); }
+          50% { opacity: 0.2; transform: translate(-50%, -50%) scale(1.1); }
+        }
+        .mini-calendar { animation: calendarPop 3s ease-in-out infinite; }
+        .mini-calendar:nth-child(1) { animation-delay: 0s; }
+        .mini-calendar:nth-child(2) { animation-delay: 0.2s; }
+        .mini-calendar:nth-child(3) { animation-delay: 0.4s; }
+        .mini-calendar:nth-child(4) { animation-delay: 0.6s; }
+        .mini-calendar:nth-child(5) { animation-delay: 0.8s; }
+        .mini-calendar:nth-child(6) { animation-delay: 1s; }
+        .mini-calendar:nth-child(7) { animation-delay: 1.2s; }
+        .mini-calendar:nth-child(8) { animation-delay: 1.4s; }
+      `}</style>
+      
+      <div className="absolute top-1/2 left-1/2 text-[120px] opacity-10 select-none" style={{ animation: 'questionPulse 3s ease-in-out infinite', transform: 'translate(-50%, -50%)' }}>
+        ?
+      </div>
+      
+      <div className="grid grid-cols-4 gap-4 mb-8 relative z-10">
+        {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'].map((month, i) => (
+          <div key={month} className="mini-calendar bg-white rounded-lg p-3 shadow-md">
+            <div className="h-2 bg-blue-500 rounded-t mb-2 -mx-3 -mt-3"></div>
+            <div className="text-2xl font-bold text-blue-900 text-center">?</div>
+            <div className="text-[8px] text-center text-blue-600 font-bold uppercase mt-1">{month}</div>
+          </div>
+        ))}
+      </div>
+      
+      <div className="text-center relative z-10">
+        <h3 className="text-3xl font-bold text-gray-800 mb-3">Pick Your Perfect Date!</h3>
+        <p className="text-gray-600 mb-6 max-w-sm mx-auto leading-relaxed">
+          A whole year of possibilities awaits. Which date will become unforgettable?
+        </p>
+        <button
+          onClick={() => navigate('/user/events/new')}
+          className="px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-bold shadow-lg"
+        >
+          + Choose Your Date
+        </button>
+      </div>
+    </div>
+  );
+
+  const PartyRoomEmpty = () => (
+    <div className="relative min-h-[450px] flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-purple-50 to-pink-100 rounded-lg p-8">
+      <style>{`
+        @keyframes confettiFall {
+          0% { top: -10px; transform: rotate(0deg); }
+          100% { top: 100%; transform: rotate(720deg); }
+        }
+        @keyframes balloonBob {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-15px); }
+        }
+        .confetti-bit { animation: confettiFall 3s linear infinite; }
+        .single-balloon { animation: balloonBob 3s ease-in-out infinite; position: relative; }
+        .single-balloon:nth-child(1) { animation-delay: 0s; }
+        .single-balloon:nth-child(2) { animation-delay: 0.5s; }
+        .single-balloon:nth-child(3) { animation-delay: 1s; }
+      `}</style>
+      
+      {/* Confetti */}
+      <div className="absolute w-full h-full overflow-hidden pointer-events-none">
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={i}
+            className="confetti-bit absolute w-3 h-3 rounded"
+            style={{
+              left: `${10 + i * 12}%`,
+              background: ['#ec4899', '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'][i % 6],
+              animationDelay: `${i * 0.3}s`,
+              borderRadius: i % 2 === 0 ? '50%' : '2px'
+            }}
+          />
+        ))}
+      </div>
+      
+      {/* Balloons */}
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 flex gap-3 text-5xl z-10">
+        <div className="single-balloon">
+          🎈
+          <div className="absolute top-full left-1/2 -translate-x-1/2 w-0.5 h-20 bg-gray-400"></div>
+        </div>
+        <div className="single-balloon">
+          🎈
+          <div className="absolute top-full left-1/2 -translate-x-1/2 w-0.5 h-20 bg-gray-400"></div>
+        </div>
+        <div className="single-balloon">
+          🎈
+          <div className="absolute top-full left-1/2 -translate-x-1/2 w-0.5 h-20 bg-gray-400"></div>
+        </div>
+      </div>
+      
+      <div className="text-center relative z-10 mt-48">
+        <h3 className="text-3xl font-bold text-gray-800 mb-3">The Party Starts With You!</h3>
+        <p className="text-gray-600 mb-6 max-w-sm mx-auto leading-relaxed">
+          The room is decorated, the confetti is ready. All that's missing is your celebration.
+        </p>
+        <button
+          onClick={() => navigate('/user/events/new')}
+          className="px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-bold shadow-lg"
+        >
+          + Let's Celebrate
+        </button>
+      </div>
+    </div>
+  );
+
+  const FilteredEmpty = () => (
+    <div className="p-12 text-center bg-gray-50 rounded-lg">
+      <div className="text-5xl mb-4">🔍</div>
+      <h3 className="text-xl font-semibold mb-2 text-gray-800">No events found</h3>
+      <p className="text-gray-600 mb-4">No events match this filter. Try a different status or create a new event.</p>
+      <button
+        onClick={() => navigate('/user/events/new')}
+        className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm font-semibold"
+      >
+        + Create Event
+      </button>
     </div>
   );
 
@@ -282,10 +414,12 @@ const EventList = () => {
               <br />
 
               {filteredEvents.length === 0 ? (
-                <div className="p-12 text-center" data-cy="eventlist-event-list-no-entry">
-                  <div className="text-6xl mb-4">🎉</div>
-                  <h3 className="text-xl font-semibold mb-2">No events yet</h3>
-                  <p className="text-gray-600 mb-4">Create your first event to get started!</p>
+                <div data-cy="eventlist-event-list-no-entry">
+                  {events.length === 0 ? (
+                    emptyStateIndex === 0 ? <CalendarWallEmpty /> : <PartyRoomEmpty />
+                  ) : (
+                    <FilteredEmpty />
+                  )}
                 </div>
               ) : (
                 <div data-cy="eventlist-event-list">
